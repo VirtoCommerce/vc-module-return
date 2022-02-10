@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module>
+    <id>VirtoCommerce.Return</id>
+    <version>3.200.0</version>
+    <version-tag></version-tag>
+    <platformVersion>3.200.0</platformVersion>
+    <dependencies>
+<!--        <dependency id="VirtoCommerce.Core" version="3.200.0" /> -->
+    </dependencies>
+
+    <title>VirtoCommerce Return extension module</title>
+    <description>VirtoCommerce Return extension module</description>
+
+    <authors>
+        <author>Leysan Nigmatullina</author>
+    </authors>
+    <owners>
+        <owner>VirtoCommerce</owner>
+    </owners>
+
+    <assemblyFile>VirtoCommerce.Return.Web.dll</assemblyFile>
+    <moduleType>VirtoCommerce.Return.Web.Module, VirtoCommerce.Return.Web</moduleType>
+
+    <releaseNotes>First version.</releaseNotes>
+    <copyright>Copyright © 2022 VirtoCommerce. All rights reserved</copyright>
+    <tags>extension module</tags>
+
+</module>
+
+

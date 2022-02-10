@@ -1,0 +1,52 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 16
+VisualStudioVersion = 16.0.29920.165
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CFC1B42A-2604-4030-BD28-7706B47C6365}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{60C5F34E-58CA-43A7-AFAF-57F20755E996}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VirtoCommerce.Return.Web", "src\VirtoCommerce.Return.Web\VirtoCommerce.Return.Web.csproj", "{0C936893-F59C-4449-979F-345818E44CD1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VirtoCommerce.Return.Data", "src\VirtoCommerce.Return.Data\VirtoCommerce.Return.Data.csproj", "{9AD37AFE-071E-4019-9668-BEE1B1F2F456}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VirtoCommerce.Return.Tests", "tests\VirtoCommerce.Return.Tests\VirtoCommerce.Return.Tests.csproj", "{827AD907-0F47-41BD-8DAE-A14BDEDECDB4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VirtoCommerce.Return.Core", "src\VirtoCommerce.Return.Core\VirtoCommerce.Return.Core.csproj", "{BC5D2641-ADB8-4DC6-A848-862F149E6663}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0C936893-F59C-4449-979F-345818E44CD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C936893-F59C-4449-979F-345818E44CD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C936893-F59C-4449-979F-345818E44CD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C936893-F59C-4449-979F-345818E44CD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AD37AFE-071E-4019-9668-BEE1B1F2F456}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AD37AFE-071E-4019-9668-BEE1B1F2F456}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AD37AFE-071E-4019-9668-BEE1B1F2F456}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AD37AFE-071E-4019-9668-BEE1B1F2F456}.Release|Any CPU.Build.0 = Release|Any CPU
+		{827AD907-0F47-41BD-8DAE-A14BDEDECDB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{827AD907-0F47-41BD-8DAE-A14BDEDECDB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{827AD907-0F47-41BD-8DAE-A14BDEDECDB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{827AD907-0F47-41BD-8DAE-A14BDEDECDB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC5D2641-ADB8-4DC6-A848-862F149E6663}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC5D2641-ADB8-4DC6-A848-862F149E6663}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC5D2641-ADB8-4DC6-A848-862F149E6663}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC5D2641-ADB8-4DC6-A848-862F149E6663}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+    GlobalSection(NestedProjects) = preSolution
+		{0C936893-F59C-4449-979F-345818E44CD1} = {CFC1B42A-2604-4030-BD28-7706B47C6365}
+		{9AD37AFE-071E-4019-9668-BEE1B1F2F456} = {CFC1B42A-2604-4030-BD28-7706B47C6365}
+		{BC5D2641-ADB8-4DC6-A848-862F149E6663} = {CFC1B42A-2604-4030-BD28-7706B47C6365}
+		{827AD907-0F47-41BD-8DAE-A14BDEDECDB4} = {60C5F34E-58CA-43A7-AFAF-57F20755E996}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		241988EE-4229-43D8-8E68-1052253C426B = {241988EE-4229-43D8-8E68-1052253C426B}
+	EndGlobalSection
+EndGlobal
