@@ -11,8 +11,6 @@ using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.Data.Services;
 using System;
-using VirtoCommerce.ReturnModule.Core.Models;
-using VirtoCommerce.Platform.Core.GenericCrud;
 
 namespace VirtoCommerce.ReturnModule.Web
 {
