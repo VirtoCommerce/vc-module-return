@@ -25,12 +25,7 @@ namespace VirtoCommerce.ReturnModule.Data.Repositories
         public virtual async Task<ICollection<ReturnEntity>> GetReturnsByIdsAsync(IEnumerable<string> returnIds, string responseGroup = null)
         {
             var result = await Returns.Where(x => returnIds.Contains(x.Id)).ToListAsync();
-            var returnResponseGroup = EnumUtility.SafeParseFlags(responseGroup, ReturnResponseGroup.WithLineItems);
-
-            if (returnResponseGroup.HasFlag(ReturnResponseGroup.WithLineItems))
-            {
-                await ReturnLineItems.Where(x => returnIds.Contains(x.ReturnId)).LoadAsync();
-            }
+            await ReturnLineItems.Where(x => returnIds.Contains(x.ReturnId)).LoadAsync();
 
             return result;
         }

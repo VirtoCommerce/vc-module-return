@@ -1,12 +1,11 @@
-angular.module('returnModule')
-    .controller('returnModule.returnListController', ['$scope', 'Return.webApi', 'platformWebApp.bladeUtils', 'platformWebApp.uiGridHelper', 'platformWebApp.ui-grid.extension',
+angular.module('virtoCommerce.returnModule')
+    .controller('virtoCommerce.returnModule.returnListController', ['$scope', 'virtoCommerce.returnModule.returns', 'platformWebApp.bladeUtils', 'platformWebApp.uiGridHelper', 'platformWebApp.ui-grid.extension',
         function ($scope, returns, bladeUtils, uiGridHelper, gridOptionExtension) {
             $scope.uiGridConstants = uiGridHelper.uiGridConstants;
 
             var blade = $scope.blade;
             blade.title = 'return.blades.return-list.title';
             blade.headIcon = 'fa fa-exchange';
-            var bladeNavigationService = bladeUtils.bladeNavigationService;
 
             blade.refresh = function () {
                 blade.isLoading = true;
@@ -32,26 +31,12 @@ angular.module('returnModule')
                                     orderReturn.customerName = '';
                                 }
 
-                                orderReturn.itemsCount = orderReturn.returnLineItems.length ?? 0;
+                                orderReturn.itemsCount = orderReturn.lineItems.length ?? 0;
                             });
                         }
 
                         $scope.listEntries = data.results ? data.results : [];
                     });
-            };
-
-            blade.selectNode = function (data) {
-                $scope.selectedNodeId = data.id;
-
-                var newBlade = {
-                    id: 'returnDetail',
-                    currentEntityId: data.id,
-                    currentEntity: data,
-                    title: data.returnNumber,
-                    controller: 'returnModule.returnDetailController',
-                    template: 'Modules/$(VirtoCommerce.Return)/Scripts/blades/return-detail.tpl.html',
-                };
-                bladeNavigationService.showBlade(newBlade, blade);
             };
 
             blade.toolbarCommands = [
@@ -86,7 +71,7 @@ angular.module('returnModule')
             function getSearchCriteria() {
                 return {
                     keyword: blade.searchKeyword,
-                    responseGroup: "WithOrders, WithLineItems",
+                    responseGroup: "WithOrders",
                     sort: uiGridHelper.getSortExpression($scope),
                     skip: ($scope.pageSettings.currentPage - 1) * $scope.pageSettings.itemsPerPageCount,
                     take: $scope.pageSettings.itemsPerPageCount

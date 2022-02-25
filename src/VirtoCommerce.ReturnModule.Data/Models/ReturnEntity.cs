@@ -12,13 +12,16 @@ namespace VirtoCommerce.ReturnModule.Data.Models
     {
         [Required]
         [StringLength(64)]
-        public string ReturnNumber { get; set; }
+        public string Number { get; set; }
 
+        [Required]
+        [StringLength(128)]
         public string OrderId { get; set; }
 
-        public string ReturnStatus { get; set; }
+        [StringLength(64)]
+        public string Status { get; set; }
 
-        public virtual ObservableCollection<ReturnLineItemEntity> ReturnLineItems { get; set; } = new NullCollection<ReturnLineItemEntity>();
+        public virtual ObservableCollection<ReturnLineItemEntity> LineItems { get; set; } = new NullCollection<ReturnLineItemEntity>();
 
         public virtual Return ToModel(Return model)
         {
@@ -31,11 +34,11 @@ namespace VirtoCommerce.ReturnModule.Data.Models
             model.ModifiedBy = ModifiedBy;
             model.ModifiedDate = ModifiedDate;
 
-            model.ReturnNumber = ReturnNumber;
+            model.Number = Number;
             model.OrderId = OrderId;
-            model.ReturnStatus = ReturnStatus;
+            model.Status = Status;
 
-            model.ReturnLineItems = ReturnLineItems.Select(x => x.ToModel(AbstractTypeFactory<ReturnLineItem>.TryCreateInstance())).ToList();
+            model.LineItems = LineItems.Select(x => x.ToModel(AbstractTypeFactory<ReturnLineItem>.TryCreateInstance())).ToList();
 
             return model;
         }
@@ -53,13 +56,13 @@ namespace VirtoCommerce.ReturnModule.Data.Models
             ModifiedBy = model.ModifiedBy;
             ModifiedDate = model.ModifiedDate;
 
-            ReturnNumber = model.ReturnNumber;
+            Number = model.Number;
             OrderId = model.OrderId;
-            ReturnStatus = model.ReturnStatus;
+            Status = model.Status;
 
-            if (model.ReturnLineItems != null)
+            if (model.LineItems != null)
             {
-                ReturnLineItems = new ObservableCollection<ReturnLineItemEntity>(model.ReturnLineItems
+                LineItems = new ObservableCollection<ReturnLineItemEntity>(model.LineItems
                     .Select(x => AbstractTypeFactory<ReturnLineItemEntity>.TryCreateInstance().FromModel(x, pkMap))
                     .OfType<ReturnLineItemEntity>());
             }
@@ -72,13 +75,13 @@ namespace VirtoCommerce.ReturnModule.Data.Models
             if (target == null)
                 throw new ArgumentNullException(nameof(target));
 
-            target.ReturnNumber = ReturnNumber;
+            target.Number = Number;
             target.OrderId = OrderId;
-            target.ReturnStatus = ReturnStatus;
+            target.Status = Status;
 
-            if (!ReturnLineItems.IsNullCollection())
+            if (!LineItems.IsNullCollection())
             {
-                ReturnLineItems.Patch(target.ReturnLineItems, (sourceItem, targetItem) => sourceItem.Patch(targetItem));
+                LineItems.Patch(target.LineItems, (sourceItem, targetItem) => sourceItem.Patch(targetItem));
             }
         }
     }

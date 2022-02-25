@@ -1,12 +1,12 @@
-var moduleName = 'returnModule';
+var moduleName = 'virtoCommerce.returnModule';
 
 if (AppDependencies !== undefined) {
     AppDependencies.push(moduleName);
 }
 
 angular.module(moduleName, [])
-    .config(['$stateProvider', '$urlRouterProvider',
-        function ($stateProvider, $urlRouterProvider) {
+    .config(
+        ['$stateProvider', function ($stateProvider) {
             $stateProvider
                 .state('workspace.ReturnState', {
                     url: '/Return',
@@ -15,7 +15,7 @@ angular.module(moduleName, [])
                         '$scope', 'platformWebApp.bladeNavigationService', function ($scope, bladeNavigationService) {
                             var newBlade = {
                                 id: 'blade',
-                                controller: 'returnModule.returnListController',
+                                controller: 'virtoCommerce.returnModule.returnListController',
                                 template: 'Modules/$(VirtoCommerce.Return)/Scripts/blades/return-list.tpl.html',
                                 isClosingDisabled: true
                             };
@@ -23,8 +23,8 @@ angular.module(moduleName, [])
                         }
                     ]
                 });
-        }
-    ])
+        }]
+    )
     .run(['platformWebApp.mainMenuService', 'platformWebApp.widgetService', '$state',
         function (mainMenuService, widgetService, $state) {
             //Register module in main menu

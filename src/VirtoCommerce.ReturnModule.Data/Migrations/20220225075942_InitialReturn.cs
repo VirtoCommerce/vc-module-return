@@ -14,9 +14,9 @@ namespace VirtoCommerce.ReturnModule.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    ReturnNumber = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
-                    OrderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ReturnStatus = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Number = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
+                    OrderId = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: true),

@@ -1,6 +1,6 @@
-angular.module('returnModule')
-    .factory('Return.webApi', ['$resource', function ($resource) {
-        return $resource('api/return', {}, {
+angular.module('virtoCommerce.returnModule')
+    .factory('virtoCommerce.returnModule.returns', ['$resource', function ($resource) {
+        return $resource('api/returns', {}, {
             search: { method: 'POST', url: 'api/return/search' }
         });
     }]);

@@ -8,22 +8,22 @@ namespace VirtoCommerce.ReturnModule.Core.Models
 {
     public class Return : AuditableEntity, ICloneable
     {
-        public string ReturnNumber { get; set; }
+        public string Number { get; set; }
 
         public string OrderId { get; set; }
 
-        public string ReturnStatus { get; set; }
+        public string Status { get; set; }
 
         public CustomerOrder Order { get; set; }
 
-        public ICollection<ReturnLineItem> ReturnLineItems { get; set; }
+        public ICollection<ReturnLineItem> LineItems { get; set; }
 
         #region ICloneable Members
 
         public virtual object Clone()
         {
             var result = MemberwiseClone() as Return;
-            result.ReturnLineItems = ReturnLineItems?.Select(x => x.Clone()).OfType<ReturnLineItem>().ToList();
+            result.LineItems = LineItems?.Select(x => x.Clone()).OfType<ReturnLineItem>().ToList();
 
             return result;
         }

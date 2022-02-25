@@ -2,7 +2,7 @@
     <div class="form-group">
         <div style="display: flex;align-items: center;">
             <div class="form-input" style="flex-grow: 1;">
-                <div class="form-input __other">
+                <div class="form-input __search">
                     <input placeholder="{{ 'platform.placeholders.search-keyword' | translate }}" ng-model="blade.searchKeyword" ng-keyup="$event.which === 13 && blade.refresh()" style="width: 80%;" />
                     <button class="btn __other" type="button" style="position: relative;right: 45px;">
                         <i class="btn-ico fa fa-remove" title="Clear" ng-click="clearKeyword()"></i>
@@ -22,13 +22,13 @@
                     rowTemplate: 'return-list.row.html',
                     rowHeight: 61,
                     columnDefs: [
-                                { name: 'returnNumber', displayName: 'return.blades.return-list.labels.return-number', sort: { direction: uiGridConstants.ASC } },
+                                { name: 'number', displayName: 'return.blades.return-list.labels.return-number', sort: { direction: uiGridConstants.ASC } },
                                 { name: 'orderNumber', displayName: 'return.blades.return-list.labels.order-number', enableSorting: false },
                                 { name: 'customerName', displayName: 'return.blades.return-list.labels.customer-name', enableSorting: false },
-                                { name: 'returnStatus', displayName: 'return.blades.return-list.labels.return-status', sort: { direction: uiGridConstants.ASC } },
-                                { name: 'createdDate', displayName: 'return.blades.return-list.labels.created-date', sort: { direction: uiGridConstants.ASC } },
-                                { name: 'modifiedDate', displayName: 'return.blades.return-list.labels.modified-date', sort: { direction: uiGridConstants.ASC } },
-                                { name: 'createdBy', displayName: 'return.blades.return-list.labels.created-by', sort: { direction: uiGridConstants.ASC } },
+                                { name: 'status', displayName: 'return.blades.return-list.labels.return-status'},
+                                { name: 'createdDate', displayName: 'return.blades.return-list.labels.created-date'},
+                                { name: 'modifiedDate', displayName: 'return.blades.return-list.labels.modified-date'},
+                                { name: 'createdBy', displayName: 'return.blades.return-list.labels.created-by'},
                                 { name: 'itemsCount', displayName: 'return.blades.return-list.labels.items-count', enableSorting: false }
                         ]})">
             <div class="note" ng-if="!listEntries.length">{{ 'platform.list.no-data' | translate }}</div>

@@ -7,8 +7,6 @@ namespace VirtoCommerce.ReturnModule.Core.Models
     {
         None = 0,
 
-        WithOrders = 1,
-
-        WithLineItems = 2
+        WithOrders = 1
     }
 }

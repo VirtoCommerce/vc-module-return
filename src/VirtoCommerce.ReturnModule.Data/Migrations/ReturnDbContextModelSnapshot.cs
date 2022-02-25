@@ -43,16 +43,19 @@ namespace VirtoCommerce.ReturnModule.Data.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("OrderId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ReturnNumber")
+                    b.Property<string>("Number")
                         .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
 
-                    b.Property<string>("ReturnStatus")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("OrderId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.HasKey("Id");
 
@@ -100,7 +103,7 @@ namespace VirtoCommerce.ReturnModule.Data.Migrations
             modelBuilder.Entity("VirtoCommerce.ReturnModule.Data.Models.ReturnLineItemEntity", b =>
                 {
                     b.HasOne("VirtoCommerce.ReturnModule.Data.Models.ReturnEntity", "Return")
-                        .WithMany("ReturnLineItems")
+                        .WithMany("LineItems")
                         .HasForeignKey("ReturnId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -110,7 +113,7 @@ namespace VirtoCommerce.ReturnModule.Data.Migrations
 
             modelBuilder.Entity("VirtoCommerce.ReturnModule.Data.Models.ReturnEntity", b =>
                 {
-                    b.Navigation("ReturnLineItems");
+                    b.Navigation("LineItems");
                 });
 #pragma warning restore 612, 618
         }

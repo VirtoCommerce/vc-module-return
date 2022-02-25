@@ -29,7 +29,7 @@ namespace VirtoCommerce.ReturnModule.Data.Repositories
 
             modelBuilder.Entity<ReturnLineItemEntity>().ToTable("ReturnLineItem").HasKey(x => x.Id);
             modelBuilder.Entity<ReturnLineItemEntity>().Property(x => x.Id).HasMaxLength(128).ValueGeneratedOnAdd();
-            modelBuilder.Entity<ReturnLineItemEntity>().HasOne(x => x.Return).WithMany(x => x.ReturnLineItems)
+            modelBuilder.Entity<ReturnLineItemEntity>().HasOne(x => x.Return).WithMany(x => x.LineItems)
                 .HasForeignKey(x => x.ReturnId).OnDelete(DeleteBehavior.Cascade);
 
             #endregion ReturnLineItem

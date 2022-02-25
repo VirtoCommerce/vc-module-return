@@ -46,7 +46,7 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             {
                 sortInfos = new[]
                 {
-                    new SortInfo { SortColumn = nameof(ReturnEntity.ReturnNumber) }
+                    new SortInfo { SortColumn = nameof(ReturnEntity.Number) }
                 };
             }
 
@@ -55,7 +55,7 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
         protected virtual Expression<Func<ReturnEntity, bool>> GetKeywordPredicate(ReturnSearchCriteria criteria)
         {
-            return orderReturn => orderReturn.ReturnNumber.Contains(criteria.Keyword) || orderReturn.ReturnStatus.Contains(criteria.Keyword);
+            return orderReturn => orderReturn.Number.Contains(criteria.Keyword) || orderReturn.Status.Contains(criteria.Keyword);
         }
     }
 }
