@@ -1,0 +1,41 @@
+{
+  "return": {
+    "blades": {
+      "return-list": {
+        "title": "Returns list",
+        "placeholders": {
+          "select-filter": "Select filter"
+        },
+        "labels": {
+          "return-number": "Return Number",
+          "order-number": "Order Number",
+          "customer-name": "Customer",
+          "return-status": "Return Status",
+          "created-date": "Created Date",
+          "modified-date": "Modified Date",
+          "created-by": "Created By",
+          "items-count": "Items Count"
+        }
+      }
+    }
+  },
+  "permissions": {
+    "return:access": "Open Return menu",
+    "return:create": "Create Return related data",
+    "return:read": "View Return related data",
+    "return:update": "Update Return related data",
+    "return:delete": "Delete Return related data"
+  },
+  "settings": {
+    "Return": {
+      "ReturnPassword": {
+        "title": "Return Password",
+        "description": "Return Password setting"
+      },
+      "ReturnEnabled": {
+        "title": "Return Enabled",
+        "description": "Return Enabled setting"
+      }
+    }
+  }
+}
