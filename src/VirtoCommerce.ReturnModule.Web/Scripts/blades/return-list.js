@@ -31,7 +31,7 @@ angular.module('virtoCommerce.returnModule')
                                     orderReturn.customerName = '';
                                 }
 
-                                orderReturn.itemsCount = orderReturn.lineItems.length ?? 0;
+                                orderReturn.itemCount = orderReturn.lineItems.length ?? 0;
                             });
                         }
 
