@@ -10,16 +10,9 @@ This module has a direct dependency on the Order and Customer modules, so make s
 
 As noted above, apart from the core Virto Commerce platform, you need to have the Customer and Order modules installed.
 
-
-
-## Web API
-
-Web API documentation for each module is built out automatically and can be accessed by following the link bellow:
-<https://link-to-swager-api>
-
 ## Documentation
 
-You can find more information on how to work with the return module [here](https://virtocommerce.com/docs/modules/return/).[//]: <> (Please verify this link after the module has been built)
+You can find more information on how to work with the return module [here](https://virtocommerce.com/docs/modules/return/).
 
 ## License
 
