@@ -51,7 +51,7 @@ angular.module('virtoCommerce.returnModule')
                 },
                 {
                     name: "return.blades.return-list.labels.add-return", icon: 'fas fa-plus',
-                    executeMethod: function (blade) {
+                    executeMethod: function (currentBlade) {
                         var orderListBlade = {
                             id: 'orderListBlade',
                             controller: 'virtoCommerce.returnModule.orderListController',
@@ -60,7 +60,7 @@ angular.module('virtoCommerce.returnModule')
                             hideDelete: true
                         };
 
-                        bladeNavigationService.showBlade(orderListBlade, blade);
+                        bladeNavigationService.showBlade(orderListBlade, currentBlade);
                     },
                     canExecuteMethod: function () {
                         return true;
