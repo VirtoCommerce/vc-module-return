@@ -1,0 +1,24 @@
+<div class="blade-static __bottom" ng-if="pageSettings.itemsPerPageCount < pageSettings.totalItems" ng-include="'pagerTemplate.html'"></div>
+<div class="blade-content" ng-class="{'__large-wide': blade.isExpanded, '__normal': !blade.isExpanded}">
+    <div class="blade-inner">
+        <div class="inner-block">
+            <div class="table-wrapper" ng-init="setGridOptions('customerOrder-list-grid', getGridOptions())">
+                <div ui-grid="gridOptions" ui-grid-auto-resize ui-grid-save-state ui-grid-resize-columns ui-grid-move-columns ui-grid-pinning ui-grid-height></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/ng-template" id="order-list.row.html">
+    <div ng-click='grid.appScope.selectNode(row.entity)'
+         ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.uid"
+         ui-grid-one-bind-id-grid="rowRenderIndex + '-' + col.uid + '-cell'"
+         class="ui-grid-cell"
+         ng-class="{
+            'ui-grid-row-header-cell': col.isRowHeader,
+            '__hovered': grid.appScope.contextMenuEntity === row.entity,
+            '__selected': row.entity.id===grid.appScope.selectedNodeId}"
+         role="{{col.isRowHeader ? 'rowheader' : 'gridcell' }}"
+         ui-grid-cell context-menu="grid.appScope.contextMenuEntity = row.entity"
+         data-target="cor_menu"></div>
+</script>

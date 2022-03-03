@@ -9,6 +9,12 @@ namespace VirtoCommerce.ReturnModule.Core.Models
 
         public string OrderLineItemId { get; set; }
 
+        public int Quantity { get; set; }
+
+        public decimal Price { get; set; }
+
+        public string Reason { get; set; }
+
         #region ICloneable members
 
         public virtual object Clone()
