@@ -39,7 +39,7 @@ namespace VirtoCommerce.ReturnModule.Core
                     DefaultValue = "qwerty"
                 };
 
-                public static SettingDescriptor ReturnNewNumberTemplate = new SettingDescriptor
+                public static SettingDescriptor ReturnNewNumberTemplate { get; } = new SettingDescriptor
                 {
                     Name = "Return.ReturnNewNumberTemplate",
                     ValueType = SettingValueType.ShortText,
