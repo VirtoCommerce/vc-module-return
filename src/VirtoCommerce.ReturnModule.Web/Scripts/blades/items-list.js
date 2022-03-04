@@ -78,7 +78,7 @@ angular.module('virtoCommerce.returnModule')
 
             $scope.updateSelectionList = function () {
                 selectedItems = blade.currentEntity.items.filter(function (item) {
-                    return item.selected;
+                    return item.selected && item.quantity > 0;
                 });
             };
 

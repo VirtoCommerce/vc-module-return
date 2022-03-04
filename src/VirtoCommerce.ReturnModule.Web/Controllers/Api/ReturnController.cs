@@ -90,7 +90,7 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             var order = await _crudOrderService.GetByIdAsync(orderReturn.OrderId);
 
             return orderReturn.LineItems
-                .Where(returnLineItem => returnLineItem.Quantity < 0 ||
+                .Where(returnLineItem => returnLineItem.Quantity < 1 ||
                                          returnLineItem.Quantity > order.Items.First(orderLiteItem =>
                                              orderLiteItem.Id == returnLineItem.OrderLineItemId).Quantity)
                 .Select(x => $"LineItem {x.OrderLineItemId} has incorrect quantity");
