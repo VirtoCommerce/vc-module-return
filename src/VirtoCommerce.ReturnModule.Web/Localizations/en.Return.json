@@ -22,13 +22,14 @@
         "title": "Customer orders"
       },
       "items-list": {
-        "subtitle": "Select items",
+        "title": "Line items",
+        "subtitle": "Order #{{number}}",
         "labels": {
           "item-name": "Item name",
           "reason": "Return reason",
           "quantity": "Quantity",
-          "price": "Price" 
-        } 
+          "price": "Price"
+        }
       }
     }
   },

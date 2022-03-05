@@ -83,15 +83,17 @@ angular.module('virtoCommerce.returnModule')
             };
 
             $scope.selectNode = function (node) {
+                $scope.selectedNodeId = node.id;
+
                 var itemsListBlade = {
                     id: 'itemListBlade',
                     controller: 'virtoCommerce.returnModule.orderItemsController',
                     template: 'Modules/$(VirtoCommerce.Return)/Scripts/blades/items-list.tpl.html',
                     isClosingDisabled: false,
                     hideDelete: true,
-                    currentEntity: { id: node.id }
+                    currentEntity: { id: node.id },
                 };
-
+                
                 bladeNavigationService.showBlade(itemsListBlade, blade);
             };
 

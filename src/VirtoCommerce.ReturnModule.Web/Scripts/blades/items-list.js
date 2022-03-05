@@ -7,13 +7,8 @@ angular.module('virtoCommerce.returnModule')
 
             var bladeNavigationService = bladeUtils.bladeNavigationService;
             var selectedItems = [];
-
-            $translate('orders.blades.customerOrder-detail.title', { customer: blade.currentEntity.customerName }).then(function (result) {
-                blade.title = 'orders.widgets.customerOrder-items.blade-title';
-                blade.titleValues = { title: result };
-                blade.subtitle = 'return.blades.items-list.subtitle';
-            });
-
+            blade.title = 'return.blades.items-list.title';
+            
             blade.refresh = function () {
                 blade.isLoading = true;
 
@@ -22,6 +17,11 @@ angular.module('virtoCommerce.returnModule')
                         result.items.forEach(item => item.avaliableQuantity = item.quantity);
 
                         blade.currentEntity = result;
+
+                        $translate('return.blades.items-list.subtitle', { number: result.number }).then(function (result) {
+                            blade.subtitle = result;
+                        });
+
                         blade.isLoading = false;
                         blade.selectedAll = false;
                     });
