@@ -1,6 +1,6 @@
 angular.module('virtoCommerce.returnModule')
-    .controller('virtoCommerce.returnModule.orderListController', ['$rootScope', '$scope', 'virtoCommerce.orderModule.order_res_customerOrders', 'platformWebApp.bladeUtils', 'platformWebApp.authService', 'uiGridConstants', 'platformWebApp.uiGridHelper', 'platformWebApp.ui-grid.extension', '$translate',
-        function ($rootScope, $scope, customerOrders, bladeUtils, authService, uiGridConstants, uiGridHelper, gridOptionExtension, $translate) {
+    .controller('virtoCommerce.returnModule.orderListController', ['$rootScope', '$scope', '$localStorage', 'virtoCommerce.orderModule.order_res_customerOrders', 'platformWebApp.bladeUtils', 'platformWebApp.authService', 'uiGridConstants', 'platformWebApp.uiGridHelper', 'platformWebApp.ui-grid.extension', '$translate',
+        function ($rootScope, $scope, $localStorage, customerOrders, bladeUtils, authService, uiGridConstants, uiGridHelper, gridOptionExtension, $translate) {
             var blade = $scope.blade;
             blade.title = 'return.blades.order-list.title';
 
@@ -59,6 +59,7 @@ angular.module('virtoCommerce.returnModule')
                     blade.isLoading = true;
                     var criteria = {
                         responseGroup: "WithPrices",
+                        keyword: filter.keyword,
                         sort: uiGridHelper.getSortExpression($scope),
                         skip: ($scope.pageSettings.currentPage - 1) * $scope.pageSettings.itemsPerPageCount,
                         take: $scope.pageSettings.itemsPerPageCount
@@ -66,6 +67,10 @@ angular.module('virtoCommerce.returnModule')
 
                     if (blade.searchCriteria) {
                         angular.extend(criteria, blade.searchCriteria);
+                    }
+
+                    if (filter.current) {
+                        angular.extend(criteria, filter.current);
                     }
 
                     customerOrders.search(criteria, function (data) {
@@ -101,6 +106,57 @@ angular.module('virtoCommerce.returnModule')
                     }
                 }
             ];
+
+            var filter = blade.filter = $scope.filter = {};
+            $scope.$localStorage = $localStorage;
+            if (!$localStorage.orderSearchFilters) {
+                $localStorage.orderSearchFilters = [{ name: 'orders.blades.customerOrder-list.labels.new-filter' }];
+            }
+            if ($localStorage.orderSearchFilterId) {
+                filter.current = _.findWhere($localStorage.orderSearchFilters, { id: $localStorage.orderSearchFilterId });
+            }
+
+            filter.change = function () {
+                $localStorage.orderSearchFilterId = filter.current ? filter.current.id : null;
+                if (filter.current && !filter.current.id) {
+                    filter.current = null;
+                    showFilterDetailBlade({ isNew: true });
+                } else {
+                    bladeNavigationService.closeBlade({ id: 'filterDetail' });
+                    filter.criteriaChanged();
+                }
+            };
+
+            filter.edit = function () {
+                if (filter.current) {
+                    showFilterDetailBlade({ data: filter.current });
+                }
+            };
+
+            function showFilterDetailBlade(bladeData) {
+                var newBlade = {
+                    id: 'filterDetail',
+                    controller: 'virtoCommerce.orderModule.filterDetailController',
+                    template: 'Modules/$(VirtoCommerce.Orders)/Scripts/blades/filter-detail.tpl.html'
+                };
+                angular.extend(newBlade, bladeData);
+                bladeNavigationService.showBlade(newBlade, blade);
+            }
+
+            filter.criteriaChanged = function () {
+                if ($scope.pageSettings.currentPage > 1) {
+                    $scope.pageSettings.currentPage = 1;
+                } else {
+                    blade.refresh();
+                }
+            };
+
+            blade.onExpand = function () {
+                $scope.gridOptions.onExpand();
+            };
+            blade.onCollapse = function () {
+                $scope.gridOptions.onCollapse();
+            };
 
             $scope.setGridOptions = function (gridId, gridOptions) {
                 Array.prototype.push.apply(gridOptions.columnDefs, _.map([

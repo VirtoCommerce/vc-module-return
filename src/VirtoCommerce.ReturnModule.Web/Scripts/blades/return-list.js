@@ -57,8 +57,9 @@ angular.module('virtoCommerce.returnModule')
                             controller: 'virtoCommerce.returnModule.orderListController',
                             template: 'Modules/$(VirtoCommerce.Return)/Scripts/blades/order-list.tpl.html',
                             isClosingDisabled: false,
-                            hideDelete: true
-                        };
+                            hideDelete: true,
+                            isExpanded: true
+                    };
 
                         bladeNavigationService.showBlade(orderListBlade, currentBlade);
                     },
