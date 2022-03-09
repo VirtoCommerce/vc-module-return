@@ -2,20 +2,20 @@
   "return": {
     "blades": {
       "return-list": {
-        "title": "Returns list",
+        "title": "Return list",
         "placeholders": {
-          "select-filter": "Select filter"
+          "select-filter": "Please select a filter"
         },
         "labels": {
           "return-number": "Return Number",
           "order-number": "Order Number",
           "customer-name": "Customer",
           "return-status": "Return Status",
-          "created-date": "Created Date",
-          "modified-date": "Modified Date",
+          "created-date": "Create Date",
+          "modified-date": "Modify Date",
           "created-by": "Created By",
-          "items-count": "Items Count",
-          "add-return": "Add new return"
+          "items-count": "Item Count"
+		  "add-return": "Add new return"
         }
       },
       "order-list": {
@@ -34,25 +34,25 @@
     }
   },
   "permissions": {
-    "return:access": "Open Return menu",
-    "return:create": "Create Return related data",
-    "return:read": "View Return related data",
-    "return:update": "Update Return related data",
-    "return:delete": "Delete Return related data"
+    "return:access": "Open return menu",
+    "return:create": "Create return data",
+    "return:read": "View return data",
+    "return:update": "Update return data",
+    "return:delete": "Delete return data"
   },
   "settings": {
     "Return": {
       "ReturnPassword": {
         "title": "Return Password",
-        "description": "Return Password setting"
+        "description": "Set up the Return module password"
       },
       "ReturnEnabled": {
-        "title": "Return Enabled",
-        "description": "Return Enabled setting"
-      },
-      "ReturnNewNumberTemplate": {
-        "title": "Return number template",
-        "description": "Template for generation new order returns" 
+        "title": "Enable Return Module",
+        "description": "Toggle this button to enable or disable the Return module"
+	  },
+	  "ReturnNewNumberTemplate": {
+        "title": "Return Number Template",
+        "description": "Use this template to generate new order returns"
       } 
     }
   }
