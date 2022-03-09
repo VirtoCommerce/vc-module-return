@@ -18,8 +18,8 @@ angular.module('virtoCommerce.returnModule')
 
                         blade.currentEntity = result;
 
-                        $translate('return.blades.items-list.subtitle', { number: result.number }).then(function (result) {
-                            blade.subtitle = result;
+                        $translate('return.blades.items-list.subtitle', { number: result.number }).then(function (translationResult) {
+                            blade.subtitle = translationResult;
                         });
 
                         blade.isLoading = false;
