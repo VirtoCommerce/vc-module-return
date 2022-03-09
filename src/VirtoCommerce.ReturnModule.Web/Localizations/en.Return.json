@@ -14,7 +14,21 @@
           "created-date": "Created Date",
           "modified-date": "Modified Date",
           "created-by": "Created By",
-          "items-count": "Items Count"
+          "items-count": "Items Count",
+          "add-return": "Add new return"
+        }
+      },
+      "order-list": {
+        "title": "Customer orders"
+      },
+      "items-list": {
+        "title": "Line items",
+        "subtitle": "Order #{{number}}",
+        "labels": {
+          "item-name": "Item name",
+          "reason": "Return reason",
+          "quantity": "Quantity",
+          "price": "Price"
         }
       }
     }
@@ -35,7 +49,11 @@
       "ReturnEnabled": {
         "title": "Return Enabled",
         "description": "Return Enabled setting"
-      }
+      },
+      "ReturnNewNumberTemplate": {
+        "title": "Return number template",
+        "description": "Template for generation new order returns" 
+      } 
     }
   }
 }

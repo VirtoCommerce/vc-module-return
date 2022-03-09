@@ -14,7 +14,7 @@ angular.module(moduleName, [])
                     controller: [
                         '$scope', 'platformWebApp.bladeNavigationService', function ($scope, bladeNavigationService) {
                             var newBlade = {
-                                id: 'blade',
+                                id: 'returnsList',
                                 controller: 'virtoCommerce.returnModule.returnListController',
                                 template: 'Modules/$(VirtoCommerce.Return)/Scripts/blades/return-list.tpl.html',
                                 isClosingDisabled: true

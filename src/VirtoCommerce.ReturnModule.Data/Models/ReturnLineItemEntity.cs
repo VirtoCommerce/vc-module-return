@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Domain;
 using VirtoCommerce.ReturnModule.Core.Models;
@@ -18,6 +19,14 @@ namespace VirtoCommerce.ReturnModule.Data.Models
         [StringLength(128)]
         public string OrderLineItemId { get; set; }
 
+        [Column(TypeName = "Money")]
+        public decimal Price { get; set; }
+
+        public int Quantity { get; set; }
+
+        [StringLength(1024)]
+        public string Reason { get; set; }
+
         public ReturnLineItem ToModel(ReturnLineItem model)
         {
             if (model == null)
@@ -31,6 +40,9 @@ namespace VirtoCommerce.ReturnModule.Data.Models
 
             model.ReturnId = ReturnId;
             model.OrderLineItemId = OrderLineItemId;
+            model.Price = Price;
+            model.Quantity = Quantity;
+            model.Reason = Reason;
 
             return model;
         }
@@ -50,6 +62,9 @@ namespace VirtoCommerce.ReturnModule.Data.Models
 
             ReturnId = model.ReturnId;
             OrderLineItemId = model.OrderLineItemId;
+            Price = model.Price;
+            Quantity = model.Quantity;
+            Reason = model.Reason;
 
             return this;
         }
@@ -61,6 +76,9 @@ namespace VirtoCommerce.ReturnModule.Data.Models
 
             target.ReturnId = ReturnId;
             target.OrderLineItemId = OrderLineItemId;
+            target.Price = Price;
+            target.Quantity = Quantity;
+            target.Reason = Reason;
         }
     }
 }

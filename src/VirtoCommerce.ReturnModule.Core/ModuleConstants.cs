@@ -26,7 +26,7 @@ namespace VirtoCommerce.ReturnModule.Core
                 public static SettingDescriptor ReturnEnabled { get; } = new SettingDescriptor
                 {
                     Name = "Return.ReturnEnabled",
-                    GroupName = "Return|General",
+                    GroupName = "Return|Return",
                     ValueType = SettingValueType.Boolean,
                     DefaultValue = false
                 };
@@ -39,12 +39,21 @@ namespace VirtoCommerce.ReturnModule.Core
                     DefaultValue = "qwerty"
                 };
 
+                public static SettingDescriptor ReturnNewNumberTemplate { get; } = new SettingDescriptor
+                {
+                    Name = "Return.ReturnNewNumberTemplate",
+                    ValueType = SettingValueType.ShortText,
+                    GroupName = "Return|Return",
+                    DefaultValue = "RET{0:yyMMdd}-{1:D5}"
+                };
+
                 public static IEnumerable<SettingDescriptor> AllSettings
                 {
                     get
                     {
                         yield return ReturnEnabled;
                         yield return ReturnPassword;
+                        yield return ReturnNewNumberTemplate;
                     }
                 }
             }
@@ -54,6 +63,14 @@ namespace VirtoCommerce.ReturnModule.Core
                 get
                 {
                     return General.AllSettings;
+                }
+            }
+
+            public static IEnumerable<SettingDescriptor> StoreLevelSettings
+            {
+                get
+                {
+                    yield return General.ReturnNewNumberTemplate;
                 }
             }
         }

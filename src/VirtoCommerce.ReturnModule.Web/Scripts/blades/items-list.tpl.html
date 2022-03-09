@@ -1,0 +1,74 @@
+<div class="blade-static">
+    <div class="form-group">
+        <p class="form-count">{{'platform.list.count' | translate}}: <span class="count">{{blade.currentEntity.items.length | number:0}}</span></p>
+    </div>
+</div>
+<div class="blade-content __xlarge-wide">
+    <div class="blade-inner">
+        <div class="inner-block">
+            <form name="orderForm" novalidate></form>
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="table-col __product-control">
+                                <label class="form-control __checkbox">
+                                    <input type="checkbox" ng-model="blade.selectedAll" ng-change="checkAll(blade.selectedAll)" />
+                                    <span class="check"></span>
+                                </label>
+                            </th>
+                            <th class="table-col">{{ 'return.blades.items-list.labels.item-name' | translate }}</th>
+                            <th class="table-col" width="33%">{{ 'return.blades.items-list.labels.reason' | translate }}</th>
+                            <th class="table-col">{{ 'return.blades.items-list.labels.quantity' | translate }}</th>
+                            <th class="table-col">{{ 'return.blades.items-list.labels.price' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-item" ng-repeat-start="data in blade.currentEntity.items" ng-class="{'__selected': $index === blade.selectedNodeId}" ng-click='blade.selectedNodeId = $index'>
+                            <td class="table-col">
+                                <label class="form-control __checkbox">
+                                    <input type="checkbox" ng-model="data.selected" ng-change="updateSelectionList()">
+                                    <span class="check"></span>
+                                </label>
+                            </td>
+                            <td class="table-col">
+                                <div class="table-item">
+                                        {{ data.name }}
+                                </div>
+                            </td>
+                            <td class="table-col">
+                                <div class="form-input __inline">
+                                    <div class="form-input">
+                                        <input ng-model="data.reason" ng-model-options="{ updateOn: 'blur' }">
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="table-col">
+                                <div class="form-input __mini __inline">
+                                    <div class="form-input __mini __number">
+                                        <input smart-float
+                                               type="number"
+                                               min="0"
+                                               max="{{ data.avaliableQuantity }}"
+                                               ng-change="updateSelectionList()"
+                                               oninput="this.value = this.value < 0 ? Math.abs(this.value) : Math.min(this.max, this.value)"
+                                               num-type="integer"
+                                               required
+                                               ng-model="data.quantity"
+                                               ng-model-options="{ updateOn: 'blur' }">
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="table-col">
+                                <div class="form-input __mini">
+                                    <input min="0", money mask-money="!blade.isVisiblePrices" required ng-model="data.price" ng-model-options="{ updateOn: 'blur' }" ng-change="blade.recalculateFn()">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr ng-repeat-end class="table-item" ng-class="{'__selected': $index === blade.selectedNodeId}" ng-click='blade.selectedNodeId = $index'></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -4,6 +4,8 @@ angular.module('virtoCommerce.returnModule')
             $scope.uiGridConstants = uiGridHelper.uiGridConstants;
 
             var blade = $scope.blade;
+            var bladeNavigationService = bladeUtils.bladeNavigationService;
+
             blade.title = 'return.blades.return-list.title';
             blade.headIcon = 'fa fa-exchange';
 
@@ -46,6 +48,24 @@ angular.module('virtoCommerce.returnModule')
                     canExecuteMethod: function () {
                         return true;
                     }
+                },
+                {
+                    name: "return.blades.return-list.labels.add-return", icon: 'fas fa-plus',
+                    executeMethod: function (currentBlade) {
+                        var orderListBlade = {
+                            id: 'orderListBlade',
+                            controller: 'virtoCommerce.returnModule.orderListController',
+                            template: 'Modules/$(VirtoCommerce.Return)/Scripts/blades/order-list.tpl.html',
+                            isClosingDisabled: false,
+                            hideDelete: true,
+                            isExpanded: true
+                    };
+
+                        bladeNavigationService.showBlade(orderListBlade, currentBlade);
+                    },
+                    canExecuteMethod: function () {
+                        return true;
+                    }
                 }
             ];
 
@@ -66,6 +86,10 @@ angular.module('virtoCommerce.returnModule')
             $scope.clearKeyword = function () {
                 blade.searchKeyword = null;
                 blade.refresh();
+            };
+
+            $scope.selectNode = function (node) {
+                console.log("return click", node);
             };
 
             function getSearchCriteria() {

@@ -1,7 +1,11 @@
+using System.Collections.Generic;
+using System.Linq;
 using VirtoCommerce.ReturnModule.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using VirtoCommerce.OrdersModule.Core.Model;
+using VirtoCommerce.Platform.Core.GenericCrud;
 using VirtoCommerce.ReturnModule.Core.Models.Search;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.Core.Models;
@@ -13,11 +17,13 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
     {
         private readonly IReturnSearchService _returnSearchService;
         private readonly IReturnService _returnService;
+        private readonly ICrudService<CustomerOrder> _crudOrderService;
 
-        public ReturnController(IReturnSearchService returnSearchService, IReturnService returnService)
+        public ReturnController(IReturnSearchService returnSearchService, IReturnService returnService, ICrudService<CustomerOrder> crudOrderService)
         {
             _returnSearchService = returnSearchService;
             _returnService = returnService;
+            _crudOrderService = crudOrderService;
         }
 
         /// <summary>
@@ -54,6 +60,13 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         [Authorize(ModuleConstants.Security.Permissions.Update)]
         public async Task<ActionResult> UpdateReturn([FromBody] Return orderReturn)
         {
+            var errors = await ValidateReturn(orderReturn);
+
+            if (errors.Any())
+            {
+                return BadRequest(errors);
+            }
+
             await _returnService.SaveChangesAsync(new[] { orderReturn });
             return NoContent();
         }
@@ -70,6 +83,17 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         {
             await _returnService.DeleteAsync(ids);
             return NoContent();
+        }
+
+        private async Task<IEnumerable<string>> ValidateReturn(Return orderReturn)
+        {
+            var order = await _crudOrderService.GetByIdAsync(orderReturn.OrderId);
+
+            return orderReturn.LineItems
+                .Where(returnLineItem => returnLineItem.Quantity < 1 ||
+                                         returnLineItem.Quantity > order.Items.First(orderLiteItem =>
+                                             orderLiteItem.Id == returnLineItem.OrderLineItemId).Quantity)
+                .Select(x => $"LineItem {x.OrderLineItemId} has incorrect quantity");
         }
     }
 }

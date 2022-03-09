@@ -11,6 +11,7 @@ using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.Data.Services;
 using System;
+using VirtoCommerce.StoreModule.Core.Model;
 
 namespace VirtoCommerce.ReturnModule.Web
 {
@@ -35,6 +36,8 @@ namespace VirtoCommerce.ReturnModule.Web
             // register settings
             var settingsRegistrar = appBuilder.ApplicationServices.GetRequiredService<ISettingsRegistrar>();
             settingsRegistrar.RegisterSettings(ModuleConstants.Settings.AllSettings, ModuleInfo.Id);
+
+            settingsRegistrar.RegisterSettingsForType(ModuleConstants.Settings.StoreLevelSettings, nameof(Store));
 
             // register permissions
             var permissionsProvider = appBuilder.ApplicationServices.GetRequiredService<IPermissionsRegistrar>();
