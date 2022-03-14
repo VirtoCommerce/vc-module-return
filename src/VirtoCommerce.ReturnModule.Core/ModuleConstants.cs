@@ -23,7 +23,7 @@ namespace VirtoCommerce.ReturnModule.Core
         {
             public static class General
             {
-                public static SettingDescriptor OrderStatus = new SettingDescriptor
+                public static SettingDescriptor OrderStatus { get; } = new SettingDescriptor
                 {
                     Name = "Return.Status",
                     ValueType = SettingValueType.ShortText,

@@ -64,11 +64,15 @@
       "ReturnEnabled": {
         "title": "Enable Return Module",
         "description": "Toggle this button to enable or disable the Return module"
-	  },
-	  "ReturnNewNumberTemplate": {
+      },
+      "ReturnNewNumberTemplate": {
         "title": "Return Number Template",
         "description": "Use this template to generate new order returns"
-      } 
-    }
+      }
+    },
+    "Return.Status": {
+      "description": "Order return statuses",
+      "title": "Customer order return statuses"
+    } 
   }
 }

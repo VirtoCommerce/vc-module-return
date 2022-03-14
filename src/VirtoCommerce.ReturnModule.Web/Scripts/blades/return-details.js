@@ -142,7 +142,7 @@ angular.module('virtoCommerce.returnModule')
 
             function translateBladeStatuses(data) {
                 blade.statuses = statusTranslationService.translateStatuses(data, 'return');
-            };
+            }
 
             function canSave() {
                 return isDirty() && (!$scope.formScope || $scope.formScope.$valid);
