@@ -91,9 +91,14 @@ angular.module('virtoCommerce.returnModule')
                     template: 'Modules/$(VirtoCommerce.Return)/Scripts/blades/items-list.tpl.html',
                     isClosingDisabled: false,
                     hideDelete: true,
-                    currentEntity: { id: node.id },
-                };
-                
+                    currentEntity: {
+                        order: {
+                            id: node.id
+                        }
+                    },
+                    editMode: false
+            };
+
                 bladeNavigationService.showBlade(itemsListBlade, blade);
             };
 

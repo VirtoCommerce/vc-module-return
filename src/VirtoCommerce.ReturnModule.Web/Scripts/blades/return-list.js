@@ -59,7 +59,7 @@ angular.module('virtoCommerce.returnModule')
                             isClosingDisabled: false,
                             hideDelete: true,
                             isExpanded: true
-                    };
+                        };
 
                         bladeNavigationService.showBlade(orderListBlade, currentBlade);
                     },
@@ -89,7 +89,19 @@ angular.module('virtoCommerce.returnModule')
             };
 
             $scope.selectNode = function (node) {
-                console.log("return click", node);
+                $scope.selectedNodeId = node.id;
+
+                var returnDetailsBlade = {
+                    id: 'returnDetailsBlade',
+                    controller: 'virtoCommerce.returnModule.returnDetailsController',
+                    template: 'Modules/$(VirtoCommerce.Return)/Scripts/blades/return-details.tpl.html',
+                    isClosingDisabled: false,
+                    hideDelete: true,
+                    isExpanded: true
+                };
+
+                returnDetailsBlade.currentEntityId = node.id;
+                bladeNavigationService.showBlade(returnDetailsBlade, blade);
             };
 
             function getSearchCriteria() {

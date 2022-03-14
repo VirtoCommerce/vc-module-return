@@ -21,6 +21,9 @@ namespace VirtoCommerce.ReturnModule.Data.Models
         [StringLength(64)]
         public string Status { get; set; }
 
+        [StringLength(2048)]
+        public string Resolution { get; set; }
+
         public virtual ObservableCollection<ReturnLineItemEntity> LineItems { get; set; } = new NullCollection<ReturnLineItemEntity>();
 
         public virtual Return ToModel(Return model)
@@ -37,6 +40,7 @@ namespace VirtoCommerce.ReturnModule.Data.Models
             model.Number = Number;
             model.OrderId = OrderId;
             model.Status = Status;
+            model.Resolution = Resolution;
 
             model.LineItems = LineItems.Select(x => x.ToModel(AbstractTypeFactory<ReturnLineItem>.TryCreateInstance())).ToList();
 
@@ -59,6 +63,7 @@ namespace VirtoCommerce.ReturnModule.Data.Models
             Number = model.Number;
             OrderId = model.OrderId;
             Status = model.Status;
+            Resolution = model.Resolution;
 
             if (model.LineItems != null)
             {
@@ -78,6 +83,7 @@ namespace VirtoCommerce.ReturnModule.Data.Models
             target.Number = Number;
             target.OrderId = OrderId;
             target.Status = Status;
+            target.Resolution = Resolution;
 
             if (!LineItems.IsNullCollection())
             {

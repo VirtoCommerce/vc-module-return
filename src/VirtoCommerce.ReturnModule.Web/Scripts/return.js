@@ -25,8 +25,8 @@ angular.module(moduleName, [])
                 });
         }]
     )
-    .run(['platformWebApp.mainMenuService', 'platformWebApp.widgetService', '$state',
-        function (mainMenuService, widgetService, $state) {
+    .run(['platformWebApp.mainMenuService', 'platformWebApp.widgetService', '$state', 'platformWebApp.metaFormsService',
+        function (mainMenuService, widgetService, $state, metaFormsService) {
             //Register module in main menu
             var menuItem = {
                 path: 'browse/Return',
@@ -37,5 +37,11 @@ angular.module(moduleName, [])
                 permission: 'return:access'
             };
             mainMenuService.addMenuItem(menuItem);
+
+            var operationItemsWidget = {
+                controller: 'virtoCommerce.returnModule.returnItemsWidgetController',
+                template: 'Modules/$(VirtoCommerce.Return)/Scripts/widgets/return-items-widget.tpl.html'
+            };
+            widgetService.registerWidget(operationItemsWidget, 'returnDetailsWidgets');
         }
     ]);

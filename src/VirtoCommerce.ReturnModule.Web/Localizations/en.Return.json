@@ -23,14 +23,29 @@
       },
       "items-list": {
         "title": "Line items",
-        "subtitle": "Order #{{number}}",
+        "subtitle-create": "Order #{{number}}",
+        "subtitle-edit": "Return #{{number}}",
         "labels": {
           "item-name": "Item name",
           "reason": "Return reason",
           "quantity": "Quantity",
-          "price": "Price"
+          "price": "Price",
+          "sku": "SKU" 
         }
-      }
+      },
+      "return-details": {
+        "title": "Return #{{number}}",
+        "labels": {
+          "number": "Return number",
+          "orderNumber": "Order number",
+          "createdDate": "Created date",
+          "modifiedDate": "Modified date",
+          "createdBy": "Created by",
+          "customer": "Customer",
+          "resolution": "Resolution",
+          "status": "Status"
+        }
+      } 
     }
   },
   "permissions": {

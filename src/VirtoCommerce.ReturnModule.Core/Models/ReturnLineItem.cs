@@ -11,6 +11,8 @@ namespace VirtoCommerce.ReturnModule.Core.Models
 
         public int Quantity { get; set; }
 
+        public int AvailableQuantity { get; set; }
+
         public decimal Price { get; set; }
 
         public string Reason { get; set; }

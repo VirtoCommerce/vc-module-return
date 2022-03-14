@@ -23,6 +23,16 @@ namespace VirtoCommerce.ReturnModule.Core
         {
             public static class General
             {
+                public static SettingDescriptor OrderStatus = new SettingDescriptor
+                {
+                    Name = "Return.Status",
+                    ValueType = SettingValueType.ShortText,
+                    GroupName = "Return|Return",
+                    IsDictionary = true,
+                    DefaultValue = "New",
+                    AllowedValues = new[] { "New", "Approved", "Completed", "Canceled", "Processing" }
+                };
+
                 public static SettingDescriptor ReturnEnabled { get; } = new SettingDescriptor
                 {
                     Name = "Return.ReturnEnabled",
@@ -54,6 +64,7 @@ namespace VirtoCommerce.ReturnModule.Core
                         yield return ReturnEnabled;
                         yield return ReturnPassword;
                         yield return ReturnNewNumberTemplate;
+                        yield return OrderStatus;
                     }
                 }
             }

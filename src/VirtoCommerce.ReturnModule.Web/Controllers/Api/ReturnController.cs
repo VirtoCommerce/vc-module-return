@@ -47,6 +47,15 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         public async Task<ActionResult<Return>> GetReturnById(string id)
         {
             var result = await _returnService.GetByIdAsync(id);
+
+            var availableQuantities = await _returnService.GetItemsAvailableQuantities(result.Order, id);
+
+            foreach (var lineItem in result.LineItems)
+            {
+                lineItem.AvailableQuantity =
+                    availableQuantities.FirstOrDefault(x => x.Key == lineItem.OrderLineItemId).Value;
+            }
+
             return Ok(result);
         }
 
@@ -67,8 +76,9 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
                 return BadRequest(errors);
             }
 
-            await _returnService.SaveChangesAsync(new[] { orderReturn });
-            return NoContent();
+            var result = await _returnService.SaveChangesAsync(new[] { orderReturn });
+
+            return Ok(new {Id = result.FirstOrDefault()});
         }
 
         /// <summary>
@@ -83,6 +93,21 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         {
             await _returnService.DeleteAsync(ids);
             return NoContent();
+        }
+
+        /// <summary>
+        /// Returns available item quantities for the order with passed ID
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("available-quantities/{orderId}")]
+        [Authorize(ModuleConstants.Security.Permissions.Read)]
+        public async Task<ActionResult<Dictionary<string, int>>> GetAvailableQuantities(string orderId)
+        {
+            var result = await _returnService.GetItemsAvailableQuantities(orderId);
+
+            return Ok(result);
         }
 
         private async Task<IEnumerable<string>> ValidateReturn(Return orderReturn)

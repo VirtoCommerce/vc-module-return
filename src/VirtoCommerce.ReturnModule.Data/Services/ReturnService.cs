@@ -27,18 +27,21 @@ namespace VirtoCommerce.ReturnModule.Data.Services
         private readonly ICrudService<CustomerOrder> _crudOrderService;
         private readonly IUniqueNumberGenerator _uniqueNumberGenerator;
         private readonly ICrudService<Store> _storeService;
+        private readonly Func<IReturnRepository> _returnRepositoryFactory;
 
         public ReturnService(Func<IReturnRepository> repositoryFactory,
             IPlatformMemoryCache platformMemoryCache,
             IEventPublisher eventPublisher,
             ICrudService<CustomerOrder> crudOrderService,
             IUniqueNumberGenerator uniqueNumberGenerator,
-            ICrudService<Store> storeService)
+            ICrudService<Store> storeService,
+            Func<IReturnRepository> returnRepositoryFactory)
             : base(repositoryFactory, platformMemoryCache, eventPublisher)
         {
             _crudOrderService = crudOrderService;
             _uniqueNumberGenerator = uniqueNumberGenerator;
             _storeService = storeService;
+            _returnRepositoryFactory = returnRepositoryFactory;
         }
 
         protected override async Task<IEnumerable<ReturnEntity>> LoadEntities(IRepository repository,
@@ -66,13 +69,15 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             return returns;
         }
 
-        public virtual async Task SaveChangesAsync(Return[] returns)
+        public virtual async Task<IEnumerable<string>> SaveChangesAsync(Return[] returns)
         {
             var pkMap = new PrimaryKeyResolvingMap();
             var changedEntries = new List<GenericChangedEntry<Return>>();
             var changedEntitiesMap = new Dictionary<Return, ReturnEntity>();
 
             var orders = await GetOrdersForReturns(returns);
+
+            var ids = new List<string>();
 
             using (var repository = (IReturnRepository)_repositoryFactory())
             {
@@ -108,6 +113,8 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
                         newModifiedEntity?.Patch(originalEntity);
                         changedEntitiesMap.Add(modifiedReturn, originalEntity);
+
+                        ids.Add(originalEntity.Id);
                     }
                     else
                     {
@@ -121,6 +128,8 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
                         changedEntries.Add(new GenericChangedEntry<Return>(modifiedReturn, EntryState.Added));
                         changedEntitiesMap.Add(modifiedReturn, modifiedEntity);
+
+                        ids.Add(modifiedEntity.Id);
                     }
                 }
 
@@ -128,6 +137,43 @@ namespace VirtoCommerce.ReturnModule.Data.Services
                 await repository.UnitOfWork.CommitAsync();
                 pkMap.ResolvePrimaryKeys();
                 ClearCache(returns);
+
+                return ids;
+            }
+        }
+
+        public virtual async Task<Dictionary<string, int>> GetItemsAvailableQuantities(string orderId)
+        {
+            var order = await _crudOrderService.GetByIdAsync(orderId);
+
+            return await GetItemsAvailableQuantities(order);
+        }
+
+        public virtual async Task<Dictionary<string, int>> GetItemsAvailableQuantities(CustomerOrder order, string returnId = null)
+        {
+            using (var repository = _returnRepositoryFactory())
+            {
+                var returnIds = repository.Returns
+                    .Where(x => x.OrderId == order.Id)
+                    .Select(x => x.Id);
+
+                if (returnId != null)
+                {
+                    returnIds = returnIds.Where(x => x != returnId);
+                }
+
+                var returns = await GetAsync(returnIds.ToList());
+
+                var result = order.Items
+                    .Select(lineItem => new KeyValuePair<string, int>(
+                        lineItem.Id,
+                        Math.Max(0, lineItem.Quantity - returns
+                            .SelectMany(x => x.LineItems)
+                            .Where(x => x.OrderLineItemId == lineItem.Id)
+                            .Sum(x => x.Quantity))))
+                    .ToDictionary(k => k.Key, v => v.Value);
+
+                return result;
             }
         }
 
