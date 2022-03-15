@@ -15,7 +15,8 @@
           "modified-date": "Modify Date",
           "created-by": "Created By",
           "items-count": "Item Count",
-    		  "add-return": "Add new return"
+          "add-return": "Add new return",
+          "create-return": "Create return" 
         }
       },
       "order-list": {

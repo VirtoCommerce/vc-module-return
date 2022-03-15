@@ -25,8 +25,8 @@ angular.module(moduleName, [])
                 });
         }]
     )
-    .run(['platformWebApp.mainMenuService', 'platformWebApp.widgetService', '$state', 'platformWebApp.metaFormsService',
-        function (mainMenuService, widgetService, $state, metaFormsService) {
+    .run(['platformWebApp.mainMenuService', 'platformWebApp.widgetService', '$state', 'platformWebApp.toolbarService', 'platformWebApp.bladeNavigationService',
+        function (mainMenuService, widgetService, $state, toolBarService, bladeNavigationService) {
             //Register module in main menu
             var menuItem = {
                 path: 'browse/Return',
@@ -43,5 +43,33 @@ angular.module(moduleName, [])
                 template: 'Modules/$(VirtoCommerce.Return)/Scripts/widgets/return-items-widget.tpl.html'
             };
             widgetService.registerWidget(operationItemsWidget, 'returnDetailsWidgets');
+
+            var makeReturnCommand = {
+                name: 'return.blades.return-list.labels.create-return',
+                icon: 'fa fa-exchange',
+                index: 6,
+                executeMethod: function(blade) {
+                    var itemsListBlade = {
+                        id: 'itemListBlade',
+                        controller: 'virtoCommerce.returnModule.orderItemsController',
+                        template: 'Modules/$(VirtoCommerce.Return)/Scripts/blades/items-list.tpl.html',
+                        isClosingDisabled: false,
+                        hideDelete: true,
+                        currentEntity: {
+                            order: {
+                                id: blade.currentEntity.id
+                            }
+                        },
+                        editMode: false
+                    };
+
+                    bladeNavigationService.showBlade(itemsListBlade, blade);
+                },
+                canExecuteMethod: function(blade) {
+                    return true;
+                }
+            }
+
+            toolBarService.register(makeReturnCommand, 'virtoCommerce.orderModule.operationDetailController');
         }
     ]);

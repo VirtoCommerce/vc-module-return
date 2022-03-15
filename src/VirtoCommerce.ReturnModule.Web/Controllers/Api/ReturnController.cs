@@ -4,8 +4,6 @@ using VirtoCommerce.ReturnModule.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using VirtoCommerce.OrdersModule.Core.Model;
-using VirtoCommerce.Platform.Core.GenericCrud;
 using VirtoCommerce.ReturnModule.Core.Models.Search;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.Core.Models;
@@ -17,13 +15,11 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
     {
         private readonly IReturnSearchService _returnSearchService;
         private readonly IReturnService _returnService;
-        private readonly ICrudService<CustomerOrder> _crudOrderService;
 
-        public ReturnController(IReturnSearchService returnSearchService, IReturnService returnService, ICrudService<CustomerOrder> crudOrderService)
+        public ReturnController(IReturnSearchService returnSearchService, IReturnService returnService)
         {
             _returnSearchService = returnSearchService;
             _returnService = returnService;
-            _crudOrderService = crudOrderService;
         }
 
         /// <summary>
@@ -78,7 +74,7 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
 
             var result = await _returnService.SaveChangesAsync(new[] { orderReturn });
 
-            return Ok(new {Id = result.FirstOrDefault()});
+            return Ok(new { Id = result.FirstOrDefault() });
         }
 
         /// <summary>
@@ -112,12 +108,13 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
 
         private async Task<IEnumerable<string>> ValidateReturn(Return orderReturn)
         {
-            var order = await _crudOrderService.GetByIdAsync(orderReturn.OrderId);
+            var availableQuantities = orderReturn.Order == null
+                ? await _returnService.GetItemsAvailableQuantities(orderReturn.OrderId)
+                : await _returnService.GetItemsAvailableQuantities(orderReturn.Order, orderReturn.Id);
 
             return orderReturn.LineItems
-                .Where(returnLineItem => returnLineItem.Quantity < 1 ||
-                                         returnLineItem.Quantity > order.Items.First(orderLiteItem =>
-                                             orderLiteItem.Id == returnLineItem.OrderLineItemId).Quantity)
+                .Where(item => item.Quantity < 1 ||
+                               item.Quantity > availableQuantities[item.OrderLineItemId])
                 .Select(x => $"LineItem {x.OrderLineItemId} has incorrect quantity");
         }
     }

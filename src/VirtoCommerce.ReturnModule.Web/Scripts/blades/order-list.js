@@ -97,7 +97,7 @@ angular.module('virtoCommerce.returnModule')
                         }
                     },
                     editMode: false
-            };
+                };
 
                 bladeNavigationService.showBlade(itemsListBlade, blade);
             };
