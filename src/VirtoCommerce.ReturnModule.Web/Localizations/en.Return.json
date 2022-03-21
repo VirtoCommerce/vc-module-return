@@ -20,7 +20,8 @@
         }
       },
       "order-list": {
-        "title": "Customer orders"
+        "title": "Customer orders",
+        "widget-title": "Returns" 
       },
       "items-list": {
         "title": "Line items",

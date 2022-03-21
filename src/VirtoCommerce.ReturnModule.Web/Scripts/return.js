@@ -44,6 +44,12 @@ angular.module(moduleName, [])
             };
             widgetService.registerWidget(operationItemsWidget, 'returnDetailsWidgets');
 
+            var relatedReturnsWidget = {
+                controller: 'virtoCommerce.returnModule.relatedReturnsWidgetController',
+                template: 'Modules/$(VirtoCommerce.Return)/Scripts/widgets/order-related-returns-widget.tpl.html'
+            };
+            widgetService.registerWidget(relatedReturnsWidget, 'customerOrderDetailWidgets');
+
             var makeReturnCommand = {
                 name: 'return.blades.return-list.labels.create-return',
                 icon: 'fa fa-exchange',

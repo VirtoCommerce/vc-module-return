@@ -13,6 +13,10 @@ angular.module('virtoCommerce.returnModule')
                 blade.isLoading = true;
                 var searchCriteria = getSearchCriteria();
 
+                if (blade.orderId) {
+                    searchCriteria.orderId = blade.orderId;
+                }
+
                 if (blade.searchCriteria) {
                     angular.extend(searchCriteria, blade.searchCriteria);
                 }

@@ -36,6 +36,11 @@ namespace VirtoCommerce.ReturnModule.Data.Services
                 query = query.Where(GetKeywordPredicate(criteria));
             }
 
+            if (!string.IsNullOrWhiteSpace(criteria.OrderId))
+            {
+                query = query.Where(x => x.OrderId == criteria.OrderId);
+            }
+
             return query;
         }
 
