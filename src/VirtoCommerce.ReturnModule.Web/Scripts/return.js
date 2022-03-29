@@ -6,13 +6,13 @@ if (AppDependencies !== undefined) {
 
 angular.module(moduleName, [])
     .config(
-        ['$stateProvider', function ($stateProvider) {
+        ['$stateProvider', ($stateProvider) => {
             $stateProvider
                 .state('workspace.ReturnState', {
                     url: '/Return',
                     templateUrl: '$(Platform)/Scripts/common/templates/home.tpl.html',
                     controller: [
-                        '$scope', 'platformWebApp.bladeNavigationService', function ($scope, bladeNavigationService) {
+                        '$scope', 'platformWebApp.bladeNavigationService', ($scope, bladeNavigationService) => {
                             var newBlade = {
                                 id: 'returnsList',
                                 controller: 'virtoCommerce.returnModule.returnListController',
@@ -26,14 +26,14 @@ angular.module(moduleName, [])
         }]
     )
     .run(['platformWebApp.mainMenuService', 'platformWebApp.widgetService', '$state', 'platformWebApp.toolbarService', 'platformWebApp.bladeNavigationService',
-        function (mainMenuService, widgetService, $state, toolBarService, bladeNavigationService) {
+        (mainMenuService, widgetService, $state, toolBarService, bladeNavigationService) => {
             //Register module in main menu
             var menuItem = {
                 path: 'browse/Return',
                 icon: 'fa fa-exchange',
                 title: 'Return',
                 priority: 100,
-                action: function () { $state.go('workspace.ReturnState'); },
+                action: () => { $state.go('workspace.ReturnState'); },
                 permission: 'return:access'
             };
             mainMenuService.addMenuItem(menuItem);
@@ -54,7 +54,7 @@ angular.module(moduleName, [])
                 name: 'return.blades.return-list.labels.create-return',
                 icon: 'fa fa-exchange',
                 index: 6,
-                executeMethod: function(blade) {
+                executeMethod: (blade) => {
                     var itemsListBlade = {
                         id: 'itemListBlade',
                         controller: 'virtoCommerce.returnModule.orderItemsController',
@@ -71,9 +71,7 @@ angular.module(moduleName, [])
 
                     bladeNavigationService.showBlade(itemsListBlade, blade);
                 },
-                canExecuteMethod: function(blade) {
-                    return true;
-                }
+                canExecuteMethod: (blade) => true
             }
 
             toolBarService.register(makeReturnCommand, 'virtoCommerce.orderModule.operationDetailController');

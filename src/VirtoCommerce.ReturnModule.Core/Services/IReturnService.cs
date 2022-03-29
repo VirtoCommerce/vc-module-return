@@ -8,7 +8,7 @@ namespace VirtoCommerce.ReturnModule.Core.Services
 {
     public interface IReturnService : ICrudService<Return>
     {
-        Task<IEnumerable<string>> SaveChangesAsync(Return[] returns);
+        new Task<IList<string>> SaveChangesAsync(IEnumerable<Return> returns);
         Task<Dictionary<string, int>> GetItemsAvailableQuantities(string orderId);
         Task<Dictionary<string, int>> GetItemsAvailableQuantities(CustomerOrder order, string returnId = null);
     }

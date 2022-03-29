@@ -1,9 +1,9 @@
 angular.module('virtoCommerce.returnModule')
     .controller('virtoCommerce.returnModule.returnItemsWidgetController', ['$scope', 'platformWebApp.bladeNavigationService',
-        function ($scope, bladeNavigationService) {
+        ($scope, bladeNavigationService) => {
             var blade = $scope.widget.blade;
 
-            $scope.$watch('widget.blade.currentEntity', function (orderReturn) {
+            $scope.$watch('widget.blade.currentEntity', (orderReturn) => {
                 $scope.orderReturn = orderReturn;
 
                 if (orderReturn) {
@@ -15,7 +15,7 @@ angular.module('virtoCommerce.returnModule')
                 }
             });
 
-            $scope.openItemsBlade = function () {
+            $scope.openItemsBlade = () => {
                 var itemsListBlade = {
                     id: 'itemListBlade',
                     controller: 'virtoCommerce.returnModule.orderItemsController',

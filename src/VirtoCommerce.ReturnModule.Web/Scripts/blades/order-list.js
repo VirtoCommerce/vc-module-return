@@ -1,6 +1,6 @@
 angular.module('virtoCommerce.returnModule')
     .controller('virtoCommerce.returnModule.orderListController', ['$rootScope', '$scope', '$localStorage', 'virtoCommerce.orderModule.order_res_customerOrders', 'platformWebApp.bladeUtils', 'platformWebApp.authService', 'uiGridConstants', 'platformWebApp.uiGridHelper', 'platformWebApp.ui-grid.extension', '$translate',
-        function ($rootScope, $scope, $localStorage, customerOrders, bladeUtils, authService, uiGridConstants, uiGridHelper, gridOptionExtension, $translate) {
+        ($rootScope, $scope, $localStorage, customerOrders, bladeUtils, authService, uiGridConstants, uiGridHelper, gridOptionExtension, $translate) => {
             var blade = $scope.blade;
             blade.title = 'return.blades.order-list.title';
 
@@ -35,14 +35,14 @@ angular.module('virtoCommerce.returnModule')
                 });
             });
 
-            blade.refresh = function () {
+            blade.refresh = () => {
                 if (angular.isFunction(blade.refreshCallback)) {
                     blade.isLoading = true;
 
                     var result = blade.refreshCallback(blade);
 
                     if (angular.isDefined(result.$promise)) {
-                        result.$promise.then(function (data) {
+                        result.$promise.then((data) => {
                             blade.isLoading = false;
 
                             $scope.pageSettings.totalItems = data.totalCount;
@@ -73,7 +73,7 @@ angular.module('virtoCommerce.returnModule')
                         angular.extend(criteria, filter.current);
                     }
 
-                    customerOrders.search(criteria, function (data) {
+                    customerOrders.search(criteria, (data) => {
                         blade.isLoading = false;
 
                         $scope.pageSettings.totalItems = data.totalCount;
@@ -82,7 +82,7 @@ angular.module('virtoCommerce.returnModule')
                 }
             };
 
-            $scope.selectNode = function (node) {
+            $scope.selectNode = (node) => {
                 $scope.selectedNodeId = node.id;
 
                 var itemsListBlade = {
@@ -108,9 +108,7 @@ angular.module('virtoCommerce.returnModule')
                 {
                     name: "platform.commands.refresh", icon: 'fa fa-refresh',
                     executeMethod: blade.refresh,
-                    canExecuteMethod: function () {
-                        return true;
-                    }
+                    canExecuteMethod: () => true
                 }
             ];
 
@@ -123,7 +121,7 @@ angular.module('virtoCommerce.returnModule')
                 filter.current = _.findWhere($localStorage.orderSearchFilters, { id: $localStorage.orderSearchFilterId });
             }
 
-            filter.change = function () {
+            filter.change = () => {
                 $localStorage.orderSearchFilterId = filter.current ? filter.current.id : null;
                 if (filter.current && !filter.current.id) {
                     filter.current = null;
@@ -134,7 +132,7 @@ angular.module('virtoCommerce.returnModule')
                 }
             };
 
-            filter.edit = function () {
+            filter.edit = () => {
                 if (filter.current) {
                     showFilterDetailBlade({ data: filter.current });
                 }
@@ -150,7 +148,7 @@ angular.module('virtoCommerce.returnModule')
                 bladeNavigationService.showBlade(newBlade, blade);
             }
 
-            filter.criteriaChanged = function () {
+            filter.criteriaChanged = () => {
                 if ($scope.pageSettings.currentPage > 1) {
                     $scope.pageSettings.currentPage = 1;
                 } else {
@@ -158,27 +156,26 @@ angular.module('virtoCommerce.returnModule')
                 }
             };
 
-            blade.onExpand = function () {
+            blade.onExpand = () => {
                 $scope.gridOptions.onExpand();
             };
-            blade.onCollapse = function () {
+            blade.onCollapse = () => {
                 $scope.gridOptions.onCollapse();
             };
 
-            $scope.setGridOptions = function (gridId, gridOptions) {
+            $scope.setGridOptions = (gridId, gridOptions) => {
                 Array.prototype.push.apply(gridOptions.columnDefs, _.map([
                     "discountAmount", "subTotal", "subTotalWithTax", "subTotalDiscount", "subTotalDiscountWithTax", "subTotalTaxTotal",
                     "shippingTotal", "shippingTotalWithTax", "shippingSubTotal", "shippingSubTotalWithTax", "shippingDiscountTotal", "shippingDiscountTotalWithTax", "shippingTaxTotal",
                     "paymentTotal", "paymentTotalWithTax", "paymentSubTotal", "paymentSubTotalWithTax", "paymentDiscountTotal", "paymentDiscountTotalWithTax", "paymentTaxTotal",
                     "discountTotal", "discountTotalWithTax", "fee", "feeWithTax", "feeTotal", "feeTotalWithTax", "taxTotal", "sum"
-                ], function (name) {
-                    return { name: name, cellFilter: "currency | showPrice:" + $scope.getPricesVisibility(), visible: false };
-                }));
+                ], (name) => ({ name: name, cellFilter: "currency | showPrice:" + $scope.getPricesVisibility(), visible: false })
+                ));
 
                 $scope.gridOptions = gridOptions;
                 gridOptionExtension.tryExtendGridOptions(gridId, gridOptions);
 
-                uiGridHelper.initialize($scope, gridOptions, function (gridApi) {
+                uiGridHelper.initialize($scope, gridOptions, (gridApi) => {
                     if (blade.preloadedOrders) {
                         $scope.gridOptions.enableSorting = true;
                         $scope.gridOptions.useExternalSorting = false;

@@ -1,6 +1,6 @@
 angular.module('virtoCommerce.returnModule')
     .controller('virtoCommerce.returnModule.orderItemsController', ['$scope', '$translate', 'platformWebApp.authService', 'virtoCommerce.returnModule.returns', 'platformWebApp.bladeUtils', 'virtoCommerce.orderModule.order_res_customerOrders', 'platformWebApp.objCompareService',
-        function ($scope, $translate, authService, returns, bladeUtils, customerOrders, objCompareService) {
+        ($scope, $translate, authService, returns, bladeUtils, customerOrders, objCompareService) => {
             var blade = $scope.blade;
             blade.updatePermission = 'order:update';
             blade.isVisiblePrices = authService.checkPermission('order:read_prices');
@@ -9,12 +9,12 @@ angular.module('virtoCommerce.returnModule')
             var selectedItems = [];
             blade.title = 'return.blades.items-list.title';
 
-            blade.refresh = function () {
+            blade.refresh = () => {
                 blade.isLoading = true;
 
                 if (blade.editMode) {
                     returns.get({ id: blade.currentEntity.id },
-                        function (result) {
+                        (result) => {
                             result.lineItems.forEach(item => {
                                 var orderItem = result.order.items.find(x => x.id === item.orderLineItemId);
 
@@ -27,7 +27,7 @@ angular.module('virtoCommerce.returnModule')
 
                             $scope.lineItems = blade.currentEntity.lineItems;
 
-                            $translate('return.blades.items-list.subtitle-edit', { number: result.number }).then(function (translationResult) {
+                            $translate('return.blades.items-list.subtitle-edit', { number: result.number }).then((translationResult) => {
                                 blade.subtitle = translationResult;
                             });
 
@@ -36,16 +36,16 @@ angular.module('virtoCommerce.returnModule')
                         });
                 } else {
                     customerOrders.get({ id: blade.currentEntity.order.id },
-                        function (result) {
+                        (result) => {
                             returns.availableQuantities({ id: blade.currentEntity.order.id },
-                                function(data) {
+                                (data) => {
                                     result.items.forEach(item => item.quantity = item.availableQuantity = data[item.id]);
 
                                     blade.currentEntity.order = result;
 
                                     $scope.lineItems = blade.currentEntity.order.items;
 
-                                    $translate('return.blades.items-list.subtitle-create', { number: result.number }).then(function (translationResult) {
+                                    $translate('return.blades.items-list.subtitle-create', { number: result.number }).then((translationResult) => {
                                         blade.subtitle = translationResult;
                                     });
 
@@ -60,9 +60,7 @@ angular.module('virtoCommerce.returnModule')
                 {
                     name: "platform.commands.refresh", icon: 'fa fa-refresh',
                     executeMethod: blade.refresh,
-                    canExecuteMethod: function () {
-                        return true;
-                    }
+                    canExecuteMethod: () => true
                 }
             ];
 
@@ -70,37 +68,35 @@ angular.module('virtoCommerce.returnModule')
                 {
                     name: "platform.commands.save",
                     icon: 'fas fa-save',
-                    executeMethod: function() {
+                    executeMethod: () => {
                         returns.update(blade.currentEntity,
-                            function(data) {
+                            (data) => {
                                 bladeNavigationService.closeBlade(blade);
                             });
                     },
-                    canExecuteMethod: function () {
-                        return !objCompareService.equal(blade.originalEntity, blade.currentEntity);
-                    },
+                    canExecuteMethod: () => !objCompareService.equal(blade.originalEntity, blade.currentEntity),
                     permission: blade.updatePermission
                 }
                 :
                 {
                     name: "Make return",
                     icon: 'fa fa-exchange',
-                    executeMethod: function () {
+                    executeMethod: () => {
                         var orderReturn = {
                             orderId: blade.currentEntity.order.id,
                             status: "New",
-                            lineItems: selectedItems.map(function (item) {
-                                return {
+                            lineItems: selectedItems.map((item) => 
+                                ({
                                     orderLineItemId: item.id,
                                     price: item.price,
                                     quantity: item.quantity,
                                     reason: item.reason ?? null
-                                }
-                            })
+                                })
+                            )
                         }
 
                         returns.update(orderReturn,
-                            function (data) {
+                            (data) => {
                                 var newBlade = {
                                     id: 'returnDetailsBlade',
                                     controller: 'virtoCommerce.returnModule.returnDetailsController',
@@ -116,25 +112,21 @@ angular.module('virtoCommerce.returnModule')
 
                             });
                     },
-                    canExecuteMethod: function () {
-                        return selectedItems.length > 0;
-                    },
+                    canExecuteMethod: () => selectedItems.length > 0,
                     permission: blade.updatePermission
                 };
 
             blade.toolbarCommands.push(button);
 
-            $scope.checkAll = function (selected) {
-                angular.forEach($scope.lineItems, function (item) {
+            $scope.checkAll = (selected) => {
+                angular.forEach($scope.lineItems, (item) => {
                     item.selected = selected;
                 });
                 $scope.updateSelectionList();
             };
 
-            $scope.updateSelectionList = function () {
-                selectedItems = $scope.lineItems.filter(function (item) {
-                    return item.selected && item.quantity > 0;
-                });
+            $scope.updateSelectionList = () => {
+                selectedItems = $scope.lineItems.filter((item) => item.selected && item.quantity > 0);
             };
 
             blade.refresh();

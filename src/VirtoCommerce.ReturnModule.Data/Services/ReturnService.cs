@@ -69,77 +69,74 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             return returns;
         }
 
-        public virtual async Task<IEnumerable<string>> SaveChangesAsync(Return[] returns)
+        public override async Task<IList<string>> SaveChangesAsync(IEnumerable<Return> returns)
         {
             var pkMap = new PrimaryKeyResolvingMap();
             var changedEntries = new List<GenericChangedEntry<Return>>();
-            var changedEntitiesMap = new Dictionary<Return, ReturnEntity>();
 
-            var orders = await GetOrdersForReturns(returns);
+            var returnsList = returns.ToList();
+
+            var orders = await GetOrdersForReturns(returnsList);
 
             var ids = new List<string>();
 
-            using (var repository = (IReturnRepository)_repositoryFactory())
+            using var repository = _returnRepositoryFactory();
+            var returnIds = returnsList.Where(x => !x.IsTransient()).Select(x => x.Id).ToArray();
+            var dataExistReturns =
+                await repository.GetReturnsByIdsAsync(returnIds, ReturnResponseGroup.WithOrders.ToString());
+
+            foreach (var modifiedReturn in returnsList)
             {
-                var returnIds = returns.Where(x => !x.IsTransient()).Select(x => x.Id).ToArray();
-                var dataExistReturns =
-                    await repository.GetReturnsByIdsAsync(returnIds, ReturnResponseGroup.WithOrders.ToString());
+                var originalEntity = dataExistReturns.FirstOrDefault(x => x.Id == modifiedReturn.Id);
 
-                foreach (var modifiedReturn in returns)
+                if (originalEntity != null)
                 {
-                    var originalEntity = dataExistReturns.FirstOrDefault(x => x.Id == modifiedReturn.Id);
+                    originalEntity.ModifiedDate = DateTime.UtcNow;
 
-                    if (originalEntity != null)
-                    {
-                        originalEntity.ModifiedDate = DateTime.UtcNow;
+                    var modifiedEntity = AbstractTypeFactory<ReturnEntity>
+                        .TryCreateInstance()
+                        .FromModel(modifiedReturn, pkMap);
 
-                        var modifiedEntity = AbstractTypeFactory<ReturnEntity>
-                            .TryCreateInstance()
-                            .FromModel(modifiedReturn, pkMap);
+                    repository.TrackModifiedAsAddedForNewChildEntities(originalEntity);
 
-                        repository.TrackModifiedAsAddedForNewChildEntities(originalEntity);
+                    changedEntries.Add(new GenericChangedEntry<Return>(modifiedReturn,
+                        originalEntity.ToModel(AbstractTypeFactory<Return>.TryCreateInstance()),
+                        EntryState.Modified));
 
-                        changedEntries.Add(new GenericChangedEntry<Return>(modifiedReturn,
-                            originalEntity.ToModel(AbstractTypeFactory<Return>.TryCreateInstance()),
-                            EntryState.Modified));
+                    modifiedEntity?.Patch(originalEntity);
 
-                        modifiedEntity?.Patch(originalEntity);
+                    var newModel = originalEntity.ToModel(AbstractTypeFactory<Return>.TryCreateInstance());
 
-                        var newModel = originalEntity.ToModel(AbstractTypeFactory<Return>.TryCreateInstance());
+                    var newModifiedEntity = AbstractTypeFactory<ReturnEntity>
+                        .TryCreateInstance()
+                        .FromModel(newModel, pkMap);
 
-                        var newModifiedEntity = AbstractTypeFactory<ReturnEntity>
-                            .TryCreateInstance()
-                            .FromModel(newModel, pkMap);
+                    newModifiedEntity?.Patch(originalEntity);
 
-                        newModifiedEntity?.Patch(originalEntity);
-                        changedEntitiesMap.Add(modifiedReturn, originalEntity);
-
-                        ids.Add(originalEntity.Id);
-                    }
-                    else
-                    {
-                        await SetReturnNumber(modifiedReturn, orders.FirstOrDefault(x => x.Id == modifiedReturn.OrderId)?.StoreId);
-
-                        var modifiedEntity = AbstractTypeFactory<ReturnEntity>
-                            .TryCreateInstance()
-                            .FromModel(modifiedReturn, pkMap);
-
-                        repository.Add(modifiedEntity);
-
-                        changedEntries.Add(new GenericChangedEntry<Return>(modifiedReturn, EntryState.Added));
-                        changedEntitiesMap.Add(modifiedReturn, modifiedEntity);
-
-                        ids.Add(modifiedEntity.Id);
-                    }
+                    ids.Add(originalEntity.Id);
                 }
+                else
+                {
+                    await SetReturnNumber(modifiedReturn, orders.FirstOrDefault(x => x.Id == modifiedReturn.OrderId)?.StoreId);
 
-                await _eventPublisher.Publish(new ReturnChangedEvent(changedEntries));
-                await repository.UnitOfWork.CommitAsync();
-                pkMap.ResolvePrimaryKeys();
-                ClearCache(returns);
+                    var modifiedEntity = AbstractTypeFactory<ReturnEntity>
+                        .TryCreateInstance()
+                        .FromModel(modifiedReturn, pkMap);
 
-                return ids;
+                    repository.Add(modifiedEntity);
+
+                    changedEntries.Add(new GenericChangedEntry<Return>(modifiedReturn, EntryState.Added));
+
+                    ids.Add(modifiedEntity.Id);
+                }
             }
+
+            await _eventPublisher.Publish(new ReturnChangedEvent(changedEntries));
+            await repository.UnitOfWork.CommitAsync();
+            pkMap.ResolvePrimaryKeys();
+            ClearCache(returnsList);
+
+            return ids;
         }
 
         public virtual async Task<Dictionary<string, int>> GetItemsAvailableQuantities(string orderId)
@@ -151,30 +148,28 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
         public virtual async Task<Dictionary<string, int>> GetItemsAvailableQuantities(CustomerOrder order, string returnId = null)
         {
-            using (var repository = _returnRepositoryFactory())
+            using var repository = _returnRepositoryFactory();
+            var returnIds = repository.Returns
+                .Where(x => x.OrderId == order.Id)
+                .Select(x => x.Id);
+
+            if (returnId != null)
             {
-                var returnIds = repository.Returns
-                    .Where(x => x.OrderId == order.Id)
-                    .Select(x => x.Id);
-
-                if (returnId != null)
-                {
-                    returnIds = returnIds.Where(x => x != returnId);
-                }
-
-                var returns = await GetAsync(returnIds.ToList());
-
-                var result = order.Items
-                    .Select(lineItem => new KeyValuePair<string, int>(
-                        lineItem.Id,
-                        Math.Max(0, lineItem.Quantity - returns
-                            .SelectMany(x => x.LineItems)
-                            .Where(x => x.OrderLineItemId == lineItem.Id)
-                            .Sum(x => x.Quantity))))
-                    .ToDictionary(k => k.Key, v => v.Value);
-
-                return result;
+                returnIds = returnIds.Where(x => x != returnId);
             }
+
+            var returns = await GetAsync(returnIds.ToList());
+
+            var result = order.Items
+                .Select(lineItem => new KeyValuePair<string, int>(
+                    lineItem.Id,
+                    Math.Max(0, lineItem.Quantity - returns
+                        .SelectMany(x => x.LineItems)
+                        .Where(x => x.OrderLineItemId == lineItem.Id)
+                        .Sum(x => x.Quantity))))
+                .ToDictionary(k => k.Key, v => v.Value);
+
+            return result;
         }
 
         private async Task SetReturnNumber(Return orderReturn, string storeId)

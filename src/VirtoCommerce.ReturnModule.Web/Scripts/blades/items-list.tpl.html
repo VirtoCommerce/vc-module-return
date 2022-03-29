@@ -19,7 +19,7 @@
                             </th>
                             <th class="table-col">{{ 'return.blades.items-list.labels.item-name' | translate }}</th>
                             <th class="table-col" width="33%">{{ 'return.blades.items-list.labels.reason' | translate }}</th>
-                            <th class="table-col" width="17%" ng-show="blade.editMode">{{ 'return.blades.items-list.labels.sku' | translate }}</th>
+                            <th class="table-col" width="17%" ng-if="blade.editMode">{{ 'return.blades.items-list.labels.sku' | translate }}</th>
                             <th class="table-col">{{ 'return.blades.items-list.labels.quantity' | translate }}</th>
                             <th class="table-col">{{ 'return.blades.items-list.labels.price' | translate }}</th>
                         </tr>
@@ -44,7 +44,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="table-col" ng-show="blade.editMode">
+                            <td class="table-col" ng-if="blade.editMode">
                                 <div class="table-item">
                                     {{ data.sku }}
                                 </div>

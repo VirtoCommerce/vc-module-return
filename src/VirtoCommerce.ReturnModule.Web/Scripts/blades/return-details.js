@@ -1,11 +1,11 @@
 angular.module('virtoCommerce.returnModule')
     .controller('virtoCommerce.returnModule.returnDetailsController', ['$scope', '$translate', 'platformWebApp.bladeNavigationService', 'platformWebApp.dialogService', 'platformWebApp.settings', 'virtoCommerce.customerModule.members', 'virtoCommerce.customerModule.memberTypesResolverService', 'virtoCommerce.orderModule.statusTranslationService', 'platformWebApp.accounts', 'platformWebApp.objCompareService', 'virtoCommerce.returnModule.returns',
-        function ($scope, $translate, bladeNavigationService, dialogService, settings, members, memberTypesResolverService, statusTranslationService, accounts, objCompareService, returns) {
-            $scope.saveChanges = function () {
+        ($scope, $translate, bladeNavigationService, dialogService, settings, members, memberTypesResolverService, statusTranslationService, accounts, objCompareService, returns) => {
+            $scope.saveChanges = () => {
                 angular.copy(blade.currentEntity, blade.originalEntity);
 
                 returns.update(blade.currentEntity,
-                    function (data) {
+                    (data) => {
                         var newBlade = {
                             id: 'returnsList',
                             controller: 'virtoCommerce.returnModule.returnListController',
@@ -20,13 +20,13 @@ angular.module('virtoCommerce.returnModule')
 
             settings.getValues({ id: 'Return.Status' }, translateBladeStatuses);
 
-            blade.refresh = function () {
+            blade.refresh = () => {
                 returns.get({ id: blade.currentEntityId },
-                    function (data) {
+                    (data) => {
                         blade.currentEntity = data;
                         blade.originalEntity = angular.copy(blade.currentEntity);
 
-                        $translate('return.blades.return-details.title', { number: data.number }).then(function (translationResult) {
+                        $translate('return.blades.return-details.title', { number: data.number }).then((translationResult) => {
                             blade.title = translationResult;
                         });
 
@@ -86,9 +86,7 @@ angular.module('virtoCommerce.returnModule')
                 {
                     name: "platform.commands.refresh", icon: 'fa fa-refresh',
                     executeMethod: blade.refresh,
-                    canExecuteMethod: function () {
-                        return true;
-                    }
+                    canExecuteMethod: () => true
                 },
                 {
                     name: "platform.commands.save",
@@ -99,7 +97,7 @@ angular.module('virtoCommerce.returnModule')
                 },
                 {
                     name: "platform.commands.reset", icon: 'fa fa-undo',
-                    executeMethod: function () {
+                    executeMethod: () => {
                         angular.copy(blade.originalEntity, blade.currentEntity);
                     },
                     canExecuteMethod: isDirty,
@@ -107,7 +105,7 @@ angular.module('virtoCommerce.returnModule')
                 }
             ];
 
-            blade.openStatusSettingManagement = function () {
+            blade.openStatusSettingManagement = () => {
                 var newBlade = {
                     id: 'settingDetailChild',
                     isApiSave: true,
@@ -119,10 +117,10 @@ angular.module('virtoCommerce.returnModule')
                 bladeNavigationService.showBlade(newBlade, blade);
             };
 
-            blade.openCreatorDetails = function () {
-                accounts.get({ id: blade.currentEntity.createdBy }, function (account) {
+            blade.openCreatorDetails = () => {
+                accounts.get({ id: blade.currentEntity.createdBy }, (account) => {
                     if (account && account.memberId) {
-                        members.get({ id: account.memberId }, function (member) {
+                        members.get({ id: account.memberId }, (member) => {
                             if (member && member.id) {
                                 showCustomerDetailBlade(member);
                             }
@@ -131,8 +129,8 @@ angular.module('virtoCommerce.returnModule')
                 });
             };
 
-            blade.openCustomerDetails = function () {
-                members.get({ id: blade.currentEntity.order.customerId }, function (member) {
+            blade.openCustomerDetails = () => {
+                members.get({ id: blade.currentEntity.order.customerId }, (member) => {
                     if (member && member.id) {
                         showCustomerDetailBlade(member);
                     }
