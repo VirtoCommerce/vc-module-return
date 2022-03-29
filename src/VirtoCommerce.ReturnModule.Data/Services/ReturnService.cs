@@ -91,8 +91,6 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
                 if (originalEntity != null)
                 {
-                    originalEntity.ModifiedDate = DateTime.UtcNow;
-
                     var modifiedEntity = AbstractTypeFactory<ReturnEntity>
                         .TryCreateInstance()
                         .FromModel(modifiedReturn, pkMap);
