@@ -10,7 +10,8 @@ angular.module('virtoCommerce.returnModule')
                             id: 'returnsList',
                             controller: 'virtoCommerce.returnModule.returnListController',
                             template: 'Modules/$(VirtoCommerce.Return)/Scripts/blades/return-list.tpl.html',
-                            isClosingDisabled: true
+                            isClosingDisabled: true,
+                            orderId: blade.currentEntity.order.id
                         };
                         bladeNavigationService.showBlade(newBlade);
                     });
