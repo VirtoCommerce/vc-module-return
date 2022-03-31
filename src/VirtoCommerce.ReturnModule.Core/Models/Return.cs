@@ -14,6 +14,8 @@ namespace VirtoCommerce.ReturnModule.Core.Models
 
         public string Status { get; set; }
 
+        public string Resolution { get; set; }
+
         public CustomerOrder Order { get; set; }
 
         public ICollection<ReturnLineItem> LineItems { get; set; }

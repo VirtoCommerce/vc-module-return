@@ -1,0 +1,7 @@
+<div class="gridster-cnt" ng-click="openItemsBlade()">
+    <div class="cnt-inner">
+        <div class="list-count">{{orderReturn.lineItems.length | number:0}}</div>
+        <div class="list-t">{{'orders.widgets.customerOrder-items.title' | translate}}</div>
+        <div class="list-price" va-permission="order:read_prices">{{ total }}</div>
+    </div>
+</div>

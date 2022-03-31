@@ -1,0 +1,43 @@
+<div class="blade-content __medium-wide">
+    <div class="blade-inner">
+        <div class="inner-block">
+            <form name="formScope" ng-controller="virtoCommerce.returnModule.returnDetailsController">
+                <fieldset>
+                    <va-metaform registered-inputs="blade.metaFields" blade="blade" column-count="2" ng-init="setForm(formScope)"></va-metaform>
+                </fieldset>
+            </form>
+            <va-widget-container group="returnDetailsWidgets" blade="blade" gridster-opts="{columns: 4}"></va-widget-container>
+        </div>
+    </div>
+</div>
+
+<script type="text/ng-template" id="statusSelector.html">
+    <label class="form-label">
+        {{ 'return.blades.return-details.labels.status' | translate }}
+        <a href="" ng-click="blade.openStatusSettingManagement()" class="form-edit"><i class="form-ico fa fa-pencil"></i></a>
+    </label>
+    <div class="form-input">
+        <ui-select ng-model="blade.currentEntity.status" ng-disabled="blade.isLocked">
+            <ui-select-match>{{$select.selected.value}}</ui-select-match>
+            <ui-select-choices repeat="x.key as x in blade.statuses | filter: {'value': $select.search}">
+                <span ng-bind-html="x.value | highlight: $select.search"></span>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+</script>
+
+<script type="text/ng-template" id="creatorSelector.html">
+    <div class="form-input">
+        <label class="form-label" style="height:27px;">
+            <a href="" ng-click="blade.openCreatorDetails()">{{ blade.currentEntity.createdBy }}</a>
+        </label>
+    </div>
+</script>
+
+<script type="text/ng-template" id="customerSelector.html">
+    <div class="form-input">
+        <label class="form-label" style="height:27px;">
+            <a href="" ng-click="blade.openCustomerDetails()">{{ blade.currentEntity.order.customerName }}</a>
+        </label>
+    </div>
+</script>

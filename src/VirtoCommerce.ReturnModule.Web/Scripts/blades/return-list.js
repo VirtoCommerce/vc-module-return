@@ -1,6 +1,6 @@
 angular.module('virtoCommerce.returnModule')
     .controller('virtoCommerce.returnModule.returnListController', ['$scope', 'virtoCommerce.returnModule.returns', 'platformWebApp.bladeUtils', 'platformWebApp.uiGridHelper', 'platformWebApp.ui-grid.extension',
-        function ($scope, returns, bladeUtils, uiGridHelper, gridOptionExtension) {
+        ($scope, returns, bladeUtils, uiGridHelper, gridOptionExtension) => {
             $scope.uiGridConstants = uiGridHelper.uiGridConstants;
 
             var blade = $scope.blade;
@@ -9,21 +9,25 @@ angular.module('virtoCommerce.returnModule')
             blade.title = 'return.blades.return-list.title';
             blade.headIcon = 'fa fa-exchange';
 
-            blade.refresh = function () {
+            blade.refresh = () => {
                 blade.isLoading = true;
                 var searchCriteria = getSearchCriteria();
+
+                if (blade.orderId) {
+                    searchCriteria.orderId = blade.orderId;
+                }
 
                 if (blade.searchCriteria) {
                     angular.extend(searchCriteria, blade.searchCriteria);
                 }
 
                 returns.search(searchCriteria,
-                    function (data) {
+                    (data) => {
                         blade.isLoading = false;
                         $scope.pageSettings.totalItems = data.totalCount;
 
                         if (Array.isArray(data.results) && data.results.length) {
-                            _.each(data.results, function (orderReturn) {
+                            _.each(data.results, (orderReturn) => {
                                 if (orderReturn.order) {
                                     orderReturn.orderNumber = orderReturn.order.number ?? '';
                                     orderReturn.customerName = orderReturn.order.customerName ?? '';
@@ -38,6 +42,12 @@ angular.module('virtoCommerce.returnModule')
                         }
 
                         $scope.listEntries = data.results ? data.results : [];
+
+                        var orderBlade = $scope.$parent.$parent.blades.find(x => x.id === "orderDetail");
+
+                        if (orderBlade) {
+                            orderBlade.refresh();
+                        }
                     });
             };
 
@@ -45,13 +55,11 @@ angular.module('virtoCommerce.returnModule')
                 {
                     name: "platform.commands.refresh", icon: 'fa fa-refresh',
                     executeMethod: blade.refresh,
-                    canExecuteMethod: function () {
-                        return true;
-                    }
+                    canExecuteMethod: () => true
                 },
                 {
                     name: "return.blades.return-list.labels.add-return", icon: 'fas fa-plus',
-                    executeMethod: function (currentBlade) {
+                    executeMethod: (currentBlade) => {
                         var orderListBlade = {
                             id: 'orderListBlade',
                             controller: 'virtoCommerce.returnModule.orderListController',
@@ -59,23 +67,21 @@ angular.module('virtoCommerce.returnModule')
                             isClosingDisabled: false,
                             hideDelete: true,
                             isExpanded: true
-                    };
+                        };
 
                         bladeNavigationService.showBlade(orderListBlade, currentBlade);
                     },
-                    canExecuteMethod: function () {
-                        return true;
-                    }
+                    canExecuteMethod: () => true
                 }
             ];
 
-            $scope.setGridOptions = function (gridId, gridOptions) {
+            $scope.setGridOptions = (gridId, gridOptions) => {
                 $scope.gridOptions = gridOptions;
                 gridOptionExtension.tryExtendGridOptions(gridId, gridOptions);
 
-                gridOptions.onRegisterApi = function (gridApi) {
+                gridOptions.onRegisterApi = (gridApi) => {
                     $scope.gridApi = gridApi;
-                    gridApi.core.on.sortChanged($scope, function () {
+                    gridApi.core.on.sortChanged($scope, () => {
                         if (!blade.isLoading) blade.refresh();
                     });
                 };
@@ -83,13 +89,25 @@ angular.module('virtoCommerce.returnModule')
                 bladeUtils.initializePagination($scope);
             };
 
-            $scope.clearKeyword = function () {
+            $scope.clearKeyword = () => {
                 blade.searchKeyword = null;
                 blade.refresh();
             };
 
-            $scope.selectNode = function (node) {
-                console.log("return click", node);
+            $scope.selectNode = (node) => {
+                $scope.selectedNodeId = node.id;
+
+                var returnDetailsBlade = {
+                    id: 'returnDetailsBlade',
+                    controller: 'virtoCommerce.returnModule.returnDetailsController',
+                    template: 'Modules/$(VirtoCommerce.Return)/Scripts/blades/return-details.tpl.html',
+                    isClosingDisabled: false,
+                    hideDelete: true,
+                    isExpanded: true
+                };
+
+                returnDetailsBlade.currentEntityId = node.id;
+                bladeNavigationService.showBlade(returnDetailsBlade, blade);
             };
 
             function getSearchCriteria() {

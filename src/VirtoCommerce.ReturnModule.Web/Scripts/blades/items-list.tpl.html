@@ -1,6 +1,6 @@
 <div class="blade-static">
     <div class="form-group">
-        <p class="form-count">{{'platform.list.count' | translate}}: <span class="count">{{blade.currentEntity.items.length | number:0}}</span></p>
+        <p class="form-count">{{'platform.list.count' | translate}}: <span class="count">{{lineItems.length | number:0}}</span></p>
     </div>
 </div>
 <div class="blade-content __xlarge-wide">
@@ -11,7 +11,7 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th class="table-col __product-control">
+                            <th class="table-col __product-control" ng-show="!blade.editMode">
                                 <label class="form-control __checkbox">
                                     <input type="checkbox" ng-model="blade.selectedAll" ng-change="checkAll(blade.selectedAll)" />
                                     <span class="check"></span>
@@ -19,13 +19,14 @@
                             </th>
                             <th class="table-col">{{ 'return.blades.items-list.labels.item-name' | translate }}</th>
                             <th class="table-col" width="33%">{{ 'return.blades.items-list.labels.reason' | translate }}</th>
+                            <th class="table-col" width="17%" ng-if="blade.editMode">{{ 'return.blades.items-list.labels.sku' | translate }}</th>
                             <th class="table-col">{{ 'return.blades.items-list.labels.quantity' | translate }}</th>
                             <th class="table-col">{{ 'return.blades.items-list.labels.price' | translate }}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="table-item" ng-repeat-start="data in blade.currentEntity.items" ng-class="{'__selected': $index === blade.selectedNodeId}" ng-click='blade.selectedNodeId = $index'>
-                            <td class="table-col">
+                        <tr class="table-item" ng-repeat-start="data in lineItems" ng-class="{'__selected': $index === blade.selectedNodeId}" ng-click='blade.selectedNodeId = $index'>
+                            <td class="table-col" ng-show="!blade.editMode">
                                 <label class="form-control __checkbox">
                                     <input type="checkbox" ng-model="data.selected" ng-change="updateSelectionList()">
                                     <span class="check"></span>
@@ -33,7 +34,7 @@
                             </td>
                             <td class="table-col">
                                 <div class="table-item">
-                                        {{ data.name }}
+                                    {{ data.name }}
                                 </div>
                             </td>
                             <td class="table-col">
@@ -43,15 +44,20 @@
                                     </div>
                                 </div>
                             </td>
+                            <td class="table-col" ng-if="blade.editMode">
+                                <div class="table-item">
+                                    {{ data.sku }}
+                                </div>
+                            </td>
                             <td class="table-col">
                                 <div class="form-input __mini __inline">
                                     <div class="form-input __mini __number">
                                         <input smart-float
                                                type="number"
-                                               min="0"
-                                               max="{{ data.avaliableQuantity }}"
+                                               min="{{ blade.editMode ? 1 : 0 }}"
+                                               max="{{ data.availableQuantity }}"
                                                ng-change="updateSelectionList()"
-                                               oninput="this.value = this.value < 0 ? Math.abs(this.value) : Math.min(this.max, this.value)"
+                                               oninput="this.value = this.value < this.min ? Math.abs(Math.max(this.min, this.value)) : Math.min(this.max, this.value)"
                                                num-type="integer"
                                                required
                                                ng-model="data.quantity"

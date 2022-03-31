@@ -15,22 +15,39 @@
           "modified-date": "Modify Date",
           "created-by": "Created By",
           "items-count": "Item Count",
-    		  "add-return": "Add new return"
+          "add-return": "Add new return",
+          "create-return": "Create return" 
         }
       },
       "order-list": {
-        "title": "Customer orders"
+        "title": "Customer orders",
+        "widget-title": "Returns" 
       },
       "items-list": {
         "title": "Line items",
-        "subtitle": "Order #{{number}}",
+        "subtitle-create": "Order #{{number}}",
+        "subtitle-edit": "Return #{{number}}",
         "labels": {
           "item-name": "Item name",
           "reason": "Return reason",
           "quantity": "Quantity",
-          "price": "Price"
+          "price": "Price",
+          "sku": "SKU" 
         }
-      }
+      },
+      "return-details": {
+        "title": "Return #{{number}}",
+        "labels": {
+          "number": "Return number",
+          "orderNumber": "Order number",
+          "createdDate": "Created date",
+          "modifiedDate": "Modified date",
+          "createdBy": "Created by",
+          "customer": "Customer",
+          "resolution": "Resolution",
+          "status": "Status"
+        }
+      } 
     }
   },
   "permissions": {
@@ -49,11 +66,15 @@
       "ReturnEnabled": {
         "title": "Enable Return Module",
         "description": "Toggle this button to enable or disable the Return module"
-	  },
-	  "ReturnNewNumberTemplate": {
+      },
+      "ReturnNewNumberTemplate": {
         "title": "Return Number Template",
         "description": "Use this template to generate new order returns"
-      } 
-    }
+      }
+    },
+    "Return.Status": {
+      "description": "Order return statuses",
+      "title": "Customer order return statuses"
+    } 
   }
 }
