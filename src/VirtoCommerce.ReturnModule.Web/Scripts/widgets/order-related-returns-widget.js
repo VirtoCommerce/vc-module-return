@@ -3,11 +3,11 @@ angular.module('virtoCommerce.returnModule')
         ($scope, bladeNavigationService, returns) => {
             var blade = $scope.widget.blade;
 
-            $scope.$watch('widget.blade.currentEntity', (entity) => {
+            $scope.$watch('blade.currentEntity', (entity) => {
                 var searchCriteria = {
                     skip: 0,
                     take: 0,
-                    orderId: blade.customerOrder.id
+                    orderId: entity.id
                 }
 
                 returns.search(searchCriteria,

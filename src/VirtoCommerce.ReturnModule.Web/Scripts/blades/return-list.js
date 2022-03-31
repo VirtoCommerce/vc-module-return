@@ -42,6 +42,12 @@ angular.module('virtoCommerce.returnModule')
                         }
 
                         $scope.listEntries = data.results ? data.results : [];
+
+                        var orderBlade = $scope.$parent.$parent.blades.find(x => x.id === "orderDetail");
+
+                        if (orderBlade) {
+                            orderBlade.refresh();
+                        }
                     });
             };
 

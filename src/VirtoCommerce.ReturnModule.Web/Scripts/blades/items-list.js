@@ -1,6 +1,14 @@
 angular.module('virtoCommerce.returnModule')
     .controller('virtoCommerce.returnModule.orderItemsController', ['$scope', '$translate', 'platformWebApp.authService', 'virtoCommerce.returnModule.returns', 'platformWebApp.bladeUtils', 'virtoCommerce.orderModule.order_res_customerOrders', 'platformWebApp.objCompareService',
         ($scope, $translate, authService, returns, bladeUtils, customerOrders, objCompareService) => {
+            var refreshReturnList = function () {
+                var orderBlade = $scope.$parent.$parent.blades.find(x => x.id === "returnsList");
+
+                if (orderBlade) {
+                    orderBlade.refresh();
+                }
+            }
+
             var blade = $scope.blade;
             blade.updatePermission = 'order:update';
             blade.isVisiblePrices = authService.checkPermission('order:read_prices');
@@ -110,6 +118,7 @@ angular.module('virtoCommerce.returnModule')
                                 bladeNavigationService.closeBlade(blade);
                                 bladeNavigationService.showBlade(newBlade);
 
+                                refreshReturnList();
                             });
                     },
                     canExecuteMethod: () => selectedItems.length > 0,
