@@ -57,3 +57,8 @@ You can edit return by click on it in the list. Also just created returns are op
 The order blade contains the widget with returns count related to this order. Click on it opens a blade with a list of these returns.
 
 ![Related returns](media/11-related-returns.png)
+
+# Process diagram
+The return livetime can be described ty the following schema.
+
+![Process diagram](media/12-process-diagram.png)
