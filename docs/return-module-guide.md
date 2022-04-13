@@ -62,3 +62,23 @@ The order blade contains the widget with returns count related to this order. Cl
 The return livetime can be described ty the following schema.
 
 ![Process diagram](media/12-process-diagram.png)
+
+# API description
+
+## Search
+Search API uses standard search criteria with the following valuable fields.
+
+```json
+POST /api/return/search
+ 
+{
+  "orderId": "<some_guid>",
+  "objectIds": [
+    "<some_guid>"
+  ],
+  "keyword": "<some_keyword>",
+  "sort": "Ascending",
+  "skip": 0,
+  "take": 0
+}
+```
