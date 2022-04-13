@@ -15,6 +15,7 @@ If you cannot see it on the panel, click *More* and find it in the list in there
 You can also star the Return module to favorite it; this was, you will always be able to access it from the left hand panel of the home screen.
 
 # Working with Return Module
+## Viewing returns list
 As mentioned in the overview, the Return module supplies you with a list of all return operations your customers requested. Here is how its home screen may look like:
 
 ![Return list home screen](media/03-return-list-overview.png)
@@ -32,3 +33,12 @@ Finally, you can use the search box to type a keyword or key phrase and thus fil
 ![Using the search feature: Return list items with the New status only](media/06-return-list-search-new-only.png) 
 
 ***Important:*** *You can use both sorting and searching/filtering for all columns, except these three: Order Number, Customer, and Item Count. This is because these columns are borrowed from the Order module and thus are not native to the Return module.*
+
+## Creating return from the list
+There are two ways to create a return. The first is creation from the returns list with the "Add new return" button on top of it.
+
+![Add new return button](media/07-add-new-return-button.png)
+
+This button opens a blade with orders. Click on a order opens next blade with order line items. Here you can select line items to be returned, enter returning reason and quantity. "Make return" button becames active when at least one line item with non-zero quantity is selected. Qunatity field has the validation. You cannot return more items than order contais and wich weren't been returned in oter returns related to this order. Return reason is optional.
+
+![Order selection](media/08-order-select.png)
