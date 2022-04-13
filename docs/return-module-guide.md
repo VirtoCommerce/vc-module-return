@@ -42,3 +42,8 @@ There are two ways to create a return. The first is creation from the returns li
 This button opens a blade with orders. Click on a order opens next blade with order line items. Here you can select line items to be returned, enter returning reason and quantity. "Make return" button becames active when at least one line item with non-zero quantity is selected. Qunatity field has the validation. You cannot return more items than order contais and wich weren't been returned in oter returns related to this order. Return reason is optional.
 
 ![Order selection](media/08-order-select.png)
+
+## Creating return from the order
+The second way to create a return is using "Create return" button on top of the order blade. Click on this button opens a blade for line items selection to be return. It is the same blade as in the section above and works identically.
+
+![Return creation from order](media/09-return-from-order.png)
