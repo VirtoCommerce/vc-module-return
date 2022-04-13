@@ -49,6 +49,11 @@ The second way to create a return is using "Create return" button on top of the 
 ![Return creation from order](media/09-return-from-order.png)
 
 ## Return editing
-You can edit return by click on it in the list. Also just created returns are opened for editing automatically. On the main return blade you can edit status and reason. The list of line items can be opened by click on the widget with items count and it's total price on the bottom of the blade. It works similar to the creating process, expect absence of the checkboxes and impossibility of entering zero quantity.
+You can edit return by click on it in the list. Also just created returns are opened for editing automatically. On the main return blade you can edit status and reason. Possible statuses list is editable. The list of line items can be opened by click on the widget with items count and it's total price on the bottom of the blade. It works similar to the creating process, expect absence of the checkboxes and impossibility of entering zero quantity. You cannot add or remove line items for a existing return.
 
-![Return creation from order](media/10-return-editign.png)
+![Return editing](media/10-return-editign.png)
+
+## Related returns
+The order blade contains the widget with returns count related to this order. Click on it opens a blade with a list of these returns.
+
+![Related returns](media/11-related-returns.png)
