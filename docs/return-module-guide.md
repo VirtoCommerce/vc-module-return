@@ -145,3 +145,11 @@ The API has URL
 ```
 
 It receives Order ID as parameter and returns avaliable to return quantity for each order's line item considering all existing for this order returns.
+Example of response if following:
+
+```json
+{
+  "4c893e7fe56348b5a05c8b4671c5f140": 3,
+  "c32a0b78aac84cb8becf6657fe9895fa": 21
+}
+```
