@@ -157,4 +157,10 @@ Example of response if following:
 # Settings
 Template for the generating a return number is configurable. It can be set separately for each store for the store settings.
 
-![Template settings](media/12-settings.png)
+![Template settings](media/13-settings.png)
+
+# Permissions
+
+Return module adds standard set of permissions: access, create, read, delete and update.
+
+![Template settings](media/14-permissions.png)
