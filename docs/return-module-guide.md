@@ -153,3 +153,8 @@ Example of response if following:
   "c32a0b78aac84cb8becf6657fe9895fa": 21
 }
 ```
+
+# Settings
+Template for the generating a return number is configurable. It can be set separately for each store for the store settings.
+
+![Template settings](media/12-settings.png)
