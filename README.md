@@ -12,7 +12,7 @@ As noted above, apart from the core Virto Commerce platform, you need to have th
 
 ## Documentation
 
-You can find more information on how to work with the return module [here](https://virtocommerce.com/docs/modules/return/).
+You can find more information on how to work with the return module [here](docs/return-module-guide.md).
 
 ## License
 
