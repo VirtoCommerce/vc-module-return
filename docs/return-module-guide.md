@@ -63,6 +63,8 @@ The return livetime can be described ty the following schema.
 
 ![Process diagram](media/12-process-diagram.png)
 
+Once created, a return cannot be deletet. Statuses can be switched in any direction with no restriction. Quantity of line items can be changed anyhow within available value. Line items themself cannot be deleted
+
 # API description
 
 ## Search
@@ -82,3 +84,64 @@ POST /api/return/search
   "take": 0
 }
 ```
+There is an example of search response:
+
+```json
+{
+  "totalCount": 21,
+  "results": [
+    {
+      "number": "RET220314-00001",
+      "orderId": "e3ede9031a61421b924bda2fbadf6aef",
+      "status": "Approved",
+      "resolution": "Some resolution",
+      "order": {
+		  //customer order fields
+	  },
+      "lineItems": [
+        {
+          "returnId": "2fffc88f-014a-48a0-b80d-29a178a43b29",
+          "orderLineItemId": "4c893e7fe56348b5a05c8b4671c5f140",
+          "quantity": 9,
+          "availableQuantity": 0,
+          "price": 589.99,
+          "reason": "Not wanted",
+          "createdDate": "2022-03-14T07:17:08.074618Z",
+          "modifiedDate": "2022-03-15T11:47:47.6054095Z",
+          "createdBy": "admin",
+          "modifiedBy": "admin",
+          "id": "1caa064b-d199-4671-beba-126ece340d86"
+        },
+        {
+          "returnId": "2fffc88f-014a-48a0-b80d-29a178a43b29",
+          "orderLineItemId": "c32a0b78aac84cb8becf6657fe9895fa",
+          "quantity": 7,
+          "availableQuantity": 0,
+          "price": 399,
+          "reason": "Not needed",
+          "createdDate": "2022-03-14T07:17:08.0818378Z",
+          "modifiedDate": "2022-03-15T11:47:16.6209129Z",
+          "createdBy": "admin",
+          "modifiedBy": "admin",
+          "id": "3504cd3f-d7b9-4b7c-8ab0-6c7aa2d47025"
+        }
+      ],
+      "createdDate": "2022-03-14T07:17:08.0586692Z",
+      "modifiedDate": "2022-03-29T13:55:46.5941812Z",
+      "createdBy": "admin",
+      "modifiedBy": "admin",
+      "id": "2fffc88f-014a-48a0-b80d-29a178a43b29"
+    }
+  ]
+}
+```
+## Other CRUD
+GET, PUT and DELETE operations work with the same models.
+
+## Avaliable quantities
+The API has URL 
+```
+/api/return/available-quantities/{orderId}
+```
+
+It receives Order ID as parameter and returns avaliable to return quantity for each order's line item considering all existing for this order returns.
