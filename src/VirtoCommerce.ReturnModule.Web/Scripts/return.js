@@ -71,9 +71,10 @@ angular.module(moduleName, [])
 
                     bladeNavigationService.showBlade(itemsListBlade, blade);
                 },
-                canExecuteMethod: (blade) => true
+                canExecuteMethod: (blade) => true,
+                hide: (blade) => blade.id !== "orderDetail"
             }
 
-            toolBarService.register(makeReturnCommand, 'virtoCommerce.orderModule.operationDetailController');
+            toolBarService.tryRegister(makeReturnCommand, 'virtoCommerce.orderModule.operationDetailController');
         }
     ]);
