@@ -21,10 +21,12 @@ namespace VirtoCommerce.ReturnModule.Web
 
         public void Initialize(IServiceCollection serviceCollection)
         {
-            // database initialization
-            var configuration = serviceCollection.BuildServiceProvider().GetRequiredService<IConfiguration>();
-            var connectionString = configuration.GetConnectionString(ModuleInfo.Id) ?? configuration.GetConnectionString("VirtoCommerce");
-            serviceCollection.AddDbContext<ReturnDbContext>(options => options.UseSqlServer(connectionString));
+            serviceCollection.AddDbContext<ReturnDbContext>((provider, options) =>
+            {
+                var configuration = provider.GetRequiredService<IConfiguration>();
+                options.UseSqlServer(configuration.GetConnectionString(ModuleInfo.Id) ?? configuration.GetConnectionString("VirtoCommerce"));
+            });
+
             serviceCollection.AddTransient<IReturnRepository, ReturnRepositoryImpl>();
             serviceCollection.AddTransient<Func<IReturnRepository>>(provider => () => provider.CreateScope().ServiceProvider.GetRequiredService<IReturnRepository>());
             serviceCollection.AddTransient<IReturnService, ReturnService>();
