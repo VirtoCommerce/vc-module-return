@@ -1,24 +1,20 @@
 angular.module('virtoCommerce.returnModule')
     .controller('virtoCommerce.returnModule.returnDetailsController', ['$scope', '$translate', 'platformWebApp.bladeNavigationService', 'platformWebApp.dialogService', 'platformWebApp.settings', 'virtoCommerce.customerModule.members', 'virtoCommerce.customerModule.memberTypesResolverService', 'virtoCommerce.orderModule.statusTranslationService', 'platformWebApp.accounts', 'platformWebApp.objCompareService', 'virtoCommerce.returnModule.returns',
         ($scope, $translate, bladeNavigationService, dialogService, settings, members, memberTypesResolverService, statusTranslationService, accounts, objCompareService, returns) => {
+
+            var blade = $scope.blade;
+
             $scope.saveChanges = () => {
                 angular.copy(blade.currentEntity, blade.originalEntity);
 
                 returns.update(blade.currentEntity,
                     (data) => {
-                        var newBlade = {
-                            id: 'returnsList',
-                            controller: 'virtoCommerce.returnModule.returnListController',
-                            template: 'Modules/$(VirtoCommerce.Return)/Scripts/blades/return-list.tpl.html',
-                            isClosingDisabled: true,
-                            orderId: blade.currentEntity.order.id
-                        };
-                        bladeNavigationService.showBlade(newBlade);
+                        if (blade.listRefresh) {
+                            blade.listRefresh();
+                        }
                     });
             };
-
-            var blade = $scope.blade;
-
+            
             settings.getValues({ id: 'Return.Status' }, translateBladeStatuses);
 
             blade.refresh = () => {
