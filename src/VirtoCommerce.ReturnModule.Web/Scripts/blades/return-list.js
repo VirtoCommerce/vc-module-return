@@ -103,7 +103,8 @@ angular.module('virtoCommerce.returnModule')
                     template: 'Modules/$(VirtoCommerce.Return)/Scripts/blades/return-details.tpl.html',
                     isClosingDisabled: false,
                     hideDelete: true,
-                    isExpanded: true
+                    isExpanded: true,
+                    listRefresh: blade.refresh
                 };
 
                 returnDetailsBlade.currentEntityId = node.id;
