@@ -22,7 +22,7 @@ angular.module('virtoCommerce.returnModule')
                     controller: 'virtoCommerce.returnModule.returnListController',
                     template: 'Modules/$(VirtoCommerce.Return)/Scripts/blades/return-list.tpl.html',
                     isClosingDisabled: false,
-                    orderId: blade.customerOrder.id
+                    orderId: blade.orderId
                 };
                 bladeNavigationService.showBlade(newBlade);
             }
