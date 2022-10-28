@@ -4,16 +4,18 @@ angular.module('virtoCommerce.returnModule')
             var blade = $scope.widget.blade;
 
             $scope.$watch('blade.currentEntity', (entity) => {
-                var searchCriteria = {
-                    skip: 0,
-                    take: 0,
-                    orderId: entity.id
-                }
+                if (entity) {
+                    var searchCriteria = {
+                        skip: 0,
+                        take: 0,
+                        orderId: entity.id
+                    }
 
-                returns.search(searchCriteria,
-                    (searchResult) => {
-                        $scope.returnsCount = searchResult.totalCount;
-                    });
+                    returns.search(searchCriteria,
+                        (searchResult) => {
+                            $scope.returnsCount = searchResult.totalCount;
+                        });
+                }
             });
 
             $scope.openBlade = () => {
@@ -22,7 +24,7 @@ angular.module('virtoCommerce.returnModule')
                     controller: 'virtoCommerce.returnModule.returnListController',
                     template: 'Modules/$(VirtoCommerce.Return)/Scripts/blades/return-list.tpl.html',
                     isClosingDisabled: false,
-                    orderId: blade.customerOrder.id
+                    orderId: blade.orderId
                 };
                 bladeNavigationService.showBlade(newBlade);
             }
