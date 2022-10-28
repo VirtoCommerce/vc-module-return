@@ -4,16 +4,18 @@ angular.module('virtoCommerce.returnModule')
             var blade = $scope.widget.blade;
 
             $scope.$watch('blade.currentEntity', (entity) => {
-                var searchCriteria = {
-                    skip: 0,
-                    take: 0,
-                    orderId: entity.id
-                }
+                if (entity) {
+                    var searchCriteria = {
+                        skip: 0,
+                        take: 0,
+                        orderId: entity.id
+                    }
 
-                returns.search(searchCriteria,
-                    (searchResult) => {
-                        $scope.returnsCount = searchResult.totalCount;
-                    });
+                    returns.search(searchCriteria,
+                        (searchResult) => {
+                            $scope.returnsCount = searchResult.totalCount;
+                        });
+                }
             });
 
             $scope.openBlade = () => {
