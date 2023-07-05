@@ -1,30 +1,29 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
-using VirtoCommerce.ReturnModule.Core;
-using VirtoCommerce.ReturnModule.Data.Repositories;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Settings;
+using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Services;
+using VirtoCommerce.ReturnModule.Data.Repositories;
 using VirtoCommerce.ReturnModule.Data.Services;
-using System;
 using VirtoCommerce.StoreModule.Core.Model;
 
 namespace VirtoCommerce.ReturnModule.Web
 {
-    public class Module : IModule
+    public class Module : IModule, IHasConfiguration
     {
         public ManifestModuleInfo ModuleInfo { get; set; }
+        public IConfiguration Configuration { get; set; }
 
         public void Initialize(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddDbContext<ReturnDbContext>((provider, options) =>
+            serviceCollection.AddDbContext<ReturnDbContext>(options =>
             {
-                var configuration = provider.GetRequiredService<IConfiguration>();
-                options.UseSqlServer(configuration.GetConnectionString(ModuleInfo.Id) ?? configuration.GetConnectionString("VirtoCommerce"));
+                options.UseSqlServer(Configuration.GetConnectionString(ModuleInfo.Id) ?? Configuration.GetConnectionString("VirtoCommerce"));
             });
 
             serviceCollection.AddTransient<IReturnRepository, ReturnRepositoryImpl>();
@@ -35,31 +34,19 @@ namespace VirtoCommerce.ReturnModule.Web
 
         public void PostInitialize(IApplicationBuilder appBuilder)
         {
-            // register settings
+            // Register settings
             var settingsRegistrar = appBuilder.ApplicationServices.GetRequiredService<ISettingsRegistrar>();
             settingsRegistrar.RegisterSettings(ModuleConstants.Settings.AllSettings, ModuleInfo.Id);
-
             settingsRegistrar.RegisterSettingsForType(ModuleConstants.Settings.StoreLevelSettings, nameof(Store));
 
-            // register permissions
-            var permissionsProvider = appBuilder.ApplicationServices.GetRequiredService<IPermissionsRegistrar>();
-            permissionsProvider.RegisterPermissions(ModuleConstants.Security.Permissions.AllPermissions.Select(x =>
-                new Permission()
-                {
-                    GroupName = "Return",
-                    ModuleId = ModuleInfo.Id,
-                    Name = x
-                }).ToArray());
+            // Register permissions
+            var permissionsRegistrar = appBuilder.ApplicationServices.GetRequiredService<IPermissionsRegistrar>();
+            permissionsRegistrar.RegisterPermissions(ModuleInfo.Id, "Return", ModuleConstants.Security.Permissions.AllPermissions);
 
-            // Ensure that any pending migrations are applied
-            using (var serviceScope = appBuilder.ApplicationServices.CreateScope())
-            {
-                using (var dbContext = serviceScope.ServiceProvider.GetRequiredService<ReturnDbContext>())
-                {
-                    dbContext.Database.EnsureCreated();
-                    dbContext.Database.Migrate();
-                }
-            }
+            // Apply migrations
+            using var serviceScope = appBuilder.ApplicationServices.CreateScope();
+            using var dbContext = serviceScope.ServiceProvider.GetRequiredService<ReturnDbContext>();
+            dbContext.Database.Migrate();
         }
 
         public void Uninstall()

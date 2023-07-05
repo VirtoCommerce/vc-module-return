@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Options;
 using VirtoCommerce.Platform.Core.Caching;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.GenericCrud;
 using VirtoCommerce.Platform.Data.GenericCrud;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Models.Search;
@@ -15,10 +17,12 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 {
     public class ReturnSearchService : SearchService<ReturnSearchCriteria, ReturnSearchResult, Return, ReturnEntity>, IReturnSearchService
     {
-        public ReturnSearchService(Func<IReturnRepository> returnRepositoryFactory,
+        public ReturnSearchService(
+            Func<IReturnRepository> repositoryFactory,
             IPlatformMemoryCache platformMemoryCache,
-            IReturnService returnService)
-            : base(returnRepositoryFactory, platformMemoryCache, returnService)
+            IReturnService crudService,
+            IOptions<CrudOptions> crudOptions)
+            : base(repositoryFactory, platformMemoryCache, crudService, crudOptions)
         {
         }
 

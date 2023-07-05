@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Domain;
 using VirtoCommerce.Platform.Data.Infrastructure;
 using VirtoCommerce.ReturnModule.Data.Models;
@@ -19,10 +21,20 @@ namespace VirtoCommerce.ReturnModule.Data.Repositories
 
         public IQueryable<ReturnLineItemEntity> ReturnLineItems => DbContext.Set<ReturnLineItemEntity>();
 
-        public virtual async Task<ICollection<ReturnEntity>> GetReturnsByIdsAsync(IEnumerable<string> returnIds, string responseGroup = null)
+        public virtual async Task<IList<ReturnEntity>> GetReturnsByIdsAsync(IList<string> ids, string responseGroup = null)
         {
-            var result = await Returns.Where(x => returnIds.Contains(x.Id)).ToListAsync();
-            await ReturnLineItems.Where(x => returnIds.Contains(x.ReturnId)).LoadAsync();
+            if (ids.IsNullOrEmpty())
+            {
+                return Array.Empty<ReturnEntity>();
+            }
+
+            var result = await Returns.Where(x => ids.Contains(x.Id)).ToListAsync();
+
+            if (result.Any())
+            {
+                var existingIds = result.Select(x => x.Id).ToList();
+                await ReturnLineItems.Where(x => existingIds.Contains(x.ReturnId)).LoadAsync();
+            }
 
             return result;
         }
