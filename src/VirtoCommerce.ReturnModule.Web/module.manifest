@@ -21,7 +21,7 @@
   </owners>
   <requireLicenseAcceptance>false</requireLicenseAcceptance>
   <releaseNotes>First version.</releaseNotes>
-  <copyright>Copyright © 2022 VirtoCommerce. All rights reserved</copyright>
+  <copyright>Copyright © 2022–2023 VirtoCommerce. All rights reserved</copyright>
   <tags>extension module</tags>
   <assemblyFile>VirtoCommerce.ReturnModule.Web.dll</assemblyFile>
   <moduleType>VirtoCommerce.ReturnModule.Web.Module, VirtoCommerce.ReturnModule.Web</moduleType>
