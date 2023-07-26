@@ -4,59 +4,56 @@ using System.Linq;
 using System.Threading.Tasks;
 using VirtoCommerce.CoreModule.Core.Common;
 using VirtoCommerce.OrdersModule.Core.Model;
+using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.Platform.Core.Caching;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Events;
-using VirtoCommerce.Platform.Core.GenericCrud;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.Platform.Data.GenericCrud;
-using VirtoCommerce.Platform.Data.Infrastructure;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Events;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.Data.Models;
 using VirtoCommerce.ReturnModule.Data.Repositories;
-using VirtoCommerce.StoreModule.Core.Model;
+using VirtoCommerce.StoreModule.Core.Services;
 
 namespace VirtoCommerce.ReturnModule.Data.Services
 {
-    public class ReturnService : CrudService<Return, ReturnEntity, ReturnChangingEvent, ReturnChangedEvent>,
-        IReturnService
+    public class ReturnService : CrudService<Return, ReturnEntity, ReturnChangingEvent, ReturnChangedEvent>, IReturnService
     {
-        private readonly ICrudService<CustomerOrder> _crudOrderService;
+        private readonly Func<IReturnRepository> _repositoryFactory;
+        private readonly ICustomerOrderService _orderService;
         private readonly IUniqueNumberGenerator _uniqueNumberGenerator;
-        private readonly ICrudService<Store> _storeService;
-        private readonly Func<IReturnRepository> _returnRepositoryFactory;
+        private readonly IStoreService _storeService;
+        private readonly ISettingsManager _settingsManager;
 
-        public ReturnService(Func<IReturnRepository> repositoryFactory,
+        public ReturnService(
+            Func<IReturnRepository> repositoryFactory,
             IPlatformMemoryCache platformMemoryCache,
             IEventPublisher eventPublisher,
-            ICrudService<CustomerOrder> crudOrderService,
+            ICustomerOrderService orderService,
             IUniqueNumberGenerator uniqueNumberGenerator,
-            ICrudService<Store> storeService,
-            Func<IReturnRepository> returnRepositoryFactory)
+            IStoreService storeService,
+            ISettingsManager settingsManager)
             : base(repositoryFactory, platformMemoryCache, eventPublisher)
         {
-            _crudOrderService = crudOrderService;
+            _repositoryFactory = repositoryFactory;
+            _orderService = orderService;
             _uniqueNumberGenerator = uniqueNumberGenerator;
             _storeService = storeService;
-            _returnRepositoryFactory = returnRepositoryFactory;
+            _settingsManager = settingsManager;
         }
 
-        protected override async Task<IEnumerable<ReturnEntity>> LoadEntities(IRepository repository,
-            IEnumerable<string> ids, string responseGroup)
+        public override async Task<IList<Return>> GetAsync(IList<string> ids, string responseGroup = null, bool clone = true)
         {
-            return await ((IReturnRepository)repository).GetReturnsByIdsAsync(ids, responseGroup);
-        }
-
-        public override async Task<IReadOnlyCollection<Return>> GetAsync(List<string> ids, string responseGroup = null)
-        {
-            var returns = await base.GetAsync(ids, responseGroup);
-
             var returnResponseGroup = EnumUtility.SafeParseFlags(responseGroup, ReturnResponseGroup.WithOrders);
+            var withOrders = returnResponseGroup.HasFlag(ReturnResponseGroup.WithOrders);
+            clone |= withOrders;
 
-            if (returnResponseGroup.HasFlag(ReturnResponseGroup.WithOrders))
+            var returns = await base.GetAsync(ids, responseGroup, clone);
+
+            if (withOrders && returns.Any())
             {
                 var orders = await GetOrdersForReturns(returns);
 
@@ -69,32 +66,16 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             return returns;
         }
 
-        public override async Task<IList<string>> SaveChangesAsync(IEnumerable<Return> returns)
-        {
-            var returnsList = returns.ToList();
-
-            var orders = await GetOrdersForReturns(returnsList);
-
-            foreach (var orderReturn in returnsList.Where(orderReturn => orderReturn.Number.IsNullOrEmpty()))
-            {
-                await SetReturnNumber(orderReturn, orders.FirstOrDefault(x => x.Id == orderReturn.OrderId)?.StoreId);
-            }
-
-            await base.SaveChangesAsync(returnsList);
-
-            return returnsList.Select(x => x.Id).ToList();
-        }
-
         public virtual async Task<Dictionary<string, int>> GetItemsAvailableQuantities(string orderId)
         {
-            var order = await _crudOrderService.GetByIdAsync(orderId);
+            var order = await _orderService.GetByIdAsync(orderId);
 
             return await GetItemsAvailableQuantities(order);
         }
 
         public virtual async Task<Dictionary<string, int>> GetItemsAvailableQuantities(CustomerOrder order, string returnId = null)
         {
-            using var repository = _returnRepositoryFactory();
+            using var repository = _repositoryFactory();
             var returnIds = repository.Returns
                 .Where(x => x.OrderId == order.Id)
                 .Select(x => x.Id);
@@ -118,25 +99,51 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             return result;
         }
 
-        private async Task SetReturnNumber(Return orderReturn, string storeId)
+
+        protected override Task<IList<ReturnEntity>> LoadEntities(IRepository repository, IList<string> ids, string responseGroup)
         {
-            var store = await _storeService.GetByIdAsync(storeId);
-
-            var numberTemplate = ModuleConstants.Settings.General.ReturnNewNumberTemplate.DefaultValue.ToString();
-            if (store != null)
-            {
-                numberTemplate = store.Settings.GetSettingValue(ModuleConstants.Settings.General.ReturnNewNumberTemplate.Name, numberTemplate);
-            }
-
-            var number = _uniqueNumberGenerator.GenerateNumber(numberTemplate);
-
-            orderReturn.Number = number;
+            return ((IReturnRepository)repository).GetReturnsByIdsAsync(ids, responseGroup);
         }
 
-        private async Task<IReadOnlyCollection<CustomerOrder>> GetOrdersForReturns(IEnumerable<Return> returns)
+        protected override Task BeforeSaveChanges(IList<Return> returns)
+        {
+            return EnsureEachReturnHasNumber(returns);
+        }
+
+
+        private async Task EnsureEachReturnHasNumber(IEnumerable<Return> returns)
+        {
+            var returnsWithoutNumber = returns.Where(x => string.IsNullOrEmpty(x.Number)).ToList();
+            if (returnsWithoutNumber.IsNullOrEmpty())
+            {
+                return;
+            }
+
+            var ordersById = (await GetOrdersForReturns(returnsWithoutNumber)).ToDictionary(x => x.Id);
+            var storeIds = ordersById.Values.Select(x => x.StoreId).Distinct().ToList();
+            var storesById = (await _storeService.GetNoCloneAsync(storeIds)).ToDictionary(x => x.Id);
+
+            var settingDescriptor = ModuleConstants.Settings.General.ReturnNewNumberTemplate;
+            var globalNumberTemplate = await _settingsManager.GetValueAsync<string>(settingDescriptor);
+
+            foreach (var orderReturn in returnsWithoutNumber)
+            {
+                var numberTemplate = globalNumberTemplate;
+
+                if (ordersById.TryGetValue(orderReturn.OrderId, out var order) &&
+                    storesById.TryGetValue(order.StoreId, out var store))
+                {
+                    numberTemplate = store.Settings.GetSettingValue(settingDescriptor.Name, numberTemplate);
+                }
+
+                orderReturn.Number = _uniqueNumberGenerator.GenerateNumber(numberTemplate);
+            }
+        }
+
+        private async Task<IList<CustomerOrder>> GetOrdersForReturns(IEnumerable<Return> returns)
         {
             var orderIds = returns.Select(x => x.OrderId).Distinct().ToList();
-            var orders = await _crudOrderService.GetAsync(orderIds);
+            var orders = await _orderService.GetAsync(orderIds);
 
             return orders;
         }

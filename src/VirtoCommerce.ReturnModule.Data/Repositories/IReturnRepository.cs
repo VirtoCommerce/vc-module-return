@@ -12,6 +12,6 @@ namespace VirtoCommerce.ReturnModule.Data.Repositories
 
         IQueryable<ReturnLineItemEntity> ReturnLineItems { get; }
 
-        Task<ICollection<ReturnEntity>> GetReturnsByIdsAsync(IEnumerable<string> returnIds, string responseGroup = null);
+        Task<IList<ReturnEntity>> GetReturnsByIdsAsync(IList<string> ids, string responseGroup = null);
     }
 }

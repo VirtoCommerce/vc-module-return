@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
-using VirtoCommerce.ReturnModule.Core;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
+using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.ReturnModule.Core;
+using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Models.Search;
 using VirtoCommerce.ReturnModule.Core.Services;
-using VirtoCommerce.ReturnModule.Core.Models;
 
 namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
 {
@@ -30,7 +31,7 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         [Authorize(ModuleConstants.Security.Permissions.Read)]
         public async Task<ActionResult<Return>> SearchReturns([FromBody] ReturnSearchCriteria criteria)
         {
-            var result = await _returnSearchService.SearchAsync(criteria);
+            var result = await _returnSearchService.SearchNoCloneAsync(criteria);
             return Ok(result);
         }
 
@@ -72,9 +73,9 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
                 return BadRequest(errors);
             }
 
-            var result = await _returnService.SaveChangesAsync(new[] { orderReturn });
+            await _returnService.SaveChangesAsync(new[] { orderReturn });
 
-            return Ok(new { Id = result.FirstOrDefault() });
+            return Ok(new { orderReturn.Id });
         }
 
         /// <summary>
