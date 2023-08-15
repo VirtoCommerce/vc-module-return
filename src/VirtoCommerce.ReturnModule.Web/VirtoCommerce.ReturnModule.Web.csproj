@@ -9,6 +9,9 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\VirtoCommerce.ReturnModule.Core\VirtoCommerce.ReturnModule.Core.csproj" />
+    <ProjectReference Include="..\VirtoCommerce.ReturnModule.Data.MySql\VirtoCommerce.ReturnModule.Data.MySql.csproj" />
+    <ProjectReference Include="..\VirtoCommerce.ReturnModule.Data.PostgreSql\VirtoCommerce.ReturnModule.Data.PostgreSql.csproj" />
+    <ProjectReference Include="..\VirtoCommerce.ReturnModule.Data.SqlServer\VirtoCommerce.ReturnModule.Data.SqlServer.csproj" />
     <ProjectReference Include="..\VirtoCommerce.ReturnModule.Data\VirtoCommerce.ReturnModule.Data.csproj" />
   </ItemGroup>
 </Project>

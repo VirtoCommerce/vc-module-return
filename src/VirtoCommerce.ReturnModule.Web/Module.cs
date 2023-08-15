@@ -8,8 +8,11 @@ using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Services;
+using VirtoCommerce.ReturnModule.Data.MySql;
+using VirtoCommerce.ReturnModule.Data.PostgreSql;
 using VirtoCommerce.ReturnModule.Data.Repositories;
 using VirtoCommerce.ReturnModule.Data.Services;
+using VirtoCommerce.ReturnModule.Data.SqlServer;
 using VirtoCommerce.StoreModule.Core.Model;
 
 namespace VirtoCommerce.ReturnModule.Web
@@ -21,9 +24,24 @@ namespace VirtoCommerce.ReturnModule.Web
 
         public void Initialize(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddDbContext<ReturnDbContext>(options =>
+            // Initialize database
+            serviceCollection.AddDbContext<ReturnDbContext>((provider, options) =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString(ModuleInfo.Id) ?? Configuration.GetConnectionString("VirtoCommerce"));
+                var databaseProvider = Configuration.GetValue("DatabaseProvider", "SqlServer");
+                var connectionString = Configuration.GetConnectionString(ModuleInfo.Id) ?? Configuration.GetConnectionString("VirtoCommerce");
+
+                switch (databaseProvider)
+                {
+                    case "MySql":
+                        options.UseMySqlDatabase(connectionString);
+                        break;
+                    case "PostgreSql":
+                        options.UsePostgreSqlDatabase(connectionString);
+                        break;
+                    default:
+                        options.UseSqlServerDatabase(connectionString);
+                        break;
+                }
             });
 
             serviceCollection.AddTransient<IReturnRepository, ReturnRepositoryImpl>();

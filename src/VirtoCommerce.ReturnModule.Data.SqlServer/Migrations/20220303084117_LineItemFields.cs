@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace VirtoCommerce.ReturnModule.Data.Migrations
+namespace VirtoCommerce.ReturnModule.Data.SqlServer.Migrations
 {
     public partial class LineItemFields : Migration
     {
