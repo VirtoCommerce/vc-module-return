@@ -6,13 +6,13 @@ if (AppDependencies !== undefined) {
 
 angular.module(moduleName, [])
     .config(
-        ['$stateProvider', ($stateProvider) => {
+        ['$stateProvider', function($stateProvider){
             $stateProvider
                 .state('workspace.ReturnState', {
                     url: '/Return',
                     templateUrl: '$(Platform)/Scripts/common/templates/home.tpl.html',
                     controller: [
-                        '$scope', 'platformWebApp.bladeNavigationService', ($scope, bladeNavigationService) => {
+                        '$scope', 'platformWebApp.bladeNavigationService', function ($scope, bladeNavigationService){
                             var newBlade = {
                                 id: 'returnsList',
                                 controller: 'virtoCommerce.returnModule.returnListController',
