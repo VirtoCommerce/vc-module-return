@@ -133,7 +133,7 @@ namespace VirtoCommerce.ReturnModule.Data.Services
                 if (ordersById.TryGetValue(orderReturn.OrderId, out var order) &&
                     storesById.TryGetValue(order.StoreId, out var store))
                 {
-                    numberTemplate = store.Settings.GetSettingValue(settingDescriptor.Name, numberTemplate);
+                    numberTemplate = store.Settings.GetValue<string>(settingDescriptor);
                 }
 
                 orderReturn.Number = _uniqueNumberGenerator.GenerateNumber(numberTemplate);
