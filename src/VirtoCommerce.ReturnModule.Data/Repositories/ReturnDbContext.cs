@@ -2,10 +2,11 @@ using System.Reflection;
 using EntityFrameworkCore.Triggers;
 using Microsoft.EntityFrameworkCore;
 using VirtoCommerce.ReturnModule.Data.Models;
+using VirtoCommerce.Platform.Data.Infrastructure;
 
 namespace VirtoCommerce.ReturnModule.Data.Repositories
 {
-    public class ReturnDbContext : DbContextWithTriggers
+    public class ReturnDbContext : DbContextBase
     {
         public ReturnDbContext(DbContextOptions<ReturnDbContext> options)
           : base(options)
