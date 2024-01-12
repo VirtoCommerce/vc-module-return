@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <id>VirtoCommerce.Return</id>
-  <version>3.404.0</version>
+  <version>3.800.0</version>
   <version-tag />
-  <platformVersion>3.400.0</platformVersion>
+
+  <platformVersion>3.800.0</platformVersion>
   <dependencies>
-    <dependency id="VirtoCommerce.Orders" version="3.400.0" />
-    <dependency id="VirtoCommerce.Store" version="3.400.0" />
+    <dependency id="VirtoCommerce.Orders" version="3.800.0" />
+    <dependency id="VirtoCommerce.Store" version="3.800.0" />
   </dependencies>
+
   <title>Return module</title>
   <description>Return module</description>
   <authors>
@@ -19,7 +21,7 @@
   </owners>
   <requireLicenseAcceptance>false</requireLicenseAcceptance>
   <releaseNotes>First version.</releaseNotes>
-  <copyright>Copyright © 2022–2023 VirtoCommerce. All rights reserved</copyright>
+  <copyright>Copyright © 2011-2024 Virto Commerce. All rights reserved</copyright>
   <tags>extension module</tags>
   <assemblyFile>VirtoCommerce.ReturnModule.Web.dll</assemblyFile>
   <moduleType>VirtoCommerce.ReturnModule.Web.Module, VirtoCommerce.ReturnModule.Web</moduleType>
