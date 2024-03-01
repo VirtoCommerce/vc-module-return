@@ -25,8 +25,9 @@ angular.module(moduleName, [])
                 });
         }]
     )
-    .run(['platformWebApp.mainMenuService', 'platformWebApp.widgetService', '$state', 'platformWebApp.toolbarService', 'platformWebApp.bladeNavigationService',
-        (mainMenuService, widgetService, $state, toolBarService, bladeNavigationService) => {
+    .run(['platformWebApp.mainMenuService', 'platformWebApp.widgetService', '$state', 'platformWebApp.toolbarService',
+        'platformWebApp.bladeNavigationService', 'platformWebApp.authService',
+        (mainMenuService, widgetService, $state, toolBarService, bladeNavigationService, authService) => {
             //Register module in main menu
             var menuItem = {
                 path: 'browse/Return',
@@ -46,7 +47,8 @@ angular.module(moduleName, [])
 
             var relatedReturnsWidget = {
                 controller: 'virtoCommerce.returnModule.relatedReturnsWidgetController',
-                template: 'Modules/$(VirtoCommerce.Return)/Scripts/widgets/order-related-returns-widget.tpl.html'
+                template: 'Modules/$(VirtoCommerce.Return)/Scripts/widgets/order-related-returns-widget.tpl.html',
+                isVisible: function (blade) { return authService.checkPermission('return:read'); }
             };
             widgetService.registerWidget(relatedReturnsWidget, 'customerOrderDetailWidgets');
 
@@ -72,7 +74,7 @@ angular.module(moduleName, [])
                     bladeNavigationService.showBlade(itemsListBlade, blade);
                 },
                 canExecuteMethod: (blade) => true,
-                hide: (blade) => blade.id !== "orderDetail"
+                hide: (blade) => blade.id !== "orderDetail" || !authService.checkPermission('return:create')
             }
 
             toolBarService.tryRegister(makeReturnCommand, 'virtoCommerce.orderModule.operationDetailController');

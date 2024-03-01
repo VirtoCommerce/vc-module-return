@@ -66,12 +66,13 @@ angular.module('virtoCommerce.returnModule')
                             template: 'Modules/$(VirtoCommerce.Return)/Scripts/blades/order-list.tpl.html',
                             isClosingDisabled: false,
                             hideDelete: true,
-                            isExpanded: true
+                            isExpanded: true,
                         };
 
                         bladeNavigationService.showBlade(orderListBlade, currentBlade);
                     },
-                    canExecuteMethod: () => true
+                    canExecuteMethod: () => true,
+                    permission: 'return:create'
                 }
             ];
 
