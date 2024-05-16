@@ -5,11 +5,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\VirtoCommerce.ReturnModule.Data\VirtoCommerce.ReturnModule.Data.csproj" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <PackageReference Include="VirtoCommerce.Platform.Data.SqlServer" Version="3.825.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VirtoCommerce.ReturnModule.Data\VirtoCommerce.ReturnModule.Data.csproj" />
   </ItemGroup>
 </Project>
