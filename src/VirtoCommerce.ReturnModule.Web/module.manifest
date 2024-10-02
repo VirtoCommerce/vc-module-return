@@ -4,10 +4,10 @@
   <version>3.804.0</version>
   <version-tag />
 
-  <platformVersion>3.825.0</platformVersion>
+  <platformVersion>3.853.0</platformVersion>
   <dependencies>
-    <dependency id="VirtoCommerce.Orders" version="3.800.0" />
-    <dependency id="VirtoCommerce.Store" version="3.800.0" />
+    <dependency id="VirtoCommerce.Orders" version="3.830.0" />
+    <dependency id="VirtoCommerce.Store" version="3.809.0" />
   </dependencies>
 
   <title>Return module</title>
@@ -19,6 +19,7 @@
   <owners>
     <owner>VirtoCommerce</owner>
   </owners>
+  <projectUrl>https://github.com/VirtoCommerce/vc-module-return</projectUrl>
   <requireLicenseAcceptance>false</requireLicenseAcceptance>
   <releaseNotes>First version.</releaseNotes>
   <copyright>Copyright © 2011-2024 Virto Commerce. All rights reserved</copyright>
