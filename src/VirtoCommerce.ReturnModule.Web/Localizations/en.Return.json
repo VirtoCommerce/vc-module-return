@@ -4,17 +4,17 @@
       "return-list": {
         "title": "Return list",
         "placeholders": {
-          "select-filter": "Please select a filter"
+          "select-filter": "Select a filter"
         },
         "labels": {
-          "return-number": "Return Number",
-          "order-number": "Order Number",
+          "return-number": "Return number",
+          "order-number": "Order number",
           "customer-name": "Customer",
-          "return-status": "Return Status",
-          "created-date": "Create Date",
-          "modified-date": "Modify Date",
-          "created-by": "Created By",
-          "items-count": "Item Count",
+          "return-status": "Return status",
+          "created-date": "Create date",
+          "modified-date": "Modify date",
+          "created-by": "Created by",
+          "items-count": "Item count",
           "add-return": "Add new return",
           "create-return": "Create return" 
         }
@@ -60,15 +60,15 @@
   "settings": {
     "Return": {
       "ReturnPassword": {
-        "title": "Return Password",
+        "title": "Return password",
         "description": "Set up the Return module password"
       },
       "ReturnEnabled": {
-        "title": "Enable Return Module",
-        "description": "Toggle this button to enable or disable the Return module"
+        "title": "Enable Return module",
+        "description": "Toggle to enable or disable the Return module"
       },
       "ReturnNewNumberTemplate": {
-        "title": "Return Number Template",
+        "title": "Return number template",
         "description": "Use this template to generate new order returns"
       }
     },
