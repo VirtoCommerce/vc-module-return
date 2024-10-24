@@ -1,0 +1,80 @@
+{
+  "return": {
+    "blades": {
+      "return-list": {
+        "title": "Elenco resi",
+        "placeholders": {
+          "select-filter": "Seleziona un filtro"
+        },
+        "labels": {
+          "return-number": "Numero di reso",
+          "order-number": "Numero d'ordine",
+          "customer-name": "Cliente",
+          "return-status": "Stato del reso",
+          "created-date": "Data di creazione",
+          "modified-date": "Data di modifica",
+          "created-by": "Creato da",
+          "items-count": "Numero di articoli",
+          "add-return": "Aggiungi nuovo reso",
+          "create-return": "Crea reso"
+        }
+      },
+      "order-list": {
+        "title": "Ordini dei clienti",
+        "widget-title": "Resi"
+      },
+      "items-list": {
+        "title": "Elenco articoli",
+        "subtitle-create": "Ordine #{{number}}",
+        "subtitle-edit": "Reso #{{number}}",
+        "labels": {
+          "item-name": "Nome articolo",
+          "reason": "Motivo del reso",
+          "quantity": "Quantità",
+          "price": "Prezzo",
+          "sku": "SKU"
+        }
+      },
+      "return-details": {
+        "title": "Reso #{{number}}",
+        "labels": {
+          "number": "Numero di reso",
+          "orderNumber": "Numero d'ordine",
+          "createdDate": "Data di creazione",
+          "modifiedDate": "Data di modifica",
+          "createdBy": "Creato da",
+          "customer": "Cliente",
+          "resolution": "Risoluzione",
+          "status": "Stato"
+        }
+      }
+    }
+  },
+  "permissions": {
+    "return:access": "Apri menu resi",
+    "return:create": "Crea dati di reso",
+    "return:read": "Visualizza dati di reso",
+    "return:update": "Aggiorna dati di reso",
+    "return:delete": "Elimina dati di reso"
+  },
+  "settings": {
+    "Return": {
+      "ReturnPassword": {
+        "title": "Password per i resi",
+        "description": "Imposta la password per il modulo resi"
+      },
+      "ReturnEnabled": {
+        "title": "Abilita modulo resi",
+        "description": "Attiva o disattiva il modulo resi"
+      },
+      "ReturnNewNumberTemplate": {
+        "title": "Modello numero di reso",
+        "description": "Usa questo modello per generare nuovi numeri di reso per gli ordini"
+      }
+    },
+    "Return.Status": {
+      "description": "Stati di reso degli ordini",
+      "title": "Stati di reso degli ordini dei clienti"
+    }
+  }
+}

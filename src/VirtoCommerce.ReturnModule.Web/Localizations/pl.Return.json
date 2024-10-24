@@ -1,0 +1,80 @@
+{
+  "return": {
+    "blades": {
+      "return-list": {
+        "title": "Lista zwrotów",
+        "placeholders": {
+          "select-filter": "Wybierz filtr"
+        },
+        "labels": {
+          "return-number": "Numer zwrotu",
+          "order-number": "Numer zamówienia",
+          "customer-name": "Klient",
+          "return-status": "Status zwrotu",
+          "created-date": "Data utworzenia",
+          "modified-date": "Data modyfikacji",
+          "created-by": "Utworzono przez",
+          "items-count": "Liczba przedmiotów",
+          "add-return": "Dodaj nowy zwrot",
+          "create-return": "Utwórz zwrot"
+        }
+      },
+      "order-list": {
+        "title": "Zamówienia klientów",
+        "widget-title": "Zwroty"
+      },
+      "items-list": {
+        "title": "Lista przedmiotów",
+        "subtitle-create": "Zamówienie #{{number}}",
+        "subtitle-edit": "Zwrot #{{number}}",
+        "labels": {
+          "item-name": "Nazwa przedmiotu",
+          "reason": "Powód zwrotu",
+          "quantity": "Ilość",
+          "price": "Cena",
+          "sku": "SKU"
+        }
+      },
+      "return-details": {
+        "title": "Zwrot #{{number}}",
+        "labels": {
+          "number": "Numer zwrotu",
+          "orderNumber": "Numer zamówienia",
+          "createdDate": "Data utworzenia",
+          "modifiedDate": "Data modyfikacji",
+          "createdBy": "Utworzono przez",
+          "customer": "Klient",
+          "resolution": "Rozwiązanie",
+          "status": "Status"
+        }
+      }
+    }
+  },
+  "permissions": {
+    "return:access": "Otwórz menu zwrotów",
+    "return:create": "Utwórz dane zwrotu",
+    "return:read": "Wyświetl dane zwrotu",
+    "return:update": "Zaktualizuj dane zwrotu",
+    "return:delete": "Usuń dane zwrotu"
+  },
+  "settings": {
+    "Return": {
+      "ReturnPassword": {
+        "title": "Hasło zwrotu",
+        "description": "Ustaw hasło dla modułu zwrotów"
+      },
+      "ReturnEnabled": {
+        "title": "Włącz moduł zwrotów",
+        "description": "Przełącz, aby włączyć lub wyłączyć moduł zwrotów"
+      },
+      "ReturnNewNumberTemplate": {
+        "title": "Szablon numeru zwrotu",
+        "description": "Użyj tego szablonu do generowania nowych numerów zwrotów zamówień"
+      }
+    },
+    "Return.Status": {
+      "description": "Statusy zwrotów zamówień",
+      "title": "Statusy zwrotów zamówień klientów"
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "return": {
+    "blades": {
+      "return-list": {
+        "title": "Rückgabeliste",
+        "placeholders": {
+          "select-filter": "Filter auswählen"
+        },
+        "labels": {
+          "return-number": "Rückgabenummer",
+          "order-number": "Bestellnummer",
+          "customer-name": "Kunde",
+          "return-status": "Rückgabestatus",
+          "created-date": "Erstellungsdatum",
+          "modified-date": "Änderungsdatum",
+          "created-by": "Erstellt von",
+          "items-count": "Artikelanzahl",
+          "add-return": "Neue Rückgabe hinzufügen",
+          "create-return": "Rückgabe erstellen"
+        }
+      },
+      "order-list": {
+        "title": "Kundenbestellungen",
+        "widget-title": "Rückgaben"
+      },
+      "items-list": {
+        "title": "Artikelpositionen",
+        "subtitle-create": "Bestellung #{{number}}",
+        "subtitle-edit": "Rückgabe #{{number}}",
+        "labels": {
+          "item-name": "Artikelname",
+          "reason": "Rückgabegrund",
+          "quantity": "Menge",
+          "price": "Preis",
+          "sku": "Artikelnummer"
+        }
+      },
+      "return-details": {
+        "title": "Rückgabe #{{number}}",
+        "labels": {
+          "number": "Rückgabenummer",
+          "orderNumber": "Bestellnummer",
+          "createdDate": "Erstellungsdatum",
+          "modifiedDate": "Änderungsdatum",
+          "createdBy": "Erstellt von",
+          "customer": "Kunde",
+          "resolution": "Lösung",
+          "status": "Status"
+        }
+      }
+    }
+  },
+  "permissions": {
+    "return:access": "Rückgabemenü öffnen",
+    "return:create": "Rückgabedaten erstellen",
+    "return:read": "Rückgabedaten anzeigen",
+    "return:update": "Rückgabedaten aktualisieren",
+    "return:delete": "Rückgabedaten löschen"
+  },
+  "settings": {
+    "Return": {
+      "ReturnPassword": {
+        "title": "Rückgabepasswort",
+        "description": "Rückgabemodul-Passwort einrichten"
+      },
+      "ReturnEnabled": {
+        "title": "Rückgabemodul aktivieren",
+        "description": "Umschalten, um das Rückgabemodul zu aktivieren oder deaktivieren"
+      },
+      "ReturnNewNumberTemplate": {
+        "title": "Rückgabenummer-Vorlage",
+        "description": "Verwenden Sie diese Vorlage, um neue Bestellrückgaben zu generieren"
+      }
+    },
+    "Return.Status": {
+      "description": "Bestellrückgabestatus",
+      "title": "Kundenbestellrückgabestatus"
+    }
+  }
+}

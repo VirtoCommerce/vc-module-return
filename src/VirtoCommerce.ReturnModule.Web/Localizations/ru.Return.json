@@ -1,0 +1,80 @@
+{
+  "return": {
+    "blades": {
+      "return-list": {
+        "title": "Список возвратов",
+        "placeholders": {
+          "select-filter": "Выберите фильтр"
+        },
+        "labels": {
+          "return-number": "Номер возврата",
+          "order-number": "Номер заказа",
+          "customer-name": "Клиент",
+          "return-status": "Статус возврата",
+          "created-date": "Дата создания",
+          "modified-date": "Дата изменения",
+          "created-by": "Создано",
+          "items-count": "Количество товаров",
+          "add-return": "Добавить новый возврат",
+          "create-return": "Создать возврат"
+        }
+      },
+      "order-list": {
+        "title": "Заказы клиентов",
+        "widget-title": "Возвраты"
+      },
+      "items-list": {
+        "title": "Список товаров",
+        "subtitle-create": "Заказ #{{number}}",
+        "subtitle-edit": "Возврат #{{number}}",
+        "labels": {
+          "item-name": "Название товара",
+          "reason": "Причина возврата",
+          "quantity": "Количество",
+          "price": "Цена",
+          "sku": "Артикул"
+        }
+      },
+      "return-details": {
+        "title": "Возврат #{{number}}",
+        "labels": {
+          "number": "Номер возврата",
+          "orderNumber": "Номер заказа",
+          "createdDate": "Дата создания",
+          "modifiedDate": "Дата изменения",
+          "createdBy": "Создано",
+          "customer": "Клиент",
+          "resolution": "Решение",
+          "status": "Статус"
+        }
+      }
+    }
+  },
+  "permissions": {
+    "return:access": "Открыть меню возвратов",
+    "return:create": "Создать данные возврата",
+    "return:read": "Просмотреть данные возврата",
+    "return:update": "Обновить данные возврата",
+    "return:delete": "Удалить данные возврата"
+  },
+  "settings": {
+    "Return": {
+      "ReturnPassword": {
+        "title": "Пароль возврата",
+        "description": "Настройка пароля модуля возвратов"
+      },
+      "ReturnEnabled": {
+        "title": "Включить модуль возвратов",
+        "description": "Переключить для включения или отключения модуля возвратов"
+      },
+      "ReturnNewNumberTemplate": {
+        "title": "Шаблон номера возврата",
+        "description": "Используйте этот шаблон для генерации новых возвратов заказов"
+      }
+    },
+    "Return.Status": {
+      "description": "Статусы возврата заказов",
+      "title": "Статусы возврата заказов клиентов"
+    }
+  }
+}
