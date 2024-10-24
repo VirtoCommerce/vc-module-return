@@ -1,0 +1,80 @@
+{
+  "return": {
+    "blades": {
+      "return-list": {
+        "title": "Lista de devoluciones",
+        "placeholders": {
+          "select-filter": "Seleccionar filtro"
+        },
+        "labels": {
+          "return-number": "Número de devolución",
+          "order-number": "Número de pedido",
+          "customer-name": "Cliente",
+          "return-status": "Estado de la devolución",
+          "created-date": "Fecha de creación",
+          "modified-date": "Fecha de modificación",
+          "created-by": "Creado por",
+          "items-count": "Cantidad de artículos",
+          "add-return": "Agregar nueva devolución",
+          "create-return": "Crear devolución"
+        }
+      },
+      "order-list": {
+        "title": "Pedidos de clientes",
+        "widget-title": "Devoluciones"
+      },
+      "items-list": {
+        "title": "Lista de artículos",
+        "subtitle-create": "Pedido #{{number}}",
+        "subtitle-edit": "Devolución #{{number}}",
+        "labels": {
+          "item-name": "Nombre del artículo",
+          "reason": "Motivo de devolución",
+          "quantity": "Cantidad",
+          "price": "Precio",
+          "sku": "SKU"
+        }
+      },
+      "return-details": {
+        "title": "Devolución #{{number}}",
+        "labels": {
+          "number": "Número de devolución",
+          "orderNumber": "Número de pedido",
+          "createdDate": "Fecha de creación",
+          "modifiedDate": "Fecha de modificación",
+          "createdBy": "Creado por",
+          "customer": "Cliente",
+          "resolution": "Resolución",
+          "status": "Estado"
+        }
+      }
+    }
+  },
+  "permissions": {
+    "return:access": "Abrir menú de devoluciones",
+    "return:create": "Crear datos de devolución",
+    "return:read": "Ver datos de devolución",
+    "return:update": "Actualizar datos de devolución",
+    "return:delete": "Eliminar datos de devolución"
+  },
+  "settings": {
+    "Return": {
+      "ReturnPassword": {
+        "title": "Contraseña de devolución",
+        "description": "Configurar la contraseña del módulo de devoluciones"
+      },
+      "ReturnEnabled": {
+        "title": "Habilitar módulo de devoluciones",
+        "description": "Alternar para habilitar o deshabilitar el módulo de devoluciones"
+      },
+      "ReturnNewNumberTemplate": {
+        "title": "Plantilla de número de devolución",
+        "description": "Use esta plantilla para generar nuevas devoluciones de pedidos"
+      }
+    },
+    "Return.Status": {
+      "description": "Estados de devolución de pedidos",
+      "title": "Estados de devolución de pedidos de clientes"
+    }
+  }
+}

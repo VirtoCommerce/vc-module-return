@@ -1,0 +1,80 @@
+{
+  "return": {
+    "blades": {
+      "return-list": {
+        "title": "退货列表",
+        "placeholders": {
+          "select-filter": "选择筛选条件"
+        },
+        "labels": {
+          "return-number": "退货编号",
+          "order-number": "订单编号",
+          "customer-name": "客户",
+          "return-status": "退货状态",
+          "created-date": "创建日期",
+          "modified-date": "修改日期",
+          "created-by": "创建人",
+          "items-count": "商品数量",
+          "add-return": "添加新退货",
+          "create-return": "创建退货"
+        }
+      },
+      "order-list": {
+        "title": "客户订单",
+        "widget-title": "退货"
+      },
+      "items-list": {
+        "title": "商品列表",
+        "subtitle-create": "订单 #{{number}}",
+        "subtitle-edit": "退货 #{{number}}",
+        "labels": {
+          "item-name": "商品名称",
+          "reason": "退货原因",
+          "quantity": "数量",
+          "price": "价格",
+          "sku": "SKU"
+        }
+      },
+      "return-details": {
+        "title": "退货 #{{number}}",
+        "labels": {
+          "number": "退货编号",
+          "orderNumber": "订单编号",
+          "createdDate": "创建日期",
+          "modifiedDate": "修改日期",
+          "createdBy": "创建人",
+          "customer": "客户",
+          "resolution": "解决方案",
+          "status": "状态"
+        }
+      }
+    }
+  },
+  "permissions": {
+    "return:access": "打开退货菜单",
+    "return:create": "创建退货数据",
+    "return:read": "查看退货数据",
+    "return:update": "更新退货数据",
+    "return:delete": "删除退货数据"
+  },
+  "settings": {
+    "Return": {
+      "ReturnPassword": {
+        "title": "退货密码",
+        "description": "设置退货模块密码"
+      },
+      "ReturnEnabled": {
+        "title": "启用退货模块",
+        "description": "切换以启用或禁用退货模块"
+      },
+      "ReturnNewNumberTemplate": {
+        "title": "退货编号模板",
+        "description": "使用此模板生成新的订单退货"
+      }
+    },
+    "Return.Status": {
+      "description": "订单退货状态",
+      "title": "客户订单退货状态"
+    }
+  }
+}

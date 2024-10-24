@@ -1,0 +1,80 @@
+{
+  "return": {
+    "blades": {
+      "return-list": {
+        "title": "返品リスト",
+        "placeholders": {
+          "select-filter": "フィルターを選択"
+        },
+        "labels": {
+          "return-number": "返品番号",
+          "order-number": "注文番号",
+          "customer-name": "顧客",
+          "return-status": "返品状況",
+          "created-date": "作成日",
+          "modified-date": "更新日",
+          "created-by": "作成者",
+          "items-count": "商品数",
+          "add-return": "新規返品を追加",
+          "create-return": "返品を作成"
+        }
+      },
+      "order-list": {
+        "title": "顧客注文",
+        "widget-title": "返品"
+      },
+      "items-list": {
+        "title": "商品リスト",
+        "subtitle-create": "注文 #{{number}}",
+        "subtitle-edit": "返品 #{{number}}",
+        "labels": {
+          "item-name": "商品名",
+          "reason": "返品理由",
+          "quantity": "数量",
+          "price": "価格",
+          "sku": "SKU"
+        }
+      },
+      "return-details": {
+        "title": "返品 #{{number}}",
+        "labels": {
+          "number": "返品番号",
+          "orderNumber": "注文番号",
+          "createdDate": "作成日",
+          "modifiedDate": "更新日",
+          "createdBy": "作成者",
+          "customer": "顧客",
+          "resolution": "解決策",
+          "status": "状況"
+        }
+      }
+    }
+  },
+  "permissions": {
+    "return:access": "返品メニューを開く",
+    "return:create": "返品データを作成",
+    "return:read": "返品データを表示",
+    "return:update": "返品データを更新",
+    "return:delete": "返品データを削除"
+  },
+  "settings": {
+    "Return": {
+      "ReturnPassword": {
+        "title": "返品パスワード",
+        "description": "返品モジュールのパスワードを設定"
+      },
+      "ReturnEnabled": {
+        "title": "返品モジュールを有効化",
+        "description": "返品モジュールの有効/無効を切り替え"
+      },
+      "ReturnNewNumberTemplate": {
+        "title": "返品番号テンプレート",
+        "description": "新しい注文返品を生成するためのテンプレートを使用"
+      }
+    },
+    "Return.Status": {
+      "description": "注文返品ステータス",
+      "title": "顧客注文返品ステータス"
+    }
+  }
+}

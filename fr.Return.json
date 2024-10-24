@@ -1,0 +1,80 @@
+{
+  "return": {
+    "blades": {
+      "return-list": {
+        "title": "Liste des retours",
+        "placeholders": {
+          "select-filter": "Sélectionner un filtre"
+        },
+        "labels": {
+          "return-number": "Numéro de retour",
+          "order-number": "Numéro de commande",
+          "customer-name": "Client",
+          "return-status": "Statut du retour",
+          "created-date": "Date de création",
+          "modified-date": "Date de modification",
+          "created-by": "Créé par",
+          "items-count": "Nombre d'articles",
+          "add-return": "Ajouter un nouveau retour",
+          "create-return": "Créer un retour"
+        }
+      },
+      "order-list": {
+        "title": "Commandes clients",
+        "widget-title": "Retours"
+      },
+      "items-list": {
+        "title": "Liste des articles",
+        "subtitle-create": "Commande #{{number}}",
+        "subtitle-edit": "Retour #{{number}}",
+        "labels": {
+          "item-name": "Nom de l'article",
+          "reason": "Motif du retour",
+          "quantity": "Quantité",
+          "price": "Prix",
+          "sku": "Référence"
+        }
+      },
+      "return-details": {
+        "title": "Retour #{{number}}",
+        "labels": {
+          "number": "Numéro de retour",
+          "orderNumber": "Numéro de commande",
+          "createdDate": "Date de création",
+          "modifiedDate": "Date de modification",
+          "createdBy": "Créé par",
+          "customer": "Client",
+          "resolution": "Résolution",
+          "status": "Statut"
+        }
+      }
+    }
+  },
+  "permissions": {
+    "return:access": "Ouvrir le menu des retours",
+    "return:create": "Créer des données de retour",
+    "return:read": "Afficher les données de retour",
+    "return:update": "Mettre à jour les données de retour",
+    "return:delete": "Supprimer les données de retour"
+  },
+  "settings": {
+    "Return": {
+      "ReturnPassword": {
+        "title": "Mot de passe de retour",
+        "description": "Configurer le mot de passe du module de retour"
+      },
+      "ReturnEnabled": {
+        "title": "Activer le module de retour",
+        "description": "Basculer pour activer ou désactiver le module de retour"
+      },
+      "ReturnNewNumberTemplate": {
+        "title": "Modèle de numéro de retour",
+        "description": "Utilisez ce modèle pour générer de nouveaux retours de commande"
+      }
+    },
+    "Return.Status": {
+      "description": "Statuts de retour de commande",
+      "title": "Statuts de retour de commande client"
+    }
+  }
+}

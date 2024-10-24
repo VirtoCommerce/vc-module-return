@@ -1,0 +1,80 @@
+{
+  "return": {
+    "blades": {
+      "return-list": {
+        "title": "Return list",
+        "placeholders": {
+          "select-filter": "Select a filter"
+        },
+        "labels": {
+          "return-number": "Return number",
+          "order-number": "Order number",
+          "customer-name": "Customer",
+          "return-status": "Return status",
+          "created-date": "Create date",
+          "modified-date": "Modify date",
+          "created-by": "Created by",
+          "items-count": "Item count",
+          "add-return": "Add new return",
+          "create-return": "Create return" 
+        }
+      },
+      "order-list": {
+        "title": "Customer orders",
+        "widget-title": "Returns" 
+      },
+      "items-list": {
+        "title": "Line items",
+        "subtitle-create": "Order #{{number}}",
+        "subtitle-edit": "Return #{{number}}",
+        "labels": {
+          "item-name": "Item name",
+          "reason": "Return reason",
+          "quantity": "Quantity",
+          "price": "Price",
+          "sku": "SKU" 
+        }
+      },
+      "return-details": {
+        "title": "Return #{{number}}",
+        "labels": {
+          "number": "Return number",
+          "orderNumber": "Order number",
+          "createdDate": "Created date",
+          "modifiedDate": "Modified date",
+          "createdBy": "Created by",
+          "customer": "Customer",
+          "resolution": "Resolution",
+          "status": "Status"
+        }
+      } 
+    }
+  },
+  "permissions": {
+    "return:access": "Open return menu",
+    "return:create": "Create return data",
+    "return:read": "View return data",
+    "return:update": "Update return data",
+    "return:delete": "Delete return data"
+  },
+  "settings": {
+    "Return": {
+      "ReturnPassword": {
+        "title": "Return password",
+        "description": "Set up the Return module password"
+      },
+      "ReturnEnabled": {
+        "title": "Enable Return module",
+        "description": "Toggle to enable or disable the Return module"
+      },
+      "ReturnNewNumberTemplate": {
+        "title": "Return number template",
+        "description": "Use this template to generate new order returns"
+      }
+    },
+    "Return.Status": {
+      "description": "Order return statuses",
+      "title": "Customer order return statuses"
+    } 
+  }
+}
