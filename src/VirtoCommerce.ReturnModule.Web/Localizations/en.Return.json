@@ -1,5 +1,6 @@
 {
   "return": {
+    "main-menu-title": "Returns",
     "blades": {
       "return-list": {
         "title": "Return list",
@@ -16,12 +17,12 @@
           "created-by": "Created by",
           "items-count": "Item count",
           "add-return": "Add new return",
-          "create-return": "Create return" 
+          "create-return": "Create return"
         }
       },
       "order-list": {
         "title": "Customer orders",
-        "widget-title": "Returns" 
+        "widget-title": "Returns"
       },
       "items-list": {
         "title": "Line items",
@@ -32,7 +33,7 @@
           "reason": "Return reason",
           "quantity": "Quantity",
           "price": "Price",
-          "sku": "SKU" 
+          "sku": "SKU"
         }
       },
       "return-details": {
@@ -47,7 +48,7 @@
           "resolution": "Resolution",
           "status": "Status"
         }
-      } 
+      }
     }
   },
   "permissions": {

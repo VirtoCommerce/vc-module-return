@@ -32,7 +32,7 @@ angular.module(moduleName, [])
             var menuItem = {
                 path: 'browse/Return',
                 icon: 'fa fa-exchange',
-                title: 'Return',
+                title: 'return.main-menu-title',
                 priority: 100,
                 action: () => { $state.go('workspace.ReturnState'); },
                 permission: 'return:access'

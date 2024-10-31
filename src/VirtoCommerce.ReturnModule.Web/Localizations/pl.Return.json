@@ -1,5 +1,6 @@
 {
   "return": {
+    "main-menu-title": "Zwroty",
     "blades": {
       "return-list": {
         "title": "Lista zwrotów",

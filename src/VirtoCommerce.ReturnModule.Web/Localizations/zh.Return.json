@@ -1,5 +1,6 @@
 {
   "return": {
+    "main-menu-title": "退货",
     "blades": {
       "return-list": {
         "title": "退货列表",
