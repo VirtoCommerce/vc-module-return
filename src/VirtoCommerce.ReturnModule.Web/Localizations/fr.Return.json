@@ -1,5 +1,6 @@
 {
   "return": {
+    "main-menu-title": "Retours",
     "blades": {
       "return-list": {
         "title": "Liste des retours",

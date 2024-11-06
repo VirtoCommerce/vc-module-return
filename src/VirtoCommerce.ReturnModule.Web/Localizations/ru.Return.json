@@ -1,5 +1,6 @@
 {
   "return": {
+    "main-menu-title": "Возвраты",
     "blades": {
       "return-list": {
         "title": "Список возвратов",

@@ -1,5 +1,6 @@
 {
   "return": {
+    "main-menu-title": "Rückgaben",
     "blades": {
       "return-list": {
         "title": "Rückgabeliste",
