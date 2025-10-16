@@ -65,8 +65,8 @@
         "description": "Set up the Return module password"
       },
       "ReturnEnabled": {
-        "title": "Enable Return module",
-        "description": "Toggle to enable or disable the Return module"
+        "title": "Return module",
+        "description": "Enable/ disable the Return module"
       },
       "ReturnNewNumberTemplate": {
         "title": "Return number template",
