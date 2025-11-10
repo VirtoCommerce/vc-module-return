@@ -1,0 +1,81 @@
+{
+  "return": {
+    "main-menu-title": "Returer",
+    "blades": {
+      "return-list": {
+        "title": "Returöversikt",
+        "placeholders": {
+          "select-filter": "Välj ett filter"
+        },
+        "labels": {
+          "return-number": "Returnummer",
+          "order-number": "Ordernummer",
+          "customer-name": "Kund",
+          "return-status": "Returstatus",
+          "created-date": "Skapad datum",
+          "modified-date": "Ändrad datum",
+          "created-by": "Skapad av",
+          "items-count": "Antal artiklar",
+          "add-return": "Lägg till ny retur",
+          "create-return": "Skapa retur"
+        }
+      },
+      "order-list": {
+        "title": "Kundordrar",
+        "widget-title": "Returer"
+      },
+      "items-list": {
+        "title": "Orderrader",
+        "subtitle-create": "Order #{{number}}",
+        "subtitle-edit": "Retur #{{number}}",
+        "labels": {
+          "item-name": "Artikelnamn",
+          "reason": "Returskäl",
+          "quantity": "Antal",
+          "price": "Pris",
+          "sku": "Artikelnummer"
+        }
+      },
+      "return-details": {
+        "title": "Retur #{{number}}",
+        "labels": {
+          "number": "Returnummer",
+          "orderNumber": "Ordernummer",
+          "createdDate": "Skapad datum",
+          "modifiedDate": "Ändrad datum",
+          "createdBy": "Skapad av",
+          "customer": "Kund",
+          "resolution": "Lösning",
+          "status": "Status"
+        }
+      }
+    }
+  },
+  "permissions": {
+    "return:access": "Öppna returmeny",
+    "return:create": "Skapa returdata",
+    "return:read": "Visa returdata",
+    "return:update": "Uppdatera returdata",
+    "return:delete": "Radera returdata"
+  },
+  "settings": {
+    "Return": {
+      "ReturnPassword": {
+        "title": "Returlösenord",
+        "description": "Ange lösenord för Returmodulen"
+      },
+      "ReturnEnabled": {
+        "title": "Returmodul",
+        "description": "Aktivera/inaktivera Returmodulen"
+      },
+      "ReturnNewNumberTemplate": {
+        "title": "Mall för returnummer",
+        "description": "Använd denna mall för att generera nya returer"
+      }
+    },
+    "Return.Status": {
+      "description": "Returstatus för ordrar",
+      "title": "Status för kundreturer"
+    } 
+  }
+}

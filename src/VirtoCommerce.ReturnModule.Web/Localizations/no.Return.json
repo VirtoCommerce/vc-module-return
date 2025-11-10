@@ -1,0 +1,81 @@
+{
+  "return": {
+    "main-menu-title": "Returer",
+    "blades": {
+      "return-list": {
+        "title": "Returliste",
+        "placeholders": {
+          "select-filter": "Velg et filter"
+        },
+        "labels": {
+          "return-number": "Returnummer",
+          "order-number": "Ordrenummer",
+          "customer-name": "Kunde",
+          "return-status": "Returstatus",
+          "created-date": "Opprettet dato",
+          "modified-date": "Endret dato",
+          "created-by": "Opprettet av",
+          "items-count": "Antall varer",
+          "add-return": "Legg til ny retur",
+          "create-return": "Opprett retur"
+        }
+      },
+      "order-list": {
+        "title": "Kundeordrer",
+        "widget-title": "Returer"
+      },
+      "items-list": {
+        "title": "Linjevarer",
+        "subtitle-create": "Ordre #{{number}}",
+        "subtitle-edit": "Retur #{{number}}",
+        "labels": {
+          "item-name": "Varenavn",
+          "reason": "Returårsak",
+          "quantity": "Antall",
+          "price": "Pris",
+          "sku": "SKU"
+        }
+      },
+      "return-details": {
+        "title": "Retur #{{number}}",
+        "labels": {
+          "number": "Returnummer",
+          "orderNumber": "Ordrenummer",
+          "createdDate": "Opprettet dato",
+          "modifiedDate": "Endret dato",
+          "createdBy": "Opprettet av",
+          "customer": "Kunde",
+          "resolution": "Løsning",
+          "status": "Status"
+        }
+      }
+    }
+  },
+  "permissions": {
+    "return:access": "Åpne returmeny",
+    "return:create": "Opprett returdata",
+    "return:read": "Vis returdata",
+    "return:update": "Oppdater returdata",
+    "return:delete": "Slett returdata"
+  },
+  "settings": {
+    "Return": {
+      "ReturnPassword": {
+        "title": "Returpassord",
+        "description": "Sett opp passord for Returmodulen"
+      },
+      "ReturnEnabled": {
+        "title": "Returmodul",
+        "description": "Aktiver/deaktiver Returmodulen"
+      },
+      "ReturnNewNumberTemplate": {
+        "title": "Mal for returnummer",
+        "description": "Bruk denne malen for å generere nye returer"
+      }
+    },
+    "Return.Status": {
+      "description": "Returstatuser for ordre",
+      "title": "Statuser for kunders returer"
+    } 
+  }
+}
