@@ -1,0 +1,81 @@
+{
+  "return": {
+    "main-menu-title": "Palautukset",
+    "blades": {
+      "return-list": {
+        "title": "Palautuslista",
+        "placeholders": {
+          "select-filter": "Valitse suodatin"
+        },
+        "labels": {
+          "return-number": "Palautusnumero",
+          "order-number": "Tilausnumero",
+          "customer-name": "Asiakas",
+          "return-status": "Palautuksen tila",
+          "created-date": "Luontipäivä",
+          "modified-date": "Muokkauspäivä",
+          "created-by": "Luonut",
+          "items-count": "Tuotteiden määrä",
+          "add-return": "Lisää uusi palautus",
+          "create-return": "Luo palautus"
+        }
+      },
+      "order-list": {
+        "title": "Asiakkaan tilaukset",
+        "widget-title": "Palautukset"
+      },
+      "items-list": {
+        "title": "Tilausrivit",
+        "subtitle-create": "Tilaus #{{number}}",
+        "subtitle-edit": "Palautus #{{number}}",
+        "labels": {
+          "item-name": "Tuotenimi",
+          "reason": "Palautuksen syy",
+          "quantity": "Määrä",
+          "price": "Hinta",
+          "sku": "Tuotekoodi"
+        }
+      },
+      "return-details": {
+        "title": "Palautus #{{number}}",
+        "labels": {
+          "number": "Palautusnumero",
+          "orderNumber": "Tilausnumero",
+          "createdDate": "Luontipäivä",
+          "modifiedDate": "Muokkauspäivä",
+          "createdBy": "Luonut",
+          "customer": "Asiakas",
+          "resolution": "Ratkaisu",
+          "status": "Tila"
+        }
+      }
+    }
+  },
+  "permissions": {
+    "return:access": "Avaa palautusvalikko",
+    "return:create": "Luo palautustietoja",
+    "return:read": "Näytä palautustietoja",
+    "return:update": "Päivitä palautustietoja",
+    "return:delete": "Poista palautustietoja"
+  },
+  "settings": {
+    "Return": {
+      "ReturnPassword": {
+        "title": "Palautussalasana",
+        "description": "Aseta salasana Palautus-moduulille"
+      },
+      "ReturnEnabled": {
+        "title": "Palautusmoduuli",
+        "description": "Ota käyttöön tai poista käytöstä Palautusmoduuli"
+      },
+      "ReturnNewNumberTemplate": {
+        "title": "Palautusnumeron malli",
+        "description": "Käytä tätä mallia uusien palautusten numerointiin"
+      }
+    },
+    "Return.Status": {
+      "description": "Tilauksen palautusten tilat",
+      "title": "Asiakkaan palautusten tilat"
+    } 
+  }
+}
