@@ -6,6 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Settings;
+using VirtoCommerce.Platform.Data.MySql.Extensions;
+using VirtoCommerce.Platform.Data.PostgreSql.Extensions;
+using VirtoCommerce.Platform.Data.SqlServer.Extensions;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.Data.MySql;
@@ -14,6 +17,7 @@ using VirtoCommerce.ReturnModule.Data.Repositories;
 using VirtoCommerce.ReturnModule.Data.Services;
 using VirtoCommerce.ReturnModule.Data.SqlServer;
 using VirtoCommerce.StoreModule.Core.Model;
+
 
 namespace VirtoCommerce.ReturnModule.Web
 {
@@ -33,13 +37,13 @@ namespace VirtoCommerce.ReturnModule.Web
                 switch (databaseProvider)
                 {
                     case "MySql":
-                        options.UseMySqlDatabase(connectionString);
+                        options.UseMySqlDatabase(connectionString, typeof(MySqlDataAssemblyMarker), Configuration);
                         break;
                     case "PostgreSql":
-                        options.UsePostgreSqlDatabase(connectionString);
+                        options.UsePostgreSqlDatabase(connectionString, typeof(PostgreSqlDataAssemblyMarker), Configuration);
                         break;
                     default:
-                        options.UseSqlServerDatabase(connectionString);
+                        options.UseSqlServerDatabase(connectionString, typeof(SqlServerDataAssemblyMarker), Configuration);
                         break;
                 }
             });
