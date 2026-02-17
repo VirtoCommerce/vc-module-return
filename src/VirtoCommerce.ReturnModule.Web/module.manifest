@@ -10,8 +10,8 @@
     <dependency id="VirtoCommerce.Store" version="3.1000.0" />
   </dependencies>
 
-  <title>Return module</title>
-  <description>Return module</description>
+  <title>Returns</title>
+  <description>Return management module</description>
   <authors>
     <author>Leysan Nigmatullina</author>
     <author>Mikhail Getmansky</author>
