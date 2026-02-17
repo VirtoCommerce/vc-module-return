@@ -1,6 +1,6 @@
-# Virto Commerce Return Module
+# Returns
 
-The Return module by Virto Commerce gives you an opportunity to view and manage all return operations. Once a customer returns an item to your store, this information will appear on the Return screen, where you can view and sort the return list.
+The Returns module by Virto Commerce gives you an opportunity to view and manage all return operations. Once a customer returns an item to your store, this information will appear on the Return screen, where you can view and sort the return list.
 
 This module has a direct dependency on the Order and Customer modules, so make sure to have them installed before you proceed to installing the Return module.
 
@@ -10,7 +10,7 @@ As noted above, apart from the core Virto Commerce platform, you need to have th
 
 ## Documentation
 
-* [Return module user documentation](https://docs.virtocommerce.org/platform/user-guide/return/overview/)
+* [Returns module user documentation](https://docs.virtocommerce.org/platform/user-guide/return/overview/)
 * [REST API](https://virtostart-demo-admin.govirto.com/docs/index.html?urls.primaryName=VirtoCommerce.Return)
 * [View on GitHub](https://github.com/VirtoCommerce/vc-module-return)
 
