@@ -19,10 +19,36 @@ namespace VirtoCommerce.ReturnModule.Data.Models
         public string OrderId { get; set; }
 
         [StringLength(64)]
+        public string OrderNumber { get; set; }
+
+        // Nullable so rows created before the storefront flow existed keep loading; new returns
+        // always carry them.
+        [StringLength(128)]
+        public string StoreId { get; set; }
+
+        [StringLength(128)]
+        public string CustomerId { get; set; }
+
+        [StringLength(255)]
+        public string CustomerName { get; set; }
+
+        [StringLength(128)]
+        public string CustomerReference { get; set; }
+
+        [StringLength(64)]
         public string Status { get; set; }
 
         [StringLength(2048)]
         public string Resolution { get; set; }
+
+        [StringLength(2048)]
+        public string CustomerComment { get; set; }
+
+        [StringLength(2048)]
+        public string Comment { get; set; }
+
+        [StringLength(2048)]
+        public string RejectReason { get; set; }
 
         public virtual ObservableCollection<ReturnLineItemEntity> LineItems { get; set; } = new NullCollection<ReturnLineItemEntity>();
 
@@ -39,8 +65,16 @@ namespace VirtoCommerce.ReturnModule.Data.Models
 
             model.Number = Number;
             model.OrderId = OrderId;
+            model.OrderNumber = OrderNumber;
+            model.StoreId = StoreId;
+            model.CustomerId = CustomerId;
+            model.CustomerName = CustomerName;
+            model.CustomerReference = CustomerReference;
             model.Status = Status;
             model.Resolution = Resolution;
+            model.CustomerComment = CustomerComment;
+            model.Comment = Comment;
+            model.RejectReason = RejectReason;
 
             model.LineItems = LineItems.Select(x => x.ToModel(AbstractTypeFactory<ReturnLineItem>.TryCreateInstance())).ToList();
 
@@ -62,8 +96,16 @@ namespace VirtoCommerce.ReturnModule.Data.Models
 
             Number = model.Number;
             OrderId = model.OrderId;
+            OrderNumber = model.OrderNumber;
+            StoreId = model.StoreId;
+            CustomerId = model.CustomerId;
+            CustomerName = model.CustomerName;
+            CustomerReference = model.CustomerReference;
             Status = model.Status;
             Resolution = model.Resolution;
+            CustomerComment = model.CustomerComment;
+            Comment = model.Comment;
+            RejectReason = model.RejectReason;
 
             if (model.LineItems != null)
             {
@@ -82,8 +124,16 @@ namespace VirtoCommerce.ReturnModule.Data.Models
 
             target.Number = Number;
             target.OrderId = OrderId;
+            target.OrderNumber = OrderNumber;
+            target.StoreId = StoreId;
+            target.CustomerId = CustomerId;
+            target.CustomerName = CustomerName;
+            target.CustomerReference = CustomerReference;
             target.Status = Status;
             target.Resolution = Resolution;
+            target.CustomerComment = CustomerComment;
+            target.Comment = Comment;
+            target.RejectReason = RejectReason;
 
             if (!LineItems.IsNullCollection())
             {

@@ -1,0 +1,83 @@
+using System;
+using System.ComponentModel.DataAnnotations;
+using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.Domain;
+using VirtoCommerce.ReturnModule.Core.Models;
+
+namespace VirtoCommerce.ReturnModule.Data.Models
+{
+    public class ReturnAttachmentEntity : AuditableEntity, IDataEntity<ReturnAttachmentEntity, ReturnAttachment>
+    {
+        [Required]
+        [StringLength(128)]
+        public string ReturnLineItemId { get; set; }
+
+        public virtual ReturnLineItemEntity ReturnLineItem { get; set; }
+
+        [Required]
+        [StringLength(1024)]
+        public string Name { get; set; }
+
+        [Required]
+        [StringLength(2048)]
+        public string Url { get; set; }
+
+        [StringLength(128)]
+        public string MimeType { get; set; }
+
+        public long Size { get; set; }
+
+        public ReturnAttachment ToModel(ReturnAttachment model)
+        {
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+
+            model.Id = Id;
+            model.CreatedBy = CreatedBy;
+            model.CreatedDate = CreatedDate;
+            model.ModifiedBy = ModifiedBy;
+            model.ModifiedDate = ModifiedDate;
+
+            model.ReturnLineItemId = ReturnLineItemId;
+            model.Name = Name;
+            model.Url = Url;
+            model.MimeType = MimeType;
+            model.Size = Size;
+
+            return model;
+        }
+
+        public ReturnAttachmentEntity FromModel(ReturnAttachment model, PrimaryKeyResolvingMap pkMap)
+        {
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+
+            pkMap.AddPair(model, this);
+
+            Id = model.Id;
+            CreatedBy = model.CreatedBy;
+            CreatedDate = model.CreatedDate;
+            ModifiedBy = model.ModifiedBy;
+            ModifiedDate = model.ModifiedDate;
+
+            ReturnLineItemId = model.ReturnLineItemId;
+            Name = model.Name;
+            Url = model.Url;
+            MimeType = model.MimeType;
+            Size = model.Size;
+
+            return this;
+        }
+
+        public void Patch(ReturnAttachmentEntity target)
+        {
+            if (target == null)
+                throw new ArgumentNullException(nameof(target));
+
+            target.Name = Name;
+            target.Url = Url;
+            target.MimeType = MimeType;
+            target.Size = Size;
+        }
+    }
+}

@@ -36,6 +36,15 @@ namespace VirtoCommerce.ReturnModule.Data.Repositories
 
             #endregion ReturnLineItem
 
+            #region ReturnAttachment
+
+            modelBuilder.Entity<ReturnAttachmentEntity>().ToTable("ReturnAttachment").HasKey(x => x.Id);
+            modelBuilder.Entity<ReturnAttachmentEntity>().Property(x => x.Id).HasMaxLength(128).ValueGeneratedOnAdd();
+            modelBuilder.Entity<ReturnAttachmentEntity>().HasOne(x => x.ReturnLineItem).WithMany(x => x.Attachments)
+                .HasForeignKey(x => x.ReturnLineItemId).OnDelete(DeleteBehavior.Cascade);
+
+            #endregion ReturnAttachment
+
             base.OnModelCreating(modelBuilder);
 
             // Allows configuration for an entity type for different database types.

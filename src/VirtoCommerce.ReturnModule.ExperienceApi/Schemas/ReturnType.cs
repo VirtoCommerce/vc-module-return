@@ -1,0 +1,30 @@
+using System.Collections.Generic;
+using System.Linq;
+using GraphQL.Types;
+using VirtoCommerce.ReturnModule.Core.Models;
+using VirtoCommerce.Xapi.Core.Schemas;
+
+namespace VirtoCommerce.ReturnModule.ExperienceApi.Schemas;
+
+public class ReturnType : ExtendableGraphType<Return>
+{
+    public ReturnType()
+    {
+        Field(x => x.Id, nullable: false);
+        Field(x => x.Number, nullable: false);
+        Field(x => x.Status, nullable: true);
+        Field(x => x.CreatedDate, nullable: false);
+        Field(x => x.OrderId, nullable: true);
+        Field(x => x.OrderNumber, nullable: true);
+        Field(x => x.CustomerReference, nullable: true).Description("Buyer's own purchase order reference.");
+        Field(x => x.CustomerComment, nullable: true);
+        Field(x => x.RejectReason, nullable: true);
+
+        Field<NonNullGraphType<IntGraphType>>("itemsQuantity")
+            .Description("Total quantity requested across the return's lines.")
+            .Resolve(context => context.Source.LineItems?.Sum(x => x.Quantity) ?? 0);
+
+        Field<NonNullGraphType<ListGraphType<NonNullGraphType<ReturnLineItemType>>>>("items")
+            .Resolve(context => (IEnumerable<ReturnLineItem>)context.Source.LineItems ?? []);
+    }
+}

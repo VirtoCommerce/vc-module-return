@@ -105,13 +105,21 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             return ((IReturnRepository)repository).GetReturnsByIdsAsync(ids, responseGroup);
         }
 
-        protected override Task BeforeSaveChanges(IList<Return> returns)
+        protected override async Task BeforeSaveChanges(IList<Return> returns)
         {
-            return EnsureEachReturnHasNumber(returns);
+            if (returns.IsNullOrEmpty())
+            {
+                return;
+            }
+
+            var ordersById = (await GetOrdersForReturns(returns)).ToDictionary(x => x.Id);
+
+            await EnsureEachReturnHasNumber(returns, ordersById);
+            FillMissingSnapshots(returns, ordersById);
         }
 
 
-        private async Task EnsureEachReturnHasNumber(IEnumerable<Return> returns)
+        private async Task EnsureEachReturnHasNumber(IEnumerable<Return> returns, IDictionary<string, CustomerOrder> ordersById)
         {
             var returnsWithoutNumber = returns.Where(x => string.IsNullOrEmpty(x.Number)).ToList();
             if (returnsWithoutNumber.IsNullOrEmpty())
@@ -119,7 +127,6 @@ namespace VirtoCommerce.ReturnModule.Data.Services
                 return;
             }
 
-            var ordersById = (await GetOrdersForReturns(returnsWithoutNumber)).ToDictionary(x => x.Id);
             var storeIds = ordersById.Values.Select(x => x.StoreId).Distinct().ToList();
             var storesById = (await _storeService.GetNoCloneAsync(storeIds)).ToDictionary(x => x.Id);
 
@@ -137,6 +144,60 @@ namespace VirtoCommerce.ReturnModule.Data.Services
                 }
 
                 orderReturn.Number = _uniqueNumberGenerator.GenerateNumber(numberTemplate);
+            }
+        }
+
+        /// <summary>
+        /// Copies ownership and product details from the order onto anything that has none.
+        /// </summary>
+        /// <remarks>
+        /// The admin UI still saves returns through the original REST contract, which knows nothing
+        /// about these fields, so without this a return raised by an agent would reach the storefront
+        /// with no product name and no owner. Only empty values are touched — a snapshot already
+        /// taken must never be refreshed from the order, or a renamed product or a corrected price
+        /// would silently rewrite history.
+        /// </remarks>
+        private static void FillMissingSnapshots(IEnumerable<Return> returns, IDictionary<string, CustomerOrder> ordersById)
+        {
+            foreach (var orderReturn in returns)
+            {
+                if (!ordersById.TryGetValue(orderReturn.OrderId ?? string.Empty, out var order))
+                {
+                    continue;
+                }
+
+                orderReturn.StoreId ??= order.StoreId;
+                orderReturn.CustomerId ??= order.CustomerId;
+                orderReturn.CustomerName ??= order.CustomerName;
+                orderReturn.OrderNumber ??= order.Number;
+
+                var orderLineItems = (order.Items ?? []).ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
+
+                foreach (var lineItem in orderReturn.LineItems ?? [])
+                {
+                    if (!string.IsNullOrEmpty(lineItem.Sku) ||
+                        !orderLineItems.TryGetValue(lineItem.OrderLineItemId ?? string.Empty, out var orderLineItem))
+                    {
+                        continue;
+                    }
+
+                    lineItem.ProductId ??= orderLineItem.ProductId;
+                    lineItem.Sku = orderLineItem.Sku;
+                    lineItem.Name ??= orderLineItem.Name;
+                    lineItem.ImageUrl ??= orderLineItem.ImageUrl;
+                    lineItem.MeasureUnit ??= orderLineItem.MeasureUnit;
+                    lineItem.ItemState ??= ReturnItemState.Requested;
+
+                    if (lineItem.OrderedQuantity == 0)
+                    {
+                        lineItem.OrderedQuantity = orderLineItem.Quantity;
+                    }
+
+                    if (lineItem.Price == 0)
+                    {
+                        lineItem.Price = orderLineItem.Price;
+                    }
+                }
             }
         }
 

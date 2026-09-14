@@ -45,6 +45,16 @@ namespace VirtoCommerce.ReturnModule.Data.Services
                 query = query.Where(x => x.OrderId == criteria.OrderId);
             }
 
+            if (!criteria.OrderIds.IsNullOrEmpty())
+            {
+                query = query.Where(x => criteria.OrderIds.Contains(x.OrderId));
+            }
+
+            if (!criteria.Statuses.IsNullOrEmpty())
+            {
+                query = query.Where(x => criteria.Statuses.Contains(x.Status));
+            }
+
             return query;
         }
 

@@ -9,4 +9,8 @@
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- AutoMapper 12.0.1 arrives transitively through VirtoCommerce.Xapi.Core; same suppression as vc-module-quote. -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rvv3-g6hj-g44x" />
+  </ItemGroup>
 </Project>
