@@ -112,6 +112,24 @@ angular.module('virtoCommerce.returnModule')
                 bladeNavigationService.showBlade(returnDetailsBlade, blade);
             };
 
+            // Same clipboard approach as the order list: the admin runs over http on dev boxes,
+            // where navigator.clipboard is unavailable.
+            $scope.copy = (text) => {
+                var copyElement = document.createElement("span");
+                copyElement.appendChild(document.createTextNode(text));
+                copyElement.id = 'tempCopyToClipboard';
+                angular.element(document.body.append(copyElement));
+
+                var range = document.createRange();
+                range.selectNode(copyElement);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                copyElement.remove();
+            };
+
             function getSearchCriteria() {
                 return {
                     keyword: blade.searchKeyword,

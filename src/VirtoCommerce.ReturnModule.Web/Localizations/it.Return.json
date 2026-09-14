@@ -17,7 +17,9 @@
           "created-by": "Creato da",
           "items-count": "Numero di articoli",
           "add-return": "Aggiungi nuovo reso",
-          "create-return": "Crea reso"
+          "create-return": "Crea reso",
+          "copy-id": "Copia ID",
+          "copy-number": "Copia numero"
         }
       },
       "order-list": {

@@ -17,7 +17,9 @@
           "created-by": "Skapad av",
           "items-count": "Antal artiklar",
           "add-return": "Lägg till ny retur",
-          "create-return": "Skapa retur"
+          "create-return": "Skapa retur",
+          "copy-id": "Kopiera ID",
+          "copy-number": "Kopiera nummer"
         }
       },
       "order-list": {
@@ -76,6 +78,6 @@
     "Return.Status": {
       "description": "Returstatus för ordrar",
       "title": "Status för kundreturer"
-    } 
+    }
   }
 }

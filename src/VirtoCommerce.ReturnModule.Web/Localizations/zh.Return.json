@@ -17,7 +17,9 @@
           "created-by": "创建人",
           "items-count": "商品数量",
           "add-return": "添加新退货",
-          "create-return": "创建退货"
+          "create-return": "创建退货",
+          "copy-id": "复制 ID",
+          "copy-number": "复制编号"
         }
       },
       "order-list": {

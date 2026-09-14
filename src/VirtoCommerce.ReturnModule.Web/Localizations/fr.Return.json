@@ -17,7 +17,9 @@
           "created-by": "Créé par",
           "items-count": "Nombre d'articles",
           "add-return": "Ajouter un nouveau retour",
-          "create-return": "Créer un retour"
+          "create-return": "Créer un retour",
+          "copy-id": "Copier l'identifiant",
+          "copy-number": "Copier le numéro"
         }
       },
       "order-list": {

@@ -17,7 +17,9 @@
           "created-by": "Opprettet av",
           "items-count": "Antall varer",
           "add-return": "Legg til ny retur",
-          "create-return": "Opprett retur"
+          "create-return": "Opprett retur",
+          "copy-id": "Kopier ID",
+          "copy-number": "Kopier nummer"
         }
       },
       "order-list": {
@@ -76,6 +78,6 @@
     "Return.Status": {
       "description": "Returstatuser for ordre",
       "title": "Statuser for kunders returer"
-    } 
+    }
   }
 }

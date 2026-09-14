@@ -17,7 +17,9 @@
           "created-by": "作成者",
           "items-count": "商品数",
           "add-return": "新規返品を追加",
-          "create-return": "返品を作成"
+          "create-return": "返品を作成",
+          "copy-id": "IDをコピー",
+          "copy-number": "番号をコピー"
         }
       },
       "order-list": {

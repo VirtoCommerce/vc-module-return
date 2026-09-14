@@ -21,6 +21,7 @@
                     rowTemplate: 'return-list.row.html',
                     rowHeight: 61,
                     columnDefs: [
+                                { name: 'actions', displayName: '', enableColumnResizing: false, enableSorting: false, width: 30, cellTemplate: 'return-list-actions.cell.html', pinnedLeft: true, displayAlways: true },
                                 { name: 'number', displayName: 'return.blades.return-list.labels.return-number', sort: { direction: uiGridConstants.ASC } },
                                 { name: 'orderNumber', displayName: 'return.blades.return-list.labels.order-number', enableSorting: false },
                                 { name: 'customerName', displayName: 'return.blades.return-list.labels.customer-name', enableSorting: false },
@@ -33,6 +34,7 @@
       <div class="note" ng-if="!listEntries.length">{{ 'platform.list.no-data' | translate }}</div>
       <div class="table-wrapper" ng-if="listEntries.length">
         <div ui-grid="gridOptions" ui-grid-auto-resize ui-grid-save-state ui-grid-resize-columns ui-grid-move-columns ui-grid-pinning ui-grid-height></div>
+        <ng-include src="'return-list-context-menu.row.html'"></ng-include>
       </div>
     </div>
   </div>
@@ -40,4 +42,26 @@
 
 <script type="text/ng-template" id="return-list.row.html">
   <div ng-click="grid.appScope.selectNode(row.entity)" ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.uid" ui-grid-one-bind-id-grid="rowRenderIndex + '-' + col.uid + '-cell'" class="ui-grid-cell" ng-class="{'ui-grid-row-header-cell': col.isRowHeader, '__hovered': grid.appScope.contextMenuEntity === row.entity, '__selected': row.entity.id===grid.appScope.selectedNodeId }" role="{{col.isRowHeader ? 'rowheader' : 'gridcell' }}" ui-grid-cell context-menu="grid.appScope.contextMenuEntity = row.entity" data-target="cml_menu"></div>
+</script>
+
+<!-- Own template id, not the orders module's "list-actions.cell.html": ng-template ids share one
+     global cache, so a shared name would make this grid open the orders context menu. -->
+<script type="text/ng-template" id="return-list-actions.cell.html">
+  <div class="ui-grid-actions" left-click-menu="grid.appScope.contextMenuEntity = row.entity" data-target="cml_menu">
+    <i class="fa context-menu"></i>
+  </div>
+</script>
+
+<script type="text/ng-template" id="return-list-context-menu.row.html">
+  <ul class="menu __context" role="menu" id="cml_menu">
+    <li class="menu-item" ng-click="selectNode(contextMenuEntity)" id="menu_edit">
+      <i class="menu-ico fa fa-edit"></i> {{ 'platform.commands.manage' | translate }}
+    </li>
+    <li class="menu-item" ng-click="copy(contextMenuEntity.id)" id="menu_copyId">
+      <i class="menu-ico fa fa-copy"></i> {{ 'return.blades.return-list.labels.copy-id' | translate }}
+    </li>
+    <li class="menu-item" ng-click="copy(contextMenuEntity.number)" id="menu_copyNumber">
+      <i class="menu-ico fa fa-copy"></i> {{ 'return.blades.return-list.labels.copy-number' | translate }}
+    </li>
+  </ul>
 </script>
