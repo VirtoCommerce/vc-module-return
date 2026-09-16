@@ -75,28 +75,28 @@
         "description": "Use esta plantilla para generar nuevas devoluciones de pedidos"
       },
       "WindowDays": {
-        "title": "Return window, days",
-        "description": "How long after delivery a line stays returnable. Counted per line from the latest delivery date."
+        "title": "Plazo de devolución, días",
+        "description": "Cuánto tiempo después de la entrega una línea sigue siendo devolvible. Se cuenta por línea desde la última fecha de entrega."
       },
       "AllowedOrderStatuses": {
-        "title": "Order statuses allowing returns",
-        "description": "Comma-separated order statuses a return may be requested from. Blank allows nothing."
+        "title": "Estados de pedido que permiten devoluciones",
+        "description": "Estados de pedido separados por comas desde los que se puede solicitar una devolución. En blanco no permite ninguno."
       },
       "AllowedShipmentStatuses": {
-        "title": "Shipment statuses counted as delivered",
-        "description": "Comma-separated shipment statuses to count as delivered. Blank counts any status, and delivery is taken from the shipment delivery date."
+        "title": "Estados de envío considerados entregados",
+        "description": "Estados de envío separados por comas que cuentan como entregados. En blanco acepta cualquier estado y la entrega se toma de la fecha de entrega del envío."
       },
       "Reasons": {
-        "title": "Return reasons",
-        "description": "Reasons the buyer picks per line. Localizable."
+        "title": "Motivos de devolución",
+        "description": "Motivos que el comprador elige por línea. Localizables."
       },
       "ReasonsRequiringComment": {
-        "title": "Reasons requiring a comment",
-        "description": "Comma-separated reason codes that oblige the buyer to explain."
+        "title": "Motivos que requieren comentario",
+        "description": "Códigos de motivo separados por comas que obligan al comprador a explicar."
       },
       "AttachmentsRequired": {
-        "title": "Photos or documents required",
-        "description": "Require at least one file on every returned line."
+        "title": "Fotos o documentos obligatorios",
+        "description": "Exigir al menos un archivo en cada línea devuelta."
       }
     },
     "Return.Status": {

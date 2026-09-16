@@ -75,28 +75,28 @@
         "description": "Käytä tätä mallia uusien palautusten numerointiin"
       },
       "WindowDays": {
-        "title": "Return window, days",
-        "description": "How long after delivery a line stays returnable. Counted per line from the latest delivery date."
+        "title": "Palautusaika, päivää",
+        "description": "Kuinka kauan toimituksen jälkeen rivin voi palauttaa. Lasketaan riveittäin viimeisimmästä toimituspäivästä."
       },
       "AllowedOrderStatuses": {
-        "title": "Order statuses allowing returns",
-        "description": "Comma-separated order statuses a return may be requested from. Blank allows nothing."
+        "title": "Tilauksen tilat, joista palautus on sallittu",
+        "description": "Pilkulla erotetut tilauksen tilat, joista palautusta voi pyytää. Tyhjä ei salli mitään."
       },
       "AllowedShipmentStatuses": {
-        "title": "Shipment statuses counted as delivered",
-        "description": "Comma-separated shipment statuses to count as delivered. Blank counts any status, and delivery is taken from the shipment delivery date."
+        "title": "Toimitetuiksi katsottavat toimitustilat",
+        "description": "Pilkulla erotetut toimitustilat, jotka katsotaan toimitetuiksi. Tyhjä hyväksyy minkä tahansa tilan, jolloin toimitus otetaan toimituksen toimituspäivästä."
       },
       "Reasons": {
-        "title": "Return reasons",
-        "description": "Reasons the buyer picks per line. Localizable."
+        "title": "Palautuksen syyt",
+        "description": "Syyt, jotka ostaja valitsee riveittäin. Lokalisoitavissa."
       },
       "ReasonsRequiringComment": {
-        "title": "Reasons requiring a comment",
-        "description": "Comma-separated reason codes that oblige the buyer to explain."
+        "title": "Syyt, jotka vaativat kommentin",
+        "description": "Pilkulla erotetut syykoodit, jotka velvoittavat ostajan perustelemaan."
       },
       "AttachmentsRequired": {
-        "title": "Photos or documents required",
-        "description": "Require at least one file on every returned line."
+        "title": "Kuvat tai asiakirjat pakollisia",
+        "description": "Vaadi vähintään yksi tiedosto jokaiselle palautettavalle riville."
       }
     },
     "Return.Status": {

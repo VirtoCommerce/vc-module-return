@@ -75,28 +75,28 @@
         "description": "Użyj tego szablonu do generowania nowych numerów zwrotów zamówień"
       },
       "WindowDays": {
-        "title": "Return window, days",
-        "description": "How long after delivery a line stays returnable. Counted per line from the latest delivery date."
+        "title": "Okno zwrotu, dni",
+        "description": "Jak długo po dostawie pozycję można zwrócić. Liczone dla każdej pozycji od ostatniej daty dostawy."
       },
       "AllowedOrderStatuses": {
-        "title": "Order statuses allowing returns",
-        "description": "Comma-separated order statuses a return may be requested from. Blank allows nothing."
+        "title": "Statusy zamówienia zezwalające na zwrot",
+        "description": "Statusy zamówienia oddzielone przecinkami, z których można zgłosić zwrot. Puste nie zezwala na nic."
       },
       "AllowedShipmentStatuses": {
-        "title": "Shipment statuses counted as delivered",
-        "description": "Comma-separated shipment statuses to count as delivered. Blank counts any status, and delivery is taken from the shipment delivery date."
+        "title": "Statusy wysyłki uznawane za dostarczone",
+        "description": "Statusy wysyłki oddzielone przecinkami uznawane za dostarczone. Puste akceptuje każdy status, a dostawę ustala data dostawy wysyłki."
       },
       "Reasons": {
-        "title": "Return reasons",
-        "description": "Reasons the buyer picks per line. Localizable."
+        "title": "Powody zwrotu",
+        "description": "Powody wybierane przez kupującego dla każdej pozycji. Podlegają tłumaczeniu."
       },
       "ReasonsRequiringComment": {
-        "title": "Reasons requiring a comment",
-        "description": "Comma-separated reason codes that oblige the buyer to explain."
+        "title": "Powody wymagające komentarza",
+        "description": "Kody powodów oddzielone przecinkami, które zobowiązują kupującego do wyjaśnienia."
       },
       "AttachmentsRequired": {
-        "title": "Photos or documents required",
-        "description": "Require at least one file on every returned line."
+        "title": "Zdjęcia lub dokumenty wymagane",
+        "description": "Wymagaj co najmniej jednego pliku dla każdej zwracanej pozycji."
       }
     },
     "Return.Status": {

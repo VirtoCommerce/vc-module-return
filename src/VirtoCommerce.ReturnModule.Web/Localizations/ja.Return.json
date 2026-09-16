@@ -75,28 +75,28 @@
         "description": "新しい注文返品を生成するためのテンプレートを使用"
       },
       "WindowDays": {
-        "title": "Return window, days",
-        "description": "How long after delivery a line stays returnable. Counted per line from the latest delivery date."
+        "title": "返品可能期間（日）",
+        "description": "配達後、明細を返品できる期間。明細ごとに最新の配達日から計算されます。"
       },
       "AllowedOrderStatuses": {
-        "title": "Order statuses allowing returns",
-        "description": "Comma-separated order statuses a return may be requested from. Blank allows nothing."
+        "title": "返品を許可する注文ステータス",
+        "description": "返品を申請できる注文ステータス（カンマ区切り）。空の場合は一切許可されません。"
       },
       "AllowedShipmentStatuses": {
-        "title": "Shipment statuses counted as delivered",
-        "description": "Comma-separated shipment statuses to count as delivered. Blank counts any status, and delivery is taken from the shipment delivery date."
+        "title": "配達済みとみなす出荷ステータス",
+        "description": "配達済みとみなす出荷ステータス（カンマ区切り）。空の場合はすべてのステータスを受け入れ、配達は出荷の配達日から判断されます。"
       },
       "Reasons": {
-        "title": "Return reasons",
-        "description": "Reasons the buyer picks per line. Localizable."
+        "title": "返品理由",
+        "description": "購入者が明細ごとに選ぶ理由。ローカライズ可能です。"
       },
       "ReasonsRequiringComment": {
-        "title": "Reasons requiring a comment",
-        "description": "Comma-separated reason codes that oblige the buyer to explain."
+        "title": "コメントが必要な理由",
+        "description": "購入者に説明を求める理由コード（カンマ区切り）。"
       },
       "AttachmentsRequired": {
-        "title": "Photos or documents required",
-        "description": "Require at least one file on every returned line."
+        "title": "写真または書類が必須",
+        "description": "返品する各明細に少なくとも1つのファイルを必須にします。"
       }
     },
     "Return.Status": {

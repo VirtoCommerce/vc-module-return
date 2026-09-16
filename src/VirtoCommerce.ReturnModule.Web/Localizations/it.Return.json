@@ -75,28 +75,28 @@
         "description": "Usa questo modello per generare nuovi numeri di reso per gli ordini"
       },
       "WindowDays": {
-        "title": "Return window, days",
-        "description": "How long after delivery a line stays returnable. Counted per line from the latest delivery date."
+        "title": "Finestra di reso, giorni",
+        "description": "Per quanto tempo dopo la consegna una riga resta restituibile. Calcolato per riga dall’ultima data di consegna."
       },
       "AllowedOrderStatuses": {
-        "title": "Order statuses allowing returns",
-        "description": "Comma-separated order statuses a return may be requested from. Blank allows nothing."
+        "title": "Stati ordine che consentono il reso",
+        "description": "Stati ordine separati da virgole da cui è possibile richiedere un reso. Vuoto non consente nulla."
       },
       "AllowedShipmentStatuses": {
-        "title": "Shipment statuses counted as delivered",
-        "description": "Comma-separated shipment statuses to count as delivered. Blank counts any status, and delivery is taken from the shipment delivery date."
+        "title": "Stati spedizione considerati consegnati",
+        "description": "Stati spedizione separati da virgole da considerare consegnati. Vuoto accetta qualsiasi stato e la consegna viene presa dalla data di consegna della spedizione."
       },
       "Reasons": {
-        "title": "Return reasons",
-        "description": "Reasons the buyer picks per line. Localizable."
+        "title": "Motivi del reso",
+        "description": "Motivi che l’acquirente sceglie per riga. Localizzabili."
       },
       "ReasonsRequiringComment": {
-        "title": "Reasons requiring a comment",
-        "description": "Comma-separated reason codes that oblige the buyer to explain."
+        "title": "Motivi che richiedono un commento",
+        "description": "Codici motivo separati da virgole che obbligano l’acquirente a spiegare."
       },
       "AttachmentsRequired": {
-        "title": "Photos or documents required",
-        "description": "Require at least one file on every returned line."
+        "title": "Foto o documenti obbligatori",
+        "description": "Richiedere almeno un file per ogni riga resa."
       }
     },
     "Return.Status": {

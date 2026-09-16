@@ -75,28 +75,28 @@
         "description": "Använd denna mall för att generera nya returer"
       },
       "WindowDays": {
-        "title": "Return window, days",
-        "description": "How long after delivery a line stays returnable. Counted per line from the latest delivery date."
+        "title": "Returfönster, dagar",
+        "description": "Hur länge efter leverans en rad kan returneras. Räknas per rad från det senaste leveransdatumet."
       },
       "AllowedOrderStatuses": {
-        "title": "Order statuses allowing returns",
-        "description": "Comma-separated order statuses a return may be requested from. Blank allows nothing."
+        "title": "Orderstatusar som tillåter retur",
+        "description": "Kommaseparerade orderstatusar som retur får begäras från. Tomt tillåter ingenting."
       },
       "AllowedShipmentStatuses": {
-        "title": "Shipment statuses counted as delivered",
-        "description": "Comma-separated shipment statuses to count as delivered. Blank counts any status, and delivery is taken from the shipment delivery date."
+        "title": "Leveransstatusar som räknas som levererade",
+        "description": "Kommaseparerade leveransstatusar som räknas som levererade. Tomt godtar alla statusar och leveransen hämtas från leveransens leveransdatum."
       },
       "Reasons": {
-        "title": "Return reasons",
-        "description": "Reasons the buyer picks per line. Localizable."
+        "title": "Returorsaker",
+        "description": "Orsaker som köparen väljer per rad. Kan översättas."
       },
       "ReasonsRequiringComment": {
-        "title": "Reasons requiring a comment",
-        "description": "Comma-separated reason codes that oblige the buyer to explain."
+        "title": "Orsaker som kräver kommentar",
+        "description": "Kommaseparerade orsakskoder som kräver att köparen förklarar."
       },
       "AttachmentsRequired": {
-        "title": "Photos or documents required",
-        "description": "Require at least one file on every returned line."
+        "title": "Foton eller dokument krävs",
+        "description": "Kräv minst en fil på varje returnerad rad."
       }
     },
     "Return.Status": {

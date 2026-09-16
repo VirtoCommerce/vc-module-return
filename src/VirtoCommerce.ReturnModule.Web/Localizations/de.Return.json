@@ -75,28 +75,28 @@
         "description": "Verwenden Sie diese Vorlage, um neue Bestellrückgaben zu generieren"
       },
       "WindowDays": {
-        "title": "Return window, days",
-        "description": "How long after delivery a line stays returnable. Counted per line from the latest delivery date."
+        "title": "Rücksendefrist, Tage",
+        "description": "Wie lange eine Position nach der Lieferung zurückgesendet werden kann. Pro Position ab dem letzten Lieferdatum gezählt."
       },
       "AllowedOrderStatuses": {
-        "title": "Order statuses allowing returns",
-        "description": "Comma-separated order statuses a return may be requested from. Blank allows nothing."
+        "title": "Bestellstatus mit erlaubter Rücksendung",
+        "description": "Kommagetrennte Bestellstatus, aus denen eine Rücksendung beantragt werden darf. Leer erlaubt nichts."
       },
       "AllowedShipmentStatuses": {
-        "title": "Shipment statuses counted as delivered",
-        "description": "Comma-separated shipment statuses to count as delivered. Blank counts any status, and delivery is taken from the shipment delivery date."
+        "title": "Als geliefert geltende Sendungsstatus",
+        "description": "Kommagetrennte Sendungsstatus, die als geliefert gelten. Leer akzeptiert jeden Status, die Lieferung wird dann dem Lieferdatum der Sendung entnommen."
       },
       "Reasons": {
-        "title": "Return reasons",
-        "description": "Reasons the buyer picks per line. Localizable."
+        "title": "Rücksendegründe",
+        "description": "Gründe, die der Käufer je Position wählt. Lokalisierbar."
       },
       "ReasonsRequiringComment": {
-        "title": "Reasons requiring a comment",
-        "description": "Comma-separated reason codes that oblige the buyer to explain."
+        "title": "Gründe, die einen Kommentar erfordern",
+        "description": "Kommagetrennte Grund-Codes, die den Käufer zu einer Erläuterung verpflichten."
       },
       "AttachmentsRequired": {
-        "title": "Photos or documents required",
-        "description": "Require at least one file on every returned line."
+        "title": "Fotos oder Dokumente erforderlich",
+        "description": "Mindestens eine Datei je zurückgesendeter Position verlangen."
       }
     },
     "Return.Status": {

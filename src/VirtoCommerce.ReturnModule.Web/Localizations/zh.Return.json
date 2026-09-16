@@ -75,28 +75,28 @@
         "description": "使用此模板生成新的订单退货"
       },
       "WindowDays": {
-        "title": "Return window, days",
-        "description": "How long after delivery a line stays returnable. Counted per line from the latest delivery date."
+        "title": "退货期限（天）",
+        "description": "送达后明细可退货的天数。按明细从最近一次送达日期起算。"
       },
       "AllowedOrderStatuses": {
-        "title": "Order statuses allowing returns",
-        "description": "Comma-separated order statuses a return may be requested from. Blank allows nothing."
+        "title": "允许退货的订单状态",
+        "description": "可发起退货的订单状态，以逗号分隔。留空则不允许任何状态。"
       },
       "AllowedShipmentStatuses": {
-        "title": "Shipment statuses counted as delivered",
-        "description": "Comma-separated shipment statuses to count as delivered. Blank counts any status, and delivery is taken from the shipment delivery date."
+        "title": "视为已送达的发货状态",
+        "description": "视为已送达的发货状态，以逗号分隔。留空表示接受任何状态，送达以发货的送达日期为准。"
       },
       "Reasons": {
-        "title": "Return reasons",
-        "description": "Reasons the buyer picks per line. Localizable."
+        "title": "退货原因",
+        "description": "买家为每条明细选择的原因。可本地化。"
       },
       "ReasonsRequiringComment": {
-        "title": "Reasons requiring a comment",
-        "description": "Comma-separated reason codes that oblige the buyer to explain."
+        "title": "需要填写说明的原因",
+        "description": "需要买家说明的原因代码，以逗号分隔。"
       },
       "AttachmentsRequired": {
-        "title": "Photos or documents required",
-        "description": "Require at least one file on every returned line."
+        "title": "必须提供照片或文件",
+        "description": "要求每条退货明细至少上传一个文件。"
       }
     },
     "Return.Status": {
