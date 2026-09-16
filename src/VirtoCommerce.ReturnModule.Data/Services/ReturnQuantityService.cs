@@ -82,7 +82,6 @@ public class ReturnQuantityService : IReturnQuantityService
         {
             ReturnStatus.Draft,
             ReturnStatus.Cancelled,
-            "Canceled", // legacy dictionary spelling
             ReturnStatus.Rejected,
         };
 

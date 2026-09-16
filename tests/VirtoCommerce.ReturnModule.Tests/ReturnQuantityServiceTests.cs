@@ -41,7 +41,6 @@ public class ReturnQuantityServiceTests
 
     [Theory]
     [InlineData(ReturnStatus.Cancelled)]
-    [InlineData("Canceled")]
     [InlineData(ReturnStatus.Rejected)]
     public async Task GetHeldQuantities_ClosedWithoutAnApproval_HoldsNothing(string status)
     {

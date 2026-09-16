@@ -225,6 +225,9 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
                 name: "IX_ReturnAttachment_ReturnLineItemId",
                 table: "ReturnAttachment",
                 column: "ReturnLineItemId");
+
+            // The shipped dictionary offered both spellings; the flow writes only one.
+            migrationBuilder.Sql("UPDATE `Return` SET `Status` = 'Cancelled' WHERE `Status` = 'Canceled'");
         }
 
         /// <inheritdoc />
