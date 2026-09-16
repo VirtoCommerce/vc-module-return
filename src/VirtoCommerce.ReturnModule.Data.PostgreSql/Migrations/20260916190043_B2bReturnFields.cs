@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
+namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
 {
     /// <inheritdoc />
     public partial class B2bReturnFields : Migration
@@ -14,190 +14,164 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
             migrationBuilder.AddColumn<int>(
                 name: "ApprovedQuantity",
                 table: "ReturnLineItem",
-                type: "int",
+                type: "integer",
                 nullable: false,
                 defaultValue: 0);
 
             migrationBuilder.AddColumn<string>(
                 name: "ImageUrl",
                 table: "ReturnLineItem",
-                type: "varchar(2048)",
+                type: "character varying(2048)",
                 maxLength: 2048,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "ItemState",
                 table: "ReturnLineItem",
-                type: "varchar(64)",
+                type: "character varying(64)",
                 maxLength: 64,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "MeasureUnit",
                 table: "ReturnLineItem",
-                type: "varchar(32)",
+                type: "character varying(32)",
                 maxLength: 32,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "Name",
                 table: "ReturnLineItem",
-                type: "varchar(1024)",
+                type: "character varying(1024)",
                 maxLength: 1024,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<int>(
                 name: "OrderedQuantity",
                 table: "ReturnLineItem",
-                type: "int",
+                type: "integer",
                 nullable: false,
                 defaultValue: 0);
 
             migrationBuilder.AddColumn<string>(
                 name: "ProductId",
                 table: "ReturnLineItem",
-                type: "varchar(128)",
+                type: "character varying(128)",
                 maxLength: 128,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "ReasonCode",
                 table: "ReturnLineItem",
-                type: "varchar(64)",
+                type: "character varying(64)",
                 maxLength: 64,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "ReasonComment",
                 table: "ReturnLineItem",
-                type: "varchar(1024)",
+                type: "character varying(1024)",
                 maxLength: 1024,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "RejectReason",
                 table: "ReturnLineItem",
-                type: "varchar(1024)",
+                type: "character varying(1024)",
                 maxLength: 1024,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "SerialNumber",
                 table: "ReturnLineItem",
-                type: "varchar(128)",
+                type: "character varying(128)",
                 maxLength: 128,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "Sku",
                 table: "ReturnLineItem",
-                type: "varchar(128)",
+                type: "character varying(128)",
                 maxLength: 128,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "CancelReason",
                 table: "Return",
-                type: "varchar(2048)",
+                type: "character varying(2048)",
                 maxLength: 2048,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "Comment",
                 table: "Return",
-                type: "varchar(2048)",
+                type: "character varying(2048)",
                 maxLength: 2048,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "CustomerComment",
                 table: "Return",
-                type: "varchar(2048)",
+                type: "character varying(2048)",
                 maxLength: 2048,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "CustomerId",
                 table: "Return",
-                type: "varchar(128)",
+                type: "character varying(128)",
                 maxLength: 128,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "CustomerName",
                 table: "Return",
-                type: "varchar(256)",
+                type: "character varying(256)",
                 maxLength: 256,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "CustomerReference",
                 table: "Return",
-                type: "varchar(128)",
+                type: "character varying(128)",
                 maxLength: 128,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "OrderNumber",
                 table: "Return",
-                type: "varchar(64)",
+                type: "character varying(64)",
                 maxLength: 64,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "RejectReason",
                 table: "Return",
-                type: "varchar(2048)",
+                type: "character varying(2048)",
                 maxLength: 2048,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "StoreId",
                 table: "Return",
-                type: "varchar(128)",
+                type: "character varying(128)",
                 maxLength: 128,
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
+                nullable: true);
 
             migrationBuilder.CreateTable(
                 name: "ReturnAttachment",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "varchar(128)", maxLength: 128, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ReturnLineItemId = table.Column<string>(type: "varchar(128)", maxLength: 128, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Name = table.Column<string>(type: "varchar(1024)", maxLength: 1024, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Url = table.Column<string>(type: "varchar(2048)", maxLength: 2048, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    MimeType = table.Column<string>(type: "varchar(128)", maxLength: 128, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Id = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    ReturnLineItemId = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Name = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
+                    Url = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: false),
+                    MimeType = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
                     Size = table.Column<long>(type: "bigint", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    ModifiedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "varchar(64)", maxLength: 64, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ModifiedBy = table.Column<string>(type: "varchar(64)", maxLength: 64, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -208,13 +182,12 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
                         principalTable: "ReturnLineItem",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
+                });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Return_CustomerId",
+                name: "IX_Return_CustomerId_StoreId_CreatedDate",
                 table: "Return",
-                column: "CustomerId");
+                columns: new[] { "CustomerId", "StoreId", "CreatedDate" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Return_OrderId",
@@ -234,7 +207,7 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
                 name: "ReturnAttachment");
 
             migrationBuilder.DropIndex(
-                name: "IX_Return_CustomerId",
+                name: "IX_Return_CustomerId_StoreId_CreatedDate",
                 table: "Return");
 
             migrationBuilder.DropIndex(

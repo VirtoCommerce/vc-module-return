@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using GraphQL;
 using GraphQL.Types;
 using VirtoCommerce.ReturnModule.Core.Models.Search;
@@ -14,6 +15,10 @@ public class ReturnsQuery : SearchQuery<ReturnSearchResult>
 
     public IList<string> Statuses { get; set; }
 
+    public DateTime? StartDate { get; set; }
+
+    public DateTime? EndDate { get; set; }
+
     public override IEnumerable<QueryArgument> GetArguments()
     {
         foreach (var argument in base.GetArguments())
@@ -23,6 +28,8 @@ public class ReturnsQuery : SearchQuery<ReturnSearchResult>
 
         yield return Argument<NonNullGraphType<StringGraphType>>(nameof(StoreId));
         yield return Argument<ListGraphType<StringGraphType>>(nameof(Statuses));
+        yield return Argument<DateTimeGraphType>(nameof(StartDate));
+        yield return Argument<DateTimeGraphType>(nameof(EndDate), "Inclusive of the given instant, so send the end of the day.");
     }
 
     public override void Map(IResolveFieldContext context)
@@ -31,5 +38,7 @@ public class ReturnsQuery : SearchQuery<ReturnSearchResult>
 
         StoreId = context.GetArgument<string>(nameof(StoreId));
         Statuses = context.GetArgument<IList<string>>(nameof(Statuses));
+        StartDate = context.GetArgument<DateTime?>(nameof(StartDate));
+        EndDate = context.GetArgument<DateTime?>(nameof(EndDate));
     }
 }

@@ -149,9 +149,9 @@ namespace VirtoCommerce.ReturnModule.DataData.SqlServer.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerId");
-
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("CustomerId", "StoreId", "CreatedDate");
 
                     b.ToTable("Return", (string)null);
                 });

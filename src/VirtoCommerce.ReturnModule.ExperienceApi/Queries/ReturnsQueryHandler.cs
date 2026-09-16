@@ -22,6 +22,8 @@ public class ReturnsQueryHandler : IQueryHandler<ReturnsQuery, ReturnSearchResul
         criteria.CustomerId = request.CustomerId;
         criteria.StoreId = request.StoreId;
         criteria.Statuses = request.Statuses;
+        criteria.StartDate = request.StartDate;
+        criteria.EndDate = request.EndDate;
 
         return await _returnSearchService.SearchNoCloneAsync(criteria);
     }

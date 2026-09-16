@@ -12,7 +12,7 @@ using VirtoCommerce.ReturnModule.Data.Repositories;
 namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
 {
     [DbContext(typeof(ReturnDbContext))]
-    [Migration("20260916121754_B2bReturnFields")]
+    [Migration("20260916190040_B2bReturnFields")]
     partial class B2bReturnFields
     {
         /// <inheritdoc />
@@ -152,9 +152,9 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerId");
-
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("CustomerId", "StoreId", "CreatedDate");
 
                     b.ToTable("Return", (string)null);
                 });

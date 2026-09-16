@@ -17,6 +17,18 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 {
     public class ReturnSearchService : SearchService<ReturnSearchCriteria, ReturnSearchResult, Return, ReturnEntity>, IReturnSearchService
     {
+        protected static readonly string[] SortableColumns =
+        [
+            nameof(ReturnEntity.CreatedDate),
+            nameof(ReturnEntity.ModifiedDate),
+            nameof(ReturnEntity.CreatedBy),
+            nameof(ReturnEntity.Number),
+            nameof(ReturnEntity.OrderNumber),
+            nameof(ReturnEntity.Status),
+            nameof(ReturnEntity.CustomerName),
+            nameof(ReturnEntity.CustomerReference),
+        ];
+
         public ReturnSearchService(
             Func<IReturnRepository> repositoryFactory,
             IPlatformMemoryCache platformMemoryCache,
@@ -65,18 +77,33 @@ namespace VirtoCommerce.ReturnModule.Data.Services
                 query = query.Where(x => criteria.Statuses.Contains(x.Status));
             }
 
+            if (criteria.StartDate != null)
+            {
+                query = query.Where(x => x.CreatedDate >= criteria.StartDate);
+            }
+
+            if (criteria.EndDate != null)
+            {
+                query = query.Where(x => x.CreatedDate <= criteria.EndDate);
+            }
+
             return query;
         }
 
         protected override IList<SortInfo> BuildSortExpression(ReturnSearchCriteria criteria)
         {
-            var sortInfos = criteria.SortInfos;
-            if (sortInfos.IsNullOrEmpty())
+            // An unknown column would otherwise be dropped silently by ApplyOrder, leaving the caller
+            // with rows ordered by Id and no hint that the requested sort was ignored.
+            var sortInfos = criteria.SortInfos
+                .Where(x => SortableColumns.Contains(x.SortColumn, StringComparer.OrdinalIgnoreCase))
+                .ToList();
+
+            if (sortInfos.Count == 0)
             {
-                sortInfos = new[]
-                {
-                    new SortInfo { SortColumn = nameof(ReturnEntity.Number) }
-                };
+                sortInfos =
+                [
+                    new SortInfo { SortColumn = nameof(ReturnEntity.CreatedDate), SortDirection = SortDirection.Descending }
+                ];
             }
 
             return sortInfos;
@@ -84,7 +111,12 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
         protected virtual Expression<Func<ReturnEntity, bool>> GetKeywordPredicate(ReturnSearchCriteria criteria)
         {
-            return orderReturn => orderReturn.Number.Contains(criteria.Keyword) || orderReturn.Status.Contains(criteria.Keyword);
+            var keyword = criteria.Keyword;
+
+            return x => x.Number.Contains(keyword) ||
+                        x.OrderNumber.Contains(keyword) ||
+                        x.CustomerReference.Contains(keyword) ||
+                        x.LineItems.Any(i => i.Sku.Contains(keyword) || i.Name.Contains(keyword));
         }
     }
 }

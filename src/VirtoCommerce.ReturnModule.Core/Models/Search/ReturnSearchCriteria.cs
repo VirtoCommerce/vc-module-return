@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.ReturnModule.Core.Models.Search
@@ -14,5 +15,9 @@ namespace VirtoCommerce.ReturnModule.Core.Models.Search
         public string StoreId { get; set; }
 
         public IList<string> Statuses { get; set; }
+
+        public DateTime? StartDate { get; set; }
+
+        public DateTime? EndDate { get; set; }
     }
 }

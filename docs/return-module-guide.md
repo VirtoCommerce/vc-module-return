@@ -30,9 +30,9 @@ You can also sort the return operations (both ascending and descending, if appli
 
 ![Return list sorted by number, ascending](media/05-return-list-sorted-by-number-ascending.png)
 
-Finally, you can use the search box to type a keyword or key phrase and thus filter only the relevant items. For instance, you can type *New* to view only the return operations that have the *New* status:
+Finally, you can use the search box to type a keyword or key phrase and thus filter only the relevant items. The search covers the return number, the order number, the customer reference and the SKU and name of any returned line item:
 
-![Using the search feature: Return list items with the New status only](media/06-return-list-search-new-only.png) 
+![Using the search feature](media/06-return-list-search-new-only.png) 
 
 ***Important:*** *You can use both sorting and searching/filtering for all columns, except these three: Order Number, Customer, and Item Count. This is because these columns are borrowed from the Order module and thus are not native to the Return module.*
 
@@ -90,12 +90,21 @@ POST /api/return/search
   "objectIds": [
     "<some_guid>"
   ],
+  "customerId": "<some_guid>",
+  "storeId": "<some_store>",
+  "statuses": [
+    "Requested"
+  ],
+  "startDate": "2026-01-01T00:00:00Z",
+  "endDate": "2026-12-31T23:59:59Z",
   "keyword": "<some_keyword>",
-  "sort": "Ascending",
+  "sort": "createdDate:desc",
   "skip": 0,
   "take": 0
 }
 ```
+`startDate` and `endDate` both match the `createdDate` inclusively, down to the instant rather than the day. When `sort` is omitted, results come back newest first.
+
 Here is an example of search response:
 
 ```json
