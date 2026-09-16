@@ -45,8 +45,8 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "Name",
                 table: "ReturnLineItem",
-                type: "varchar(255)",
-                maxLength: 255,
+                type: "varchar(1024)",
+                maxLength: 1024,
                 nullable: true)
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -100,8 +100,16 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "Sku",
                 table: "ReturnLineItem",
-                type: "varchar(64)",
-                maxLength: 64,
+                type: "varchar(128)",
+                maxLength: 128,
+                nullable: true)
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.AddColumn<string>(
+                name: "CancelReason",
+                table: "Return",
+                type: "varchar(2048)",
+                maxLength: 2048,
                 nullable: true)
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -132,8 +140,8 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "CustomerName",
                 table: "Return",
-                type: "varchar(255)",
-                maxLength: 255,
+                type: "varchar(256)",
+                maxLength: 256,
                 nullable: true)
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -262,6 +270,10 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
             migrationBuilder.DropColumn(
                 name: "Sku",
                 table: "ReturnLineItem");
+
+            migrationBuilder.DropColumn(
+                name: "CancelReason",
+                table: "Return");
 
             migrationBuilder.DropColumn(
                 name: "Comment",

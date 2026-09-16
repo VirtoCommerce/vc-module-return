@@ -42,8 +42,8 @@ namespace VirtoCommerce.ReturnModule.Data.SqlServer.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "Name",
                 table: "ReturnLineItem",
-                type: "nvarchar(255)",
-                maxLength: 255,
+                type: "nvarchar(1024)",
+                maxLength: 1024,
                 nullable: true);
 
             migrationBuilder.AddColumn<int>(
@@ -91,8 +91,15 @@ namespace VirtoCommerce.ReturnModule.Data.SqlServer.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "Sku",
                 table: "ReturnLineItem",
-                type: "nvarchar(64)",
-                maxLength: 64,
+                type: "nvarchar(128)",
+                maxLength: 128,
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "CancelReason",
+                table: "Return",
+                type: "nvarchar(2048)",
+                maxLength: 2048,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
@@ -119,8 +126,8 @@ namespace VirtoCommerce.ReturnModule.Data.SqlServer.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "CustomerName",
                 table: "Return",
-                type: "nvarchar(255)",
-                maxLength: 255,
+                type: "nvarchar(256)",
+                maxLength: 256,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
@@ -236,6 +243,10 @@ namespace VirtoCommerce.ReturnModule.Data.SqlServer.Migrations
             migrationBuilder.DropColumn(
                 name: "Sku",
                 table: "ReturnLineItem");
+
+            migrationBuilder.DropColumn(
+                name: "CancelReason",
+                table: "Return");
 
             migrationBuilder.DropColumn(
                 name: "Comment",

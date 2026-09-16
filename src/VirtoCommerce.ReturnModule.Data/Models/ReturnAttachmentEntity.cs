@@ -3,26 +3,27 @@ using System.ComponentModel.DataAnnotations;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Domain;
 using VirtoCommerce.ReturnModule.Core.Models;
+using static VirtoCommerce.Platform.Data.Infrastructure.DbContextBase;
 
 namespace VirtoCommerce.ReturnModule.Data.Models
 {
     public class ReturnAttachmentEntity : AuditableEntity, IDataEntity<ReturnAttachmentEntity, ReturnAttachment>
     {
         [Required]
-        [StringLength(128)]
+        [StringLength(IdLength)]
         public string ReturnLineItemId { get; set; }
 
         public virtual ReturnLineItemEntity ReturnLineItem { get; set; }
 
         [Required]
-        [StringLength(1024)]
+        [StringLength(Length1024)]
         public string Name { get; set; }
 
         [Required]
-        [StringLength(2048)]
+        [StringLength(UrlLength)]
         public string Url { get; set; }
 
-        [StringLength(128)]
+        [StringLength(Length128)]
         public string MimeType { get; set; }
 
         public long Size { get; set; }

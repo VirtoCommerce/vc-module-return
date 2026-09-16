@@ -67,13 +67,47 @@ public class ReturnQuantityServiceTests
     [Theory]
     [InlineData(ReturnStatus.Approved)]
     [InlineData(ReturnStatus.PartiallyApproved)]
-    public async Task GetHeldQuantities_Approved_HoldsWhatWasApprovedNotWhatWasAsked(string status)
+    public async Task GetHeldQuantities_LineRuledOn_HoldsWhatWasApprovedNotWhatWasAsked(string status)
     {
-        var service = CreateService(MakeReturn("r1", status, quantity: 240, approvedQuantity: 200));
+        var orderReturn = MakeReturn("r1", status, quantity: 240, approvedQuantity: 200);
+        orderReturn.LineItems.First().ItemState = ReturnItemState.Approved;
+
+        var service = CreateService(orderReturn);
 
         var held = await service.GetHeldQuantitiesAsync(OrderId);
 
         Assert.Equal(200, held[LineId]);
+    }
+
+    /// <summary>
+    /// "Approved" is also a value in the legacy Return.Status dictionary, and nothing writes
+    /// ApprovedQuantity until the agent side lands. Reading it off such a return would report zero
+    /// held and hand the buyer units an agent has already promised to somebody.
+    /// </summary>
+    [Fact]
+    public async Task GetHeldQuantities_ApprovedButNoLineWasRuledOn_StillHoldsWhatWasAsked()
+    {
+        var service = CreateService(MakeReturn("r1", ReturnStatus.Approved, quantity: 240));
+
+        var held = await service.GetHeldQuantitiesAsync(OrderId);
+
+        Assert.Equal(240, held[LineId]);
+    }
+
+    /// <summary>
+    /// A line an agent refused holds nothing, even on a return that is approved as a whole.
+    /// </summary>
+    [Fact]
+    public async Task GetHeldQuantities_RejectedLine_HoldsNothing()
+    {
+        var orderReturn = MakeReturn("r1", ReturnStatus.PartiallyApproved, quantity: 240);
+        orderReturn.LineItems.First().ItemState = ReturnItemState.Rejected;
+
+        var service = CreateService(orderReturn);
+
+        var held = await service.GetHeldQuantitiesAsync(OrderId);
+
+        Assert.False(held.ContainsKey(LineId));
     }
 
     /// <summary>

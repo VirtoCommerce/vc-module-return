@@ -5,52 +5,51 @@ using System.Linq;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Domain;
 using VirtoCommerce.ReturnModule.Core.Models;
+using static VirtoCommerce.Platform.Data.Infrastructure.DbContextBase;
 
 namespace VirtoCommerce.ReturnModule.Data.Models
 {
     public class ReturnEntity : AuditableEntity, IDataEntity<ReturnEntity, Return>
     {
         [Required]
-        [StringLength(64)]
+        [StringLength(Length64)]
         public string Number { get; set; }
 
         [Required]
-        [StringLength(128)]
+        [StringLength(IdLength)]
         public string OrderId { get; set; }
 
-        [StringLength(64)]
+        [StringLength(Length64)]
         public string OrderNumber { get; set; }
 
-        // Nullable so rows created before the storefront flow existed keep loading; new returns
-        // always carry them.
-        [StringLength(128)]
+        [StringLength(IdLength)]
         public string StoreId { get; set; }
 
-        [StringLength(128)]
+        [StringLength(IdLength)]
         public string CustomerId { get; set; }
 
-        [StringLength(255)]
+        [StringLength(Length256)]
         public string CustomerName { get; set; }
 
-        [StringLength(128)]
+        [StringLength(Length128)]
         public string CustomerReference { get; set; }
 
-        [StringLength(64)]
+        [StringLength(Length64)]
         public string Status { get; set; }
 
-        [StringLength(2048)]
+        [StringLength(Length2048)]
         public string Resolution { get; set; }
 
-        [StringLength(2048)]
+        [StringLength(Length2048)]
         public string CustomerComment { get; set; }
 
-        [StringLength(2048)]
+        [StringLength(Length2048)]
         public string Comment { get; set; }
 
-        [StringLength(2048)]
+        [StringLength(Length2048)]
         public string RejectReason { get; set; }
 
-        [StringLength(2048)]
+        [StringLength(Length2048)]
         public string CancelReason { get; set; }
 
         public virtual ObservableCollection<ReturnLineItemEntity> LineItems { get; set; } = new NullCollection<ReturnLineItemEntity>();

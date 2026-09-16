@@ -103,8 +103,8 @@ namespace VirtoCommerce.ReturnModule.DataData.SqlServer.Migrations
                         .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("CustomerName")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("CustomerReference")
                         .HasMaxLength(128)
@@ -189,8 +189,8 @@ namespace VirtoCommerce.ReturnModule.DataData.SqlServer.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
 
                     b.Property<string>("OrderLineItemId")
                         .IsRequired()
@@ -236,8 +236,8 @@ namespace VirtoCommerce.ReturnModule.DataData.SqlServer.Migrations
                         .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("Sku")
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.HasKey("Id");
 

@@ -42,8 +42,8 @@ namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "Name",
                 table: "ReturnLineItem",
-                type: "character varying(255)",
-                maxLength: 255,
+                type: "character varying(1024)",
+                maxLength: 1024,
                 nullable: true);
 
             migrationBuilder.AddColumn<int>(
@@ -91,8 +91,15 @@ namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "Sku",
                 table: "ReturnLineItem",
-                type: "character varying(64)",
-                maxLength: 64,
+                type: "character varying(128)",
+                maxLength: 128,
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "CancelReason",
+                table: "Return",
+                type: "character varying(2048)",
+                maxLength: 2048,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
@@ -119,8 +126,8 @@ namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "CustomerName",
                 table: "Return",
-                type: "character varying(255)",
-                maxLength: 255,
+                type: "character varying(256)",
+                maxLength: 256,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
@@ -236,6 +243,10 @@ namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
             migrationBuilder.DropColumn(
                 name: "Sku",
                 table: "ReturnLineItem");
+
+            migrationBuilder.DropColumn(
+                name: "CancelReason",
+                table: "Return");
 
             migrationBuilder.DropColumn(
                 name: "Comment",

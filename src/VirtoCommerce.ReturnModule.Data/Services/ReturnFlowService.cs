@@ -47,8 +47,6 @@ public class ReturnFlowService : IReturnFlowService
         var order = await _orderService.GetNoCloneAsync(request.OrderId)
             ?? throw new ReturnFlowException(ReturnFlowError.OrderNotFound, $"Order '{request.OrderId}' was not found.");
 
-        // The caller must own the order. Authorization already checked access, but a draft must not
-        // end up owned by somebody other than the buyer whose order it is.
         if (!order.CustomerId.EqualsIgnoreCase(context.CustomerId))
         {
             throw new ReturnFlowException(ReturnFlowError.OrderNotFound, $"Order '{request.OrderId}' was not found.");
@@ -81,15 +79,20 @@ public class ReturnFlowService : IReturnFlowService
 
         await _returnService.SaveChangesAsync([result]);
 
-        // After the first save: the files are owned by the return, which has no id before it. The
-        // attachment rows themselves are new on the lines, so the return has to be saved once more
-        // or they exist only in memory and the draft reloads with no evidence on it.
-        if (await UpdateAttachmentsAsync(result, request.Items))
+        if (!request.Items.Any(x => x.AttachmentUrls != null))
         {
-            await _returnService.SaveChangesAsync([result]);
+            return result;
         }
 
-        return result;
+        // Read back rather than reuse the assembled instance: saving resolves primary keys into the
+        // models but leaves foreign keys like ReturnLineItem.ReturnId empty, and the update path
+        // would patch those over the persisted rows.
+        var saved = await _returnService.GetByIdAsync(result.Id);
+
+        await UpdateAttachmentsAsync(saved, request.Items);
+        await _returnService.SaveChangesAsync([saved]);
+
+        return saved;
     }
 
     public virtual async Task<Return> UpdateDraftAsync(UpdateReturnRequest request, ReturnFlowContext context, CancellationToken cancellationToken = default)
@@ -121,14 +124,8 @@ public class ReturnFlowService : IReturnFlowService
         return orderReturn;
     }
 
-    /// <summary>
-    /// Applies each line's attachment list, skipping lines the caller said nothing about.
-    /// </summary>
-    /// <returns>Whether any line's attachments were touched, so the caller knows to save.</returns>
-    protected virtual async Task<bool> UpdateAttachmentsAsync(Return orderReturn, IList<CreateReturnItemRequest> items)
+    protected virtual async Task UpdateAttachmentsAsync(Return orderReturn, IList<CreateReturnItemRequest> items)
     {
-        var changed = false;
-
         foreach (var item in items.Where(x => x.AttachmentUrls != null))
         {
             var lineItem = orderReturn.LineItems
@@ -137,11 +134,8 @@ public class ReturnFlowService : IReturnFlowService
             if (lineItem != null)
             {
                 await _attachmentService.UpdateAttachmentsAsync(orderReturn, lineItem, item.AttachmentUrls);
-                changed = true;
             }
         }
-
-        return changed;
     }
 
     public virtual async Task<Return> SubmitAsync(string returnId, ReturnFlowContext context, CancellationToken cancellationToken = default)
@@ -199,13 +193,6 @@ public class ReturnFlowService : IReturnFlowService
         return _stateProvider.GetActions(orderReturn);
     }
 
-    /// <summary>
-    /// Every returned line must carry at least one photo or document, when the store asks for it.
-    /// </summary>
-    /// <remarks>
-    /// Per line, not per return: a claim about one product is not evidence about another. Whether
-    /// it is demanded at all is the store's call via Return.AttachmentsRequired.
-    /// </remarks>
     protected virtual async Task ValidateAttachmentsAsync(Return orderReturn)
     {
         var store = string.IsNullOrEmpty(orderReturn.StoreId) ? null : await _storeService.GetNoCloneAsync(orderReturn.StoreId);
@@ -226,14 +213,6 @@ public class ReturnFlowService : IReturnFlowService
         }
     }
 
-    /// <summary>
-    /// Re-checks every line against what is returnable right now.
-    /// </summary>
-    /// <remarks>
-    /// The draft itself is excluded, otherwise it would compete with its own quantities. Between
-    /// drafting and submitting somebody else in the organization may have claimed the same units,
-    /// which is exactly why this runs here rather than at CreateDraft.
-    /// </remarks>
     protected virtual async Task ValidateAvailabilityAsync(Return orderReturn, CustomerOrder order)
     {
         var returnableItems = (await _eligibilityService.GetReturnableItemsAsync(order, orderReturn.Id))
@@ -246,10 +225,6 @@ public class ReturnFlowService : IReturnFlowService
                 throw new ReturnFlowException(ReturnFlowError.LineItemNotFound, $"Line item '{lineItem.OrderLineItemId}' is not on this order.");
             }
 
-            // Quantity alone is not enough: a line outside the return window, a cancelled one, or
-            // one on an order whose status no longer allows returns still reports a returnable
-            // quantity, because that figure is only "delivered minus held". The storefront hides
-            // such lines, but the storefront is not the boundary.
             if (!returnableItem.IsReturnable)
             {
                 throw new ReturnFlowException(
@@ -266,13 +241,6 @@ public class ReturnFlowService : IReturnFlowService
         }
     }
 
-    /// <summary>
-    /// Loads a draft the caller is allowed to edit.
-    /// </summary>
-    /// <remarks>
-    /// A return that is not the caller's reads as missing rather than forbidden, so probing ids
-    /// tells an outsider nothing.
-    /// </remarks>
     protected virtual async Task<Return> GetEditableDraftAsync(string returnId, ReturnFlowContext context)
     {
         var orderReturn = await GetOwnedReturnAsync(returnId, context);
@@ -285,9 +253,6 @@ public class ReturnFlowService : IReturnFlowService
         return orderReturn;
     }
 
-    /// <summary>
-    /// Loads a return belonging to the caller, whatever state it is in.
-    /// </summary>
     protected virtual async Task<Return> GetOwnedReturnAsync(string returnId, ReturnFlowContext context)
     {
         var orderReturn = await _returnService.GetByIdAsync(returnId, ReturnResponseGroup.None.ToString());
@@ -307,16 +272,11 @@ public class ReturnFlowService : IReturnFlowService
             return orderReturn.CustomerId.EqualsIgnoreCase(customerId);
         }
 
-        // Returns raised in the admin UI before the field existed fall back to their order.
         var order = await _orderService.GetNoCloneAsync(orderReturn.OrderId);
 
         return order != null && order.CustomerId.EqualsIgnoreCase(customerId);
     }
 
-    /// <summary>
-    /// Reuses the existing line when the buyer still wants that order line, so its id and audit
-    /// trail survive an edit instead of the draft being rebuilt from scratch each time.
-    /// </summary>
     protected virtual ReturnLineItem UpdateLineItem(CreateReturnItemRequest request, Return orderReturn, IDictionary<string, LineItem> orderLineItems)
     {
         var existing = orderReturn.LineItems?
@@ -358,8 +318,6 @@ public class ReturnFlowService : IReturnFlowService
         result.SerialNumber = request.SerialNumber;
         result.ItemState = ReturnItemState.Requested;
 
-        // Snapshots: the return has to stay readable even after the catalog moves on, and the
-        // negotiated price must not drift.
         result.ProductId = orderLineItem.ProductId;
         result.Sku = orderLineItem.Sku;
         result.Name = orderLineItem.Name;

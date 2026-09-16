@@ -46,7 +46,6 @@ public class ReturnQuantityService : IReturnQuantityService
             return new Dictionary<string, int>();
         }
 
-        // None, not the default WithOrders: summing quantities never needs the hydrated orders.
         var returns = await _returnService.GetAsync(returnIds, ReturnResponseGroup.None.ToString());
 
         return returns
@@ -62,14 +61,6 @@ public class ReturnQuantityService : IReturnQuantityService
             .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity));
     }
 
-    /// <summary>
-    /// How much of an order line this return's line is keeping out of reach.
-    /// </summary>
-    /// <remarks>
-    /// Anything this module does not recognise still holds its full requested quantity. Returns
-    /// raised in the admin UI carry values from the editable Return.Status dictionary, which this
-    /// module does not control, and under-counting would let a buyer return more than they have.
-    /// </remarks>
     protected virtual int GetHeldQuantity(Return orderReturn, ReturnLineItem lineItem)
     {
         var status = orderReturn.Status ?? string.Empty;
@@ -79,31 +70,34 @@ public class ReturnQuantityService : IReturnQuantityService
             return 0;
         }
 
-        // Ask for 240, get 200, and the other 40 are free again — the buyer may legitimately ask
-        // for them later.
-        return ApprovedStatuses.Contains(status) ? lineItem.ApprovedQuantity : lineItem.Quantity;
+        // "Approved" is also a legacy Return.Status value, and nothing writes ApprovedQuantity until
+        // the agent side lands, so an admin-approved return would otherwise report zero held.
+        return ApprovedStatuses.Contains(status) && IsDecided(lineItem)
+            ? lineItem.ApprovedQuantity
+            : lineItem.Quantity;
     }
 
-    /// <summary>
-    /// Statuses holding nothing: a draft has not claimed anything yet — an abandoned one must not
-    /// block a line forever — and a closed return has given back whatever it held.
-    /// </summary>
-    /// <remarks>
-    /// Both spellings of cancelled are listed on purpose: the legacy status dictionary ships
-    /// "Canceled", the status model spells it "Cancelled".
-    /// </remarks>
     protected virtual ISet<string> NonHoldingStatuses { get; } =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             ReturnStatus.Draft,
             ReturnStatus.Cancelled,
-            "Canceled",
+            "Canceled", // legacy dictionary spelling // legacy dictionary spelling
             ReturnStatus.Rejected,
         };
 
-    /// <summary>
-    /// Statuses where an agent has settled the quantity, so the approved figure is what is held.
-    /// </summary>
+    protected virtual bool IsDecided(ReturnLineItem lineItem)
+    {
+        return DecidedItemStates.Contains(lineItem.ItemState ?? string.Empty);
+    }
+
+    protected virtual ISet<string> DecidedItemStates { get; } =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ReturnItemState.Approved,
+            ReturnItemState.Rejected,
+        };
+
     protected virtual ISet<string> ApprovedStatuses { get; } =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {

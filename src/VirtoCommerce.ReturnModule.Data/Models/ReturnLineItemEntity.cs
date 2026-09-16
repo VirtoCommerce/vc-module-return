@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -6,34 +6,37 @@ using System.Linq;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Domain;
 using VirtoCommerce.ReturnModule.Core.Models;
+using static VirtoCommerce.Platform.Data.Infrastructure.DbContextBase;
 
 namespace VirtoCommerce.ReturnModule.Data.Models
 {
     public class ReturnLineItemEntity : AuditableEntity, IDataEntity<ReturnLineItemEntity, ReturnLineItem>
     {
         [Required]
-        [StringLength(128)]
+        [StringLength(IdLength)]
         public string ReturnId { get; set; }
 
         public virtual ReturnEntity Return { get; set; }
 
         [Required]
-        [StringLength(128)]
+        [StringLength(IdLength)]
         public string OrderLineItemId { get; set; }
 
-        [StringLength(128)]
+        [StringLength(IdLength)]
         public string ProductId { get; set; }
 
-        [StringLength(64)]
+        // Widths mirror LineItemEntity in the Orders module: these are copied from the order line,
+        // and a narrower snapshot fails the save.
+        [StringLength(Length128)]
         public string Sku { get; set; }
 
-        [StringLength(255)]
+        [StringLength(Length1024)]
         public string Name { get; set; }
 
-        [StringLength(2048)]
+        [StringLength(UrlLength)]
         public string ImageUrl { get; set; }
 
-        [StringLength(32)]
+        [StringLength(Length32)]
         public string MeasureUnit { get; set; }
 
         [Column(TypeName = "Money")]
@@ -45,22 +48,22 @@ namespace VirtoCommerce.ReturnModule.Data.Models
 
         public int ApprovedQuantity { get; set; }
 
-        [StringLength(64)]
+        [StringLength(Length64)]
         public string ItemState { get; set; }
 
-        [StringLength(64)]
+        [StringLength(Length64)]
         public string ReasonCode { get; set; }
 
-        [StringLength(1024)]
+        [StringLength(Length1024)]
         public string ReasonComment { get; set; }
 
-        [StringLength(1024)]
+        [StringLength(Length1024)]
         public string Reason { get; set; }
 
-        [StringLength(1024)]
+        [StringLength(Length1024)]
         public string RejectReason { get; set; }
 
-        [StringLength(128)]
+        [StringLength(Length128)]
         public string SerialNumber { get; set; }
 
         public virtual ObservableCollection<ReturnAttachmentEntity> Attachments { get; set; } = new NullCollection<ReturnAttachmentEntity>();
