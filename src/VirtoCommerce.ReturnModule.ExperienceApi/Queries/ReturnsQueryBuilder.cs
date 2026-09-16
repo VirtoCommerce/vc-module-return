@@ -3,6 +3,7 @@ using GraphQL;
 using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Models.Search;
+using VirtoCommerce.ReturnModule.ExperienceApi.Extensions;
 using VirtoCommerce.ReturnModule.ExperienceApi.Schemas;
 using VirtoCommerce.Xapi.Core.BaseQueries;
 using VirtoCommerce.Xapi.Core.Extensions;
@@ -23,11 +24,6 @@ public class ReturnsQueryBuilder : SearchQueryBuilder<ReturnsQuery, ReturnSearch
     {
         await base.BeforeMediatorSend(context, request);
 
-        if (!context.IsAuthenticated())
-        {
-            throw AuthorizationError.AnonymousAccessDenied();
-        }
-
-        request.CustomerId = context.GetCurrentUserId();
+        request.CustomerId = context.GetOwnCustomerId();
     }
 }

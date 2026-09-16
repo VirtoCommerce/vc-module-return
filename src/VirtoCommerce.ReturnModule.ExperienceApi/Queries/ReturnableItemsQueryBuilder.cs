@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.ReturnModule.Core.Models;
+using VirtoCommerce.ReturnModule.ExperienceApi.Extensions;
 using VirtoCommerce.ReturnModule.ExperienceApi.Schemas;
 using VirtoCommerce.Xapi.Core.BaseQueries;
 using VirtoCommerce.Xapi.Core.Extensions;
@@ -28,16 +29,13 @@ public class ReturnableItemsQueryBuilder : QueryBuilder<ReturnableItemsQuery, IL
     {
         await base.BeforeMediatorSend(context, request);
 
-        if (!context.IsAuthenticated())
-        {
-            throw AuthorizationError.AnonymousAccessDenied();
-        }
+        var customerId = context.GetOwnCustomerId();
 
         var orderService = context.RequestServices.GetRequiredService<ICustomerOrderService>();
         var order = await orderService.GetNoCloneAsync(request.OrderId);
 
         await Authorize(context, order, new CanAccessOrderAuthorizationRequirement());
 
-        request.CustomerId = context.GetCurrentUserId();
+        request.CustomerId = customerId;
     }
 }
