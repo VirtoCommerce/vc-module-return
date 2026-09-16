@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using GraphQL;
 using GraphQL.Types;
 using VirtoCommerce.ReturnModule.Core.Models;
@@ -9,6 +9,8 @@ namespace VirtoCommerce.ReturnModule.ExperienceApi.Queries;
 public class ReturnableItemsQuery : Query<IList<ReturnableItem>>
 {
     public string OrderId { get; set; }
+
+    public string CustomerId { get; set; }
 
     public override IEnumerable<QueryArgument> GetArguments()
     {

@@ -24,8 +24,14 @@ public class ReturnableItemsQueryHandler : IQueryHandler<ReturnableItemsQuery, I
     {
         var order = await _orderService.GetNoCloneAsync(request.OrderId);
 
-        return order == null
-            ? []
-            : await _eligibilityService.GetReturnableItemsAsync(order);
+        // Reading somebody else's order is allowed for an organization colleague, but only its own
+        // buyer may return from it - the same rule CreateDraftAsync enforces. Answering with an
+        // empty list keeps the storefront from offering a button that would be refused.
+        if (order == null || !order.CustomerId.EqualsIgnoreCase(request.CustomerId))
+        {
+            return [];
+        }
+
+        return await _eligibilityService.GetReturnableItemsAsync(order);
     }
 }

@@ -9,6 +9,7 @@ using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.ExperienceApi.Schemas;
 using VirtoCommerce.Xapi.Core.BaseQueries;
+using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.XOrder.Data.Authorization;
 
 namespace VirtoCommerce.ReturnModule.ExperienceApi.Queries;
@@ -30,5 +31,7 @@ public class ReturnableItemsQueryBuilder : QueryBuilder<ReturnableItemsQuery, IL
         var order = await orderService.GetNoCloneAsync(request.OrderId);
 
         await Authorize(context, order, new CanAccessOrderAuthorizationRequirement());
+
+        request.CustomerId = context.GetCurrentUserId();
     }
 }
