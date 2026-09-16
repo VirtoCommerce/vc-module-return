@@ -14,6 +14,8 @@ namespace VirtoCommerce.ReturnModule.ExperienceApi.Queries;
 
 public class ReturnPolicyQueryHandler : IQueryHandler<ReturnPolicyQuery, ReturnPolicy>
 {
+    private static readonly char[] _separators = [',', ';'];
+
     private readonly IStoreService _storeService;
 
     public ReturnPolicyQueryHandler(IStoreService storeService)
@@ -30,6 +32,9 @@ public class ReturnPolicyQueryHandler : IQueryHandler<ReturnPolicyQuery, ReturnP
         var result = AbstractTypeFactory<ReturnPolicy>.TryCreateInstance();
         result.IsEnabled = settings.GetValue<bool>(ModuleConstants.Settings.General.ReturnEnabled);
         result.WindowDays = settings.GetValue<int>(ModuleConstants.Settings.General.ReturnWindowDays);
+        result.AllowedOrderStatuses = settings
+            .GetValue<string>(ModuleConstants.Settings.General.ReturnAllowedOrderStatuses)
+            ?.Split(_separators, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
 
         return result;
     }
