@@ -67,7 +67,7 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
 
         var orderReturn = await _returnService.GetNoCloneAsync(file.OwnerEntityId, ReturnResponseGroup.None.ToString());
 
-        return orderReturn != null && await _flowService.IsOwnedByAsync(orderReturn, GetUserId(context));
+        return orderReturn != null && await _flowService.IsOwnedBy(orderReturn, GetUserId(context));
     }
 
     protected virtual string GetUserId(AuthorizationHandlerContext context)

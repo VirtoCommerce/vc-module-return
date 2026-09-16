@@ -9,7 +9,7 @@ public interface IReturnAttachmentService
 {
     // Returns the files whose ownership has to change, without writing them: the caller saves the
     // return first, so a failure there leaves file ownership untouched.
-    Task<IList<File>> UpdateAttachmentsAsync(Return orderReturn, ReturnLineItem lineItem, IList<string> urls);
+    Task<IList<File>> UpdateAttachments(Return orderReturn, ReturnLineItem lineItem, IList<string> urls);
 
-    Task SaveFilesAsync(IList<File> files);
+    Task SaveFiles(IList<File> files);
 }

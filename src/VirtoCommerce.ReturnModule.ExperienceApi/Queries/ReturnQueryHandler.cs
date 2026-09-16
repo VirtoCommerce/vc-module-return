@@ -22,6 +22,6 @@ public class ReturnQueryHandler : IQueryHandler<ReturnQuery, Return>
     {
         var result = await _returnService.GetNoCloneAsync(request.Id, ReturnResponseGroup.None.ToString());
 
-        return result != null && await _flowService.IsOwnedByAsync(result, request.CustomerId) ? result : null;
+        return result != null && await _flowService.IsOwnedBy(result, request.CustomerId) ? result : null;
     }
 }

@@ -40,7 +40,7 @@ public class ReturnFlowService : IReturnFlowService
         _stateProvider = stateProvider;
     }
 
-    public virtual async Task<Return> CreateDraftAsync(CreateReturnRequest request, ReturnFlowContext context, CancellationToken cancellationToken = default)
+    public virtual async Task<Return> CreateDraft(CreateReturnRequest request, ReturnFlowContext context, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(context);
@@ -53,7 +53,7 @@ public class ReturnFlowService : IReturnFlowService
             throw new ReturnFlowException(ReturnFlowError.OrderNotFound, $"Order '{request.OrderId}' was not found.");
         }
 
-        var eligibility = await _eligibilityService.GetOrderEligibilityAsync(order);
+        var eligibility = await _eligibilityService.GetOrderEligibility(order);
 
         if (!eligibility.IsEligible)
         {
@@ -89,15 +89,15 @@ public class ReturnFlowService : IReturnFlowService
         // patched back over the persisted rows.
         var saved = await _returnService.GetByIdAsync(result.Id);
 
-        var changedFiles = await UpdateAttachmentsAsync(saved, request.Items);
+        var changedFiles = await UpdateAttachments(saved, request.Items);
 
         await _returnService.SaveChangesAsync([saved]);
-        await _attachmentService.SaveFilesAsync(changedFiles);
+        await _attachmentService.SaveFiles(changedFiles);
 
         return saved;
     }
 
-    public virtual async Task<Return> UpdateDraftAsync(UpdateReturnRequest request, ReturnFlowContext context, CancellationToken cancellationToken = default)
+    public virtual async Task<Return> UpdateDraft(UpdateReturnRequest request, ReturnFlowContext context, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(context);
@@ -124,12 +124,12 @@ public class ReturnFlowService : IReturnFlowService
 
             orderReturn.LineItems = keptLineItems;
 
-            changedFiles.AddRange(await UpdateAttachmentsAsync(orderReturn, request.Items));
+            changedFiles.AddRange(await UpdateAttachments(orderReturn, request.Items));
         }
 
         // The return goes first: a failure there must not leave a file reassigned.
         await _returnService.SaveChangesAsync([orderReturn]);
-        await _attachmentService.SaveFilesAsync(changedFiles);
+        await _attachmentService.SaveFiles(changedFiles);
 
         return orderReturn;
     }
@@ -146,13 +146,13 @@ public class ReturnFlowService : IReturnFlowService
 
         foreach (var lineItem in dropped)
         {
-            result.AddRange(await _attachmentService.UpdateAttachmentsAsync(orderReturn, lineItem, []));
+            result.AddRange(await _attachmentService.UpdateAttachments(orderReturn, lineItem, []));
         }
 
         return result;
     }
 
-    protected virtual async Task<List<File>> UpdateAttachmentsAsync(Return orderReturn, IList<CreateReturnItemRequest> items)
+    protected virtual async Task<List<File>> UpdateAttachments(Return orderReturn, IList<CreateReturnItemRequest> items)
     {
         var result = new List<File>();
 
@@ -163,14 +163,14 @@ public class ReturnFlowService : IReturnFlowService
 
             if (lineItem != null)
             {
-                result.AddRange(await _attachmentService.UpdateAttachmentsAsync(orderReturn, lineItem, item.AttachmentUrls));
+                result.AddRange(await _attachmentService.UpdateAttachments(orderReturn, lineItem, item.AttachmentUrls));
             }
         }
 
         return result;
     }
 
-    public virtual async Task<Return> SubmitAsync(string returnId, ReturnFlowContext context, CancellationToken cancellationToken = default)
+    public virtual async Task<Return> Submit(string returnId, ReturnFlowContext context, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(context);
 
@@ -206,7 +206,7 @@ public class ReturnFlowService : IReturnFlowService
         return orderReturn;
     }
 
-    public virtual async Task<Return> CancelAsync(string returnId, string reason, ReturnFlowContext context, CancellationToken cancellationToken = default)
+    public virtual async Task<Return> Cancel(string returnId, string reason, ReturnFlowContext context, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(context);
 
@@ -254,7 +254,7 @@ public class ReturnFlowService : IReturnFlowService
 
     protected virtual async Task ValidateAvailabilityAsync(Return orderReturn, CustomerOrder order)
     {
-        var returnableItems = (await _eligibilityService.GetReturnableItemsAsync(order, orderReturn.Id))
+        var returnableItems = (await _eligibilityService.GetReturnableItems(order, orderReturn.Id))
             .ToDictionary(x => x.OrderLineItemId, StringComparer.OrdinalIgnoreCase);
 
         foreach (var lineItem in orderReturn.LineItems)
@@ -296,7 +296,7 @@ public class ReturnFlowService : IReturnFlowService
     {
         var orderReturn = await _returnService.GetByIdAsync(returnId, ReturnResponseGroup.None.ToString());
 
-        if (orderReturn == null || !await IsOwnedByAsync(orderReturn, context.CustomerId))
+        if (orderReturn == null || !await IsOwnedBy(orderReturn, context.CustomerId))
         {
             throw new ReturnFlowException(ReturnFlowError.ReturnNotFound, $"Return '{returnId}' was not found.");
         }
@@ -304,7 +304,7 @@ public class ReturnFlowService : IReturnFlowService
         return orderReturn;
     }
 
-    public virtual async Task<bool> IsOwnedByAsync(Return orderReturn, string customerId)
+    public virtual async Task<bool> IsOwnedBy(Return orderReturn, string customerId)
     {
         if (!string.IsNullOrEmpty(orderReturn.CustomerId))
         {

@@ -26,15 +26,15 @@ public class ReturnAttachmentService : IReturnAttachmentService
         _fileUploadService = fileUploadService;
     }
 
-    public virtual Task<IList<File>> UpdateAttachmentsAsync(Return orderReturn, ReturnLineItem lineItem, IList<string> urls)
+    public virtual Task<IList<File>> UpdateAttachments(Return orderReturn, ReturnLineItem lineItem, IList<string> urls)
     {
         ArgumentNullException.ThrowIfNull(orderReturn);
         ArgumentNullException.ThrowIfNull(lineItem);
 
-        return UpdateAttachmentsInternalAsync(orderReturn, lineItem, urls);
+        return UpdateAttachmentsInternal(orderReturn, lineItem, urls);
     }
 
-    protected virtual async Task<IList<File>> UpdateAttachmentsInternalAsync(Return orderReturn, ReturnLineItem lineItem, IList<string> urls)
+    protected virtual async Task<IList<File>> UpdateAttachmentsInternal(Return orderReturn, ReturnLineItem lineItem, IList<string> urls)
     {
         lineItem.Attachments ??= [];
 
@@ -78,7 +78,7 @@ public class ReturnAttachmentService : IReturnAttachmentService
         return changedFiles;
     }
 
-    public virtual async Task SaveFilesAsync(IList<File> files)
+    public virtual async Task SaveFiles(IList<File> files)
     {
         if (files?.Count > 0)
         {

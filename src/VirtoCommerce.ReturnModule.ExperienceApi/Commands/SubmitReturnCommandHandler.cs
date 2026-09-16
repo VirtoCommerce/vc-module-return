@@ -25,7 +25,7 @@ public class SubmitReturnCommandHandler : IRequestHandler<SubmitReturnCommand, R
 
         try
         {
-            return await _flowService.SubmitAsync(request.ReturnId, context, cancellationToken);
+            return await _flowService.Submit(request.ReturnId, context, cancellationToken);
         }
         catch (ReturnFlowException exception)
         {

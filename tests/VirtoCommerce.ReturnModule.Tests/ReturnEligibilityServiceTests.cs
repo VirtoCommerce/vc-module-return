@@ -25,8 +25,8 @@ public class ReturnEligibilityServiceTests
         var service = CreateService(enabled: false);
         var order = CreateOrder(deliveredDaysAgo: 1);
 
-        var eligibility = await service.GetOrderEligibilityAsync(order);
-        var items = await service.GetReturnableItemsAsync(order);
+        var eligibility = await service.GetOrderEligibility(order);
+        var items = await service.GetReturnableItems(order);
 
         Assert.False(eligibility.IsEligible);
         Assert.Equal(ReturnIneligibilityReason.ReturnsDisabled, eligibility.Reason);
@@ -40,7 +40,7 @@ public class ReturnEligibilityServiceTests
         var service = CreateService();
         var order = CreateOrder(deliveredDaysAgo: 1, status: "Processing");
 
-        var items = await service.GetReturnableItemsAsync(order);
+        var items = await service.GetReturnableItems(order);
 
         Assert.False(items.Single().IsReturnable);
         Assert.Equal(ReturnIneligibilityReason.OrderStatusNotAllowed, items.Single().IneligibilityReason);
@@ -52,7 +52,7 @@ public class ReturnEligibilityServiceTests
         var service = CreateService();
         var order = CreateOrder(deliveredDaysAgo: null);
 
-        var items = await service.GetReturnableItemsAsync(order);
+        var items = await service.GetReturnableItems(order);
 
         Assert.Equal(ReturnIneligibilityReason.NotDelivered, items.Single().IneligibilityReason);
         Assert.Null(items.Single().DeliveryDate);
@@ -64,7 +64,7 @@ public class ReturnEligibilityServiceTests
         var service = CreateService(windowDays: 30);
         var order = CreateOrder(deliveredDaysAgo: 31);
 
-        var items = await service.GetReturnableItemsAsync(order);
+        var items = await service.GetReturnableItems(order);
 
         Assert.Equal(ReturnIneligibilityReason.OutsideReturnWindow, items.Single().IneligibilityReason);
     }
@@ -77,7 +77,7 @@ public class ReturnEligibilityServiceTests
         var order = CreateOrder(deliveredDaysAgo: 40);
         order.Shipments.Add(CreateShipment(daysAgo: 2, quantity: 3));
 
-        var items = await service.GetReturnableItemsAsync(order);
+        var items = await service.GetReturnableItems(order);
         var item = items.Single();
 
         Assert.True(item.IsReturnable);
@@ -93,7 +93,7 @@ public class ReturnEligibilityServiceTests
         var order = CreateOrder(deliveredDaysAgo: 1);
         order.Shipments.Single().IsCancelled = true;
 
-        var items = await service.GetReturnableItemsAsync(order);
+        var items = await service.GetReturnableItems(order);
 
         Assert.Equal(ReturnIneligibilityReason.NotDelivered, items.Single().IneligibilityReason);
     }
@@ -106,7 +106,7 @@ public class ReturnEligibilityServiceTests
         var order = CreateOrder(deliveredDaysAgo: 1);
         order.Items.Single().IsCancelled = true;
 
-        var items = await service.GetReturnableItemsAsync(order);
+        var items = await service.GetReturnableItems(order);
 
         Assert.Equal(ReturnIneligibilityReason.LineCancelled, items.Single().IneligibilityReason);
     }
@@ -117,7 +117,7 @@ public class ReturnEligibilityServiceTests
         var service = CreateService();
         var order = CreateOrder(deliveredDaysAgo: 1, orderedQuantity: 10, deliveredQuantity: 4);
 
-        var items = await service.GetReturnableItemsAsync(order);
+        var items = await service.GetReturnableItems(order);
 
         Assert.Equal(10, items.Single().OrderedQuantity);
         Assert.Equal(4, items.Single().DeliveredQuantity);
@@ -130,7 +130,7 @@ public class ReturnEligibilityServiceTests
         var service = CreateService(heldQuantity: 3);
         var order = CreateOrder(deliveredDaysAgo: 1, orderedQuantity: 5, deliveredQuantity: 5);
 
-        var items = await service.GetReturnableItemsAsync(order);
+        var items = await service.GetReturnableItems(order);
 
         Assert.Equal(2, items.Single().ReturnableQuantity);
     }
@@ -141,7 +141,7 @@ public class ReturnEligibilityServiceTests
         var service = CreateService(heldQuantity: 5);
         var order = CreateOrder(deliveredDaysAgo: 1, orderedQuantity: 5, deliveredQuantity: 5);
 
-        var items = await service.GetReturnableItemsAsync(order);
+        var items = await service.GetReturnableItems(order);
 
         Assert.Equal(0, items.Single().ReturnableQuantity);
         Assert.Equal(ReturnIneligibilityReason.NothingLeftToReturn, items.Single().IneligibilityReason);
@@ -173,7 +173,7 @@ public class ReturnEligibilityServiceTests
 
         var quantityService = new Mock<IReturnQuantityService>();
         quantityService
-            .Setup(x => x.GetHeldQuantitiesAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .Setup(x => x.GetHeldQuantities(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(heldQuantity > 0
                 ? new Dictionary<string, int> { [LineId] = heldQuantity }
                 : new Dictionary<string, int>());

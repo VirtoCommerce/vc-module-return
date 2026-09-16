@@ -10,7 +10,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <!-- AutoMapper 12.0.1 arrives transitively through VirtoCommerce.Xapi.Core; same suppression as vc-module-quote. -->
+    <!-- Xapi.Core pulls AutoMapper.Extensions.Microsoft.DependencyInjection, which pins AutoMapper to exactly 12.0.1; the patched 15.1.1 is out of range. -->
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rvv3-g6hj-g44x" />
   </ItemGroup>
 </Project>

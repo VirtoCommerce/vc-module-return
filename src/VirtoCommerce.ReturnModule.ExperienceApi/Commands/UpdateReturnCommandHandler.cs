@@ -31,7 +31,7 @@ public class UpdateReturnCommandHandler : IRequestHandler<UpdateReturnCommand, R
 
         try
         {
-            return await _flowService.UpdateDraftAsync(flowRequest, context, cancellationToken);
+            return await _flowService.UpdateDraft(flowRequest, context, cancellationToken);
         }
         catch (ReturnFlowException exception)
         {

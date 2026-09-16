@@ -20,7 +20,7 @@ public class ReturnQuantityService : IReturnQuantityService
         _returnService = returnService;
     }
 
-    public virtual async Task<IDictionary<string, int>> GetHeldQuantitiesAsync(string orderId, string excludeReturnId = null)
+    public virtual async Task<IDictionary<string, int>> GetHeldQuantities(string orderId, string excludeReturnId = null)
     {
         if (string.IsNullOrEmpty(orderId))
         {

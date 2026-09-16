@@ -25,7 +25,7 @@ public class ReturnEligibilityService : IReturnEligibilityService
         _quantityService = quantityService;
     }
 
-    public virtual async Task<ReturnEligibility> GetOrderEligibilityAsync(CustomerOrder order)
+    public virtual async Task<ReturnEligibility> GetOrderEligibility(CustomerOrder order)
     {
         ArgumentNullException.ThrowIfNull(order);
 
@@ -36,7 +36,7 @@ public class ReturnEligibilityService : IReturnEligibilityService
         return reason == null ? ReturnEligibility.Eligible() : ReturnEligibility.Ineligible(reason);
     }
 
-    public virtual async Task<IList<ReturnableItem>> GetReturnableItemsAsync(CustomerOrder order, string excludeReturnId = null)
+    public virtual async Task<IList<ReturnableItem>> GetReturnableItems(CustomerOrder order, string excludeReturnId = null)
     {
         ArgumentNullException.ThrowIfNull(order);
 
@@ -44,7 +44,7 @@ public class ReturnEligibilityService : IReturnEligibilityService
         var windowDays = settings.GetValue<int>(ModuleConstants.Settings.General.ReturnWindowDays);
         var orderLevelReason = GetOrderLevelReason(order, settings);
 
-        var heldQuantities = await _quantityService.GetHeldQuantitiesAsync(order.Id, excludeReturnId);
+        var heldQuantities = await _quantityService.GetHeldQuantities(order.Id, excludeReturnId);
         var deliveries = GetLineItemDeliveries(order, settings);
 
         var result = new List<ReturnableItem>();

@@ -31,7 +31,7 @@ public class CreateReturnCommandHandler : IRequestHandler<CreateReturnCommand, R
 
         try
         {
-            return await _flowService.CreateDraftAsync(flowRequest, context, cancellationToken);
+            return await _flowService.CreateDraft(flowRequest, context, cancellationToken);
         }
         catch (ReturnFlowException exception)
         {

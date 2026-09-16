@@ -7,7 +7,7 @@ namespace VirtoCommerce.ReturnModule.Core.Services;
 
 public interface IReturnEligibilityService
 {
-    Task<ReturnEligibility> GetOrderEligibilityAsync(CustomerOrder order);
+    Task<ReturnEligibility> GetOrderEligibility(CustomerOrder order);
 
-    Task<IList<ReturnableItem>> GetReturnableItemsAsync(CustomerOrder order, string excludeReturnId = null);
+    Task<IList<ReturnableItem>> GetReturnableItems(CustomerOrder order, string excludeReturnId = null);
 }

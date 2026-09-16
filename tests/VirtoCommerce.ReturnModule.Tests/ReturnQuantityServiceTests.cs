@@ -24,7 +24,7 @@ public class ReturnQuantityServiceTests
     {
         var service = CreateService(MakeReturn("r1", ReturnStatus.Draft, quantity: 240));
 
-        var held = await service.GetHeldQuantitiesAsync(OrderId);
+        var held = await service.GetHeldQuantities(OrderId);
 
         Assert.False(held.ContainsKey(LineId));
     }
@@ -34,7 +34,7 @@ public class ReturnQuantityServiceTests
     {
         var service = CreateService(MakeReturn("r1", ReturnStatus.Requested, quantity: 240));
 
-        var held = await service.GetHeldQuantitiesAsync(OrderId);
+        var held = await service.GetHeldQuantities(OrderId);
 
         Assert.Equal(240, held[LineId]);
     }
@@ -47,7 +47,7 @@ public class ReturnQuantityServiceTests
     {
         var service = CreateService(MakeReturn("r1", status, quantity: 240));
 
-        var held = await service.GetHeldQuantitiesAsync(OrderId);
+        var held = await service.GetHeldQuantities(OrderId);
 
         Assert.False(held.ContainsKey(LineId));
     }
@@ -62,7 +62,7 @@ public class ReturnQuantityServiceTests
 
         var service = CreateService(orderReturn);
 
-        var held = await service.GetHeldQuantitiesAsync(OrderId);
+        var held = await service.GetHeldQuantities(OrderId);
 
         Assert.Equal(200, held[LineId]);
     }
@@ -72,7 +72,7 @@ public class ReturnQuantityServiceTests
     {
         var service = CreateService(MakeReturn("r1", ReturnStatus.Approved, quantity: 240));
 
-        var held = await service.GetHeldQuantitiesAsync(OrderId);
+        var held = await service.GetHeldQuantities(OrderId);
 
         Assert.Equal(240, held[LineId]);
     }
@@ -85,7 +85,7 @@ public class ReturnQuantityServiceTests
 
         var service = CreateService(orderReturn);
 
-        var held = await service.GetHeldQuantitiesAsync(OrderId);
+        var held = await service.GetHeldQuantities(OrderId);
 
         Assert.False(held.ContainsKey(LineId));
     }
@@ -95,7 +95,7 @@ public class ReturnQuantityServiceTests
     {
         var service = CreateService(MakeReturn("r1", "Processing", quantity: 240));
 
-        var held = await service.GetHeldQuantitiesAsync(OrderId);
+        var held = await service.GetHeldQuantities(OrderId);
 
         Assert.Equal(240, held[LineId]);
     }
@@ -108,7 +108,7 @@ public class ReturnQuantityServiceTests
             MakeReturn("r2", ReturnStatus.Requested, quantity: 40),
             MakeReturn("r3", ReturnStatus.Cancelled, quantity: 100));
 
-        var held = await service.GetHeldQuantitiesAsync(OrderId);
+        var held = await service.GetHeldQuantities(OrderId);
 
         Assert.Equal(240, held[LineId]);
     }
@@ -120,7 +120,7 @@ public class ReturnQuantityServiceTests
             MakeReturn("r1", ReturnStatus.Requested, quantity: 200),
             MakeReturn("r2", ReturnStatus.Requested, quantity: 40));
 
-        var held = await service.GetHeldQuantitiesAsync(OrderId, excludeReturnId: "r2");
+        var held = await service.GetHeldQuantities(OrderId, excludeReturnId: "r2");
 
         Assert.Equal(200, held[LineId]);
     }
@@ -132,7 +132,7 @@ public class ReturnQuantityServiceTests
         var repository = new Mock<IReturnRepository>(MockBehavior.Strict);
         var service = new ReturnQuantityService(() => repository.Object, returnService.Object);
 
-        var held = await service.GetHeldQuantitiesAsync(null);
+        var held = await service.GetHeldQuantities(null);
 
         Assert.Empty(held);
     }
@@ -145,7 +145,7 @@ public class ReturnQuantityServiceTests
 
         var service = CreateService(orderReturn);
 
-        var held = await service.GetHeldQuantitiesAsync(OrderId);
+        var held = await service.GetHeldQuantities(OrderId);
 
         Assert.Empty(held);
     }

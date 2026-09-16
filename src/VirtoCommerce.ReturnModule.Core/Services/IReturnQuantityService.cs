@@ -5,5 +5,5 @@ namespace VirtoCommerce.ReturnModule.Core.Services;
 
 public interface IReturnQuantityService
 {
-    Task<IDictionary<string, int>> GetHeldQuantitiesAsync(string orderId, string excludeReturnId = null);
+    Task<IDictionary<string, int>> GetHeldQuantities(string orderId, string excludeReturnId = null);
 }

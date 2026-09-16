@@ -149,7 +149,7 @@ public class ReturnAuthorizationHandlerTests
 
         var flowService = new Mock<IReturnFlowService>();
         flowService
-            .Setup(x => x.IsOwnedByAsync(It.IsAny<Return>(), It.IsAny<string>()))
+            .Setup(x => x.IsOwnedBy(It.IsAny<Return>(), It.IsAny<string>()))
             .ReturnsAsync((Return x, string customerId) => x.CustomerId == customerId);
 
         return new TestHandler(returnService.Object, flowService.Object, userId);

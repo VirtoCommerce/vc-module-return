@@ -25,7 +25,7 @@ public class CancelReturnCommandHandler : IRequestHandler<CancelReturnCommand, R
 
         try
         {
-            return await _flowService.CancelAsync(request.ReturnId, request.Reason, context, cancellationToken);
+            return await _flowService.Cancel(request.ReturnId, request.Reason, context, cancellationToken);
         }
         catch (ReturnFlowException exception)
         {
