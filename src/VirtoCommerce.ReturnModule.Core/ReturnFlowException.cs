@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace VirtoCommerce.ReturnModule.Core;
 
@@ -17,6 +17,7 @@ public static class ReturnFlowError
     public const string WrongStatus = "WRONG_STATUS";
     public const string QuantityUnavailable = "RETURN_QUANTITY_UNAVAILABLE";
     public const string AttachmentsRequired = "ATTACHMENTS_REQUIRED";
+    public const string LineNotReturnable = "LINE_NOT_RETURNABLE";
 }
 
 public class ReturnFlowException : Exception

@@ -81,8 +81,13 @@ public class ReturnFlowService : IReturnFlowService
 
         await _returnService.SaveChangesAsync([result]);
 
-        // After the first save: the files are owned by the return, which has no id before it.
-        await UpdateAttachmentsAsync(result, request.Items);
+        // After the first save: the files are owned by the return, which has no id before it. The
+        // attachment rows themselves are new on the lines, so the return has to be saved once more
+        // or they exist only in memory and the draft reloads with no evidence on it.
+        if (await UpdateAttachmentsAsync(result, request.Items))
+        {
+            await _returnService.SaveChangesAsync([result]);
+        }
 
         return result;
     }
@@ -119,8 +124,11 @@ public class ReturnFlowService : IReturnFlowService
     /// <summary>
     /// Applies each line's attachment list, skipping lines the caller said nothing about.
     /// </summary>
-    protected virtual async Task UpdateAttachmentsAsync(Return orderReturn, IList<CreateReturnItemRequest> items)
+    /// <returns>Whether any line's attachments were touched, so the caller knows to save.</returns>
+    protected virtual async Task<bool> UpdateAttachmentsAsync(Return orderReturn, IList<CreateReturnItemRequest> items)
     {
+        var changed = false;
+
         foreach (var item in items.Where(x => x.AttachmentUrls != null))
         {
             var lineItem = orderReturn.LineItems
@@ -129,8 +137,11 @@ public class ReturnFlowService : IReturnFlowService
             if (lineItem != null)
             {
                 await _attachmentService.UpdateAttachmentsAsync(orderReturn, lineItem, item.AttachmentUrls);
+                changed = true;
             }
         }
+
+        return changed;
     }
 
     public virtual async Task<Return> SubmitAsync(string returnId, ReturnFlowContext context, CancellationToken cancellationToken = default)
@@ -233,6 +244,17 @@ public class ReturnFlowService : IReturnFlowService
             if (!returnableItems.TryGetValue(lineItem.OrderLineItemId ?? string.Empty, out var returnableItem))
             {
                 throw new ReturnFlowException(ReturnFlowError.LineItemNotFound, $"Line item '{lineItem.OrderLineItemId}' is not on this order.");
+            }
+
+            // Quantity alone is not enough: a line outside the return window, a cancelled one, or
+            // one on an order whose status no longer allows returns still reports a returnable
+            // quantity, because that figure is only "delivered minus held". The storefront hides
+            // such lines, but the storefront is not the boundary.
+            if (!returnableItem.IsReturnable)
+            {
+                throw new ReturnFlowException(
+                    ReturnFlowError.LineNotReturnable,
+                    $"Line item '{lineItem.OrderLineItemId}' cannot be returned: {returnableItem.IneligibilityReason}.");
             }
 
             if (lineItem.Quantity < 1 || lineItem.Quantity > returnableItem.ReturnableQuantity)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,9 +31,9 @@ public class ReturnEligibilityService : IReturnEligibilityService
 
         var settings = await GetStoreSettingsAsync(order.StoreId);
 
-        return IsOrderStatusAllowed(order, settings)
-            ? ReturnEligibility.Eligible()
-            : ReturnEligibility.Ineligible(ReturnIneligibilityReason.OrderStatusNotAllowed);
+        var reason = GetOrderLevelReason(order, settings);
+
+        return reason == null ? ReturnEligibility.Eligible() : ReturnEligibility.Ineligible(reason);
     }
 
     public virtual async Task<IList<ReturnableItem>> GetReturnableItemsAsync(CustomerOrder order, string excludeReturnId = null)
@@ -42,7 +42,9 @@ public class ReturnEligibilityService : IReturnEligibilityService
 
         var settings = await GetStoreSettingsAsync(order.StoreId);
         var windowDays = settings.GetValue<int>(ModuleConstants.Settings.General.ReturnWindowDays);
-        var orderStatusAllowed = IsOrderStatusAllowed(order, settings);
+        // Settled once for the whole order, so every line reports the same truthful reason rather
+        // than blaming the order status for a store that has returns switched off.
+        var orderLevelReason = GetOrderLevelReason(order, settings);
 
         var heldQuantities = await _quantityService.GetHeldQuantitiesAsync(order.Id, excludeReturnId);
         var deliveries = GetLineItemDeliveries(order, settings);
@@ -71,7 +73,7 @@ public class ReturnEligibilityService : IReturnEligibilityService
             heldQuantities.TryGetValue(lineItem.Id ?? string.Empty, out var heldQuantity);
             item.ReturnableQuantity = Math.Max(0, item.DeliveredQuantity - heldQuantity);
 
-            item.IneligibilityReason = GetIneligibilityReason(orderStatusAllowed, lineItem, item);
+            item.IneligibilityReason = GetIneligibilityReason(orderLevelReason, lineItem, item);
             item.IsReturnable = item.IneligibilityReason == null;
 
             result.Add(item);
@@ -80,11 +82,24 @@ public class ReturnEligibilityService : IReturnEligibilityService
         return result;
     }
 
-    protected virtual string GetIneligibilityReason(bool orderStatusAllowed, LineItem lineItem, ReturnableItem item)
+    /// <summary>
+    /// Why nothing on this order may be returned, or null when the order itself is fine.
+    /// </summary>
+    protected virtual string GetOrderLevelReason(CustomerOrder order, IEnumerable<ObjectSettingEntry> settings)
     {
-        if (!orderStatusAllowed)
+        if (!IsReturnEnabled(settings))
         {
-            return ReturnIneligibilityReason.OrderStatusNotAllowed;
+            return ReturnIneligibilityReason.ReturnsDisabled;
+        }
+
+        return IsOrderStatusAllowed(order, settings) ? null : ReturnIneligibilityReason.OrderStatusNotAllowed;
+    }
+
+    protected virtual string GetIneligibilityReason(string orderLevelReason, LineItem lineItem, ReturnableItem item)
+    {
+        if (orderLevelReason != null)
+        {
+            return orderLevelReason;
         }
 
         if (lineItem.IsCancelled)
@@ -173,6 +188,15 @@ public class ReturnEligibilityService : IReturnEligibilityService
     {
         return allowedStatuses.Count == 0 ||
                allowedStatuses.Contains(shipment.Status ?? string.Empty, StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// The store's master switch. Without this check it only hid the storefront's menu, while the
+    /// xAPI happily went on accepting returns.
+    /// </summary>
+    protected virtual bool IsReturnEnabled(IEnumerable<ObjectSettingEntry> settings)
+    {
+        return settings.GetValue<bool>(ModuleConstants.Settings.General.ReturnEnabled);
     }
 
     protected virtual bool IsOrderStatusAllowed(CustomerOrder order, IEnumerable<ObjectSettingEntry> settings)
