@@ -117,6 +117,10 @@ public class ReturnFlowService : IReturnFlowService
 
         var changes = new ReturnAttachmentChanges();
 
+        // Ahead of the header assignment, and outside the items branch: a request that only renames
+        // the reference still writes it, so it still has to pass.
+        await ValidateRequestAsync(orderReturn.StoreId, request.CustomerReference, request.CustomerComment, request.Items);
+
         // null leaves the field alone, an empty string clears it - the same rule the attachment
         // list already documents on this input.
         orderReturn.CustomerReference = request.CustomerReference ?? orderReturn.CustomerReference;
@@ -130,7 +134,6 @@ public class ReturnFlowService : IReturnFlowService
             }
 
             ValidateNoDuplicateLines(request.Items);
-            await ValidateRequestAsync(orderReturn.StoreId, request.CustomerReference, request.CustomerComment, request.Items);
 
             var keptLineItems = request.Items.Select(x => UpdateLineItem(x, orderReturn, orderLineItems)).ToList();
 
@@ -303,7 +306,7 @@ public class ReturnFlowService : IReturnFlowService
         var validationContext = AbstractTypeFactory<ReturnRequestValidationContext>.TryCreateInstance();
         validationContext.CustomerReference = customerReference;
         validationContext.CustomerComment = customerComment;
-        validationContext.Items = items;
+        validationContext.Items = items ?? [];
         validationContext.Reasons = await GetReasonsAsync();
         validationContext.ReasonsRequiringComment = ParseSetting(settings, ModuleConstants.Settings.General.ReturnReasonsRequiringComment);
 

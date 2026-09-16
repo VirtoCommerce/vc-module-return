@@ -108,6 +108,26 @@ public class ReturnFlowValidationTests
     }
 
     [Fact]
+    public async Task HeaderOnlyUpdate_IsValidatedToo()
+    {
+        // An update that sends no items still writes the reference, so it still has to pass.
+        var service = CreateServiceWithReasons("FaultyOnArrival");
+
+        var exception = await Assert.ThrowsAsync<ReturnFlowException>(() =>
+            service.ValidateHeader("store-1", new string('x', 129)));
+
+        Assert.Equal(ReturnFlowError.InvalidRequest, exception.Code);
+    }
+
+    [Fact]
+    public async Task HeaderOnlyUpdate_WithinTheLimits_Passes()
+    {
+        var service = CreateServiceWithReasons("FaultyOnArrival");
+
+        await service.ValidateHeader("store-1", "PO-7788");
+    }
+
+    [Fact]
     public async Task Availability_WithinTheLimit_Passes()
     {
         var service = CreateService(returnableQuantity: 5);
@@ -165,6 +185,9 @@ public class ReturnFlowValidationTests
 
         public Task ValidateRequest(string storeId, IList<CreateReturnItemRequest> items) =>
             ValidateRequestAsync(storeId, null, null, items);
+
+        public Task ValidateHeader(string storeId, string customerReference) =>
+            ValidateRequestAsync(storeId, customerReference, null, null);
 
         public void ValidateLines(IList<CreateReturnItemRequest> items) => ValidateNoDuplicateLines(items);
 
