@@ -1,7 +1,12 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Moq;
+using System.Linq;
 using VirtoCommerce.OrdersModule.Core.Model;
+using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.Settings;
+using VirtoCommerce.StoreModule.Core.Model;
+using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
@@ -78,6 +83,31 @@ public class ReturnFlowValidationTests
     }
 
     [Fact]
+    public async Task EveryReasonTheStoreOffers_IsAccepted()
+    {
+        // Return.Reasons is a dictionary setting, so its items come from the localization store and
+        // not from the setting's own value - reading the latter would pass only the default one.
+        var service = CreateServiceWithReasons("FaultyOnArrival", "DamagedInTransit", "NoLongerNeeded");
+
+        await service.ValidateRequest(
+            "store-1",
+            [new CreateReturnItemRequest { OrderLineItemId = LineId, Quantity = 1, ReasonCode = "NoLongerNeeded" }]);
+    }
+
+    [Fact]
+    public async Task ReasonTheStoreDoesNotOffer_IsRefused()
+    {
+        var service = CreateServiceWithReasons("FaultyOnArrival");
+
+        var exception = await Assert.ThrowsAsync<ReturnFlowException>(() =>
+            service.ValidateRequest(
+                "store-1",
+                [new CreateReturnItemRequest { OrderLineItemId = LineId, Quantity = 1, ReasonCode = "NoLongerNeeded" }]));
+
+        Assert.Equal(ReturnFlowError.InvalidRequest, exception.Code);
+    }
+
+    [Fact]
     public async Task Availability_WithinTheLimit_Passes()
     {
         var service = CreateService(returnableQuantity: 5);
@@ -88,6 +118,21 @@ public class ReturnFlowValidationTests
         };
 
         await service.Validate(orderReturn, new CustomerOrder());
+    }
+
+    private static TestableReturnFlowService CreateServiceWithReasons(params string[] reasons)
+    {
+        var storeService = new Mock<IStoreService>();
+        storeService
+            .Setup(x => x.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
+            .ReturnsAsync([new Store { Id = "store-1" }]);
+
+        var localizableSettingService = new Mock<ILocalizableSettingService>();
+        localizableSettingService
+            .Setup(x => x.GetValuesAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(reasons.Select(x => new KeyValue { Key = x, Value = x }).ToList());
+
+        return new TestableReturnFlowService(new Mock<IReturnEligibilityService>().Object, storeService.Object, localizableSettingService.Object);
     }
 
     private static TestableReturnFlowService CreateService(int returnableQuantity = 0)
@@ -110,10 +155,16 @@ public class ReturnFlowValidationTests
 
     private sealed class TestableReturnFlowService : ReturnFlowService
     {
-        public TestableReturnFlowService(IReturnEligibilityService eligibilityService)
-            : base(null, null, eligibilityService, null, null, null)
+        public TestableReturnFlowService(
+            IReturnEligibilityService eligibilityService,
+            IStoreService storeService = null,
+            ILocalizableSettingService localizableSettingService = null)
+            : base(null, null, eligibilityService, null, storeService, null, localizableSettingService)
         {
         }
+
+        public Task ValidateRequest(string storeId, IList<CreateReturnItemRequest> items) =>
+            ValidateRequestAsync(storeId, null, null, items);
 
         public void ValidateLines(IList<CreateReturnItemRequest> items) => ValidateNoDuplicateLines(items);
 

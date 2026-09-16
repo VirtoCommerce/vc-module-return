@@ -26,6 +26,7 @@ public class ReturnFlowService : IReturnFlowService
     private readonly IReturnAttachmentService _attachmentService;
     private readonly IStoreService _storeService;
     private readonly IReturnStateProvider _stateProvider;
+    private readonly ILocalizableSettingService _localizableSettingService;
 
     public ReturnFlowService(
         ICustomerOrderService orderService,
@@ -33,7 +34,8 @@ public class ReturnFlowService : IReturnFlowService
         IReturnEligibilityService eligibilityService,
         IReturnAttachmentService attachmentService,
         IStoreService storeService,
-        IReturnStateProvider stateProvider)
+        IReturnStateProvider stateProvider,
+        ILocalizableSettingService localizableSettingService)
     {
         _orderService = orderService;
         _returnService = returnService;
@@ -41,6 +43,7 @@ public class ReturnFlowService : IReturnFlowService
         _attachmentService = attachmentService;
         _storeService = storeService;
         _stateProvider = stateProvider;
+        _localizableSettingService = localizableSettingService;
     }
 
     public virtual async Task<Return> CreateDraft(CreateReturnRequest request, ReturnFlowContext context, CancellationToken cancellationToken = default)
@@ -301,7 +304,7 @@ public class ReturnFlowService : IReturnFlowService
         validationContext.CustomerReference = customerReference;
         validationContext.CustomerComment = customerComment;
         validationContext.Items = items;
-        validationContext.Reasons = ParseSetting(settings, ModuleConstants.Settings.General.ReturnReasons);
+        validationContext.Reasons = await GetReasonsAsync();
         validationContext.ReasonsRequiringComment = ParseSetting(settings, ModuleConstants.Settings.General.ReturnReasonsRequiringComment);
 
         var validation = await new ReturnRequestValidator().ValidateAsync(validationContext);
@@ -312,6 +315,15 @@ public class ReturnFlowService : IReturnFlowService
                 ReturnFlowError.InvalidRequest,
                 string.Join(" ", validation.Errors.Select(x => x.ErrorMessage)));
         }
+    }
+
+    // Return.Reasons is a dictionary setting: GetValue would answer the store's single current value
+    // rather than the items an operator actually offers, so only one reason would ever validate.
+    protected virtual async Task<IList<string>> GetReasonsAsync()
+    {
+        var values = await _localizableSettingService.GetValuesAsync(ModuleConstants.Settings.General.ReturnReasons.Name, null);
+
+        return values.Select(x => x.Key).ToList();
     }
 
     protected static IList<string> ParseSetting(IEnumerable<ObjectSettingEntry> settings, SettingDescriptor setting)
