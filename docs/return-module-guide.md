@@ -182,6 +182,32 @@ You can configure the template for generating return numbers in the store settin
 
 ![Settings template](media/13-settings.png)
 
+## Line item attachments
+
+Buyers attach photos and documents per return line. Uploads go through the File Experience API, which
+resolves its scopes from platform configuration only, so the module cannot register one for you. Until
+this entry exists in the platform's `appsettings.json`, `POST /api/files/return-attachments` answers
+`InvalidScope`:
+
+```json
+{
+  "FileUpload": {
+    "Scopes": [
+      {
+        "Scope": "return-attachments",
+        "MaxFileSize": 5242880,
+        "AllowedExtensions": [ ".jpg", ".jpeg", ".png", ".pdf" ]
+      }
+    ]
+  }
+}
+```
+
+The size and the extension list are yours to choose; the module deliberately imposes neither.
+
+`Return.AttachmentsRequired` is off by default for the same reason — turned on before the scope exists,
+it would refuse every submit for a file the buyer has no way to upload.
+
 # Permissions
 
 The Return module provides a standard set of permissions: access, create, read, delete, and update.
