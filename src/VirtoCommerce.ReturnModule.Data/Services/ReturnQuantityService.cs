@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.Data.Repositories;
@@ -49,32 +50,64 @@ public class ReturnQuantityService : IReturnQuantityService
         var returns = await _returnService.GetAsync(returnIds, ReturnResponseGroup.None.ToString());
 
         return returns
-            .Where(HoldsQuantity)
-            .SelectMany(x => x.LineItems ?? Array.Empty<ReturnLineItem>())
-            .Where(x => !string.IsNullOrEmpty(x.OrderLineItemId))
+            .SelectMany(orderReturn => (orderReturn.LineItems ?? Array.Empty<ReturnLineItem>())
+                .Where(lineItem => !string.IsNullOrEmpty(lineItem.OrderLineItemId))
+                .Select(lineItem => new
+                {
+                    lineItem.OrderLineItemId,
+                    Quantity = GetHeldQuantity(orderReturn, lineItem),
+                }))
+            .Where(x => x.Quantity > 0)
             .GroupBy(x => x.OrderLineItemId)
-            .ToDictionary(x => x.Key, x => x.Sum(lineItem => lineItem.Quantity));
+            .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity));
     }
 
     /// <summary>
-    /// Whether a return still consumes returnable quantity. Before this existed every return was
-    /// counted regardless of status, so a cancelled one ate its quantity forever.
+    /// How much of an order line this return's line is keeping out of reach.
     /// </summary>
     /// <remarks>
-    /// Iteration 1 runs on the legacy Return.Status dictionary, where cancelling is the only way
-    /// quantity comes back. When the Draft / Requested / Approved / PartiallyApproved / Rejected
-    /// model arrives, only this method and <see cref="ReleasingStatuses"/> change: Draft holds
-    /// nothing, Rejected releases fully, and a partial approval releases the difference.
+    /// Anything this module does not recognise still holds its full requested quantity. Returns
+    /// raised in the admin UI carry values from the editable Return.Status dictionary, which this
+    /// module does not control, and under-counting would let a buyer return more than they have.
     /// </remarks>
-    protected virtual bool HoldsQuantity(Return orderReturn)
+    protected virtual int GetHeldQuantity(Return orderReturn, ReturnLineItem lineItem)
     {
-        return !ReleasingStatuses.Contains(orderReturn.Status ?? string.Empty);
+        var status = orderReturn.Status ?? string.Empty;
+
+        if (NonHoldingStatuses.Contains(status))
+        {
+            return 0;
+        }
+
+        // Ask for 240, get 200, and the other 40 are free again — the buyer may legitimately ask
+        // for them later.
+        return ApprovedStatuses.Contains(status) ? lineItem.ApprovedQuantity : lineItem.Quantity;
     }
 
     /// <summary>
-    /// Statuses that free the quantity back up. Both spellings are listed on purpose: the legacy
-    /// status dictionary ships "Canceled", the new status model spells it "Cancelled".
+    /// Statuses holding nothing: a draft has not claimed anything yet — an abandoned one must not
+    /// block a line forever — and a closed return has given back whatever it held.
     /// </summary>
-    protected virtual ISet<string> ReleasingStatuses { get; } =
-        new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Canceled", "Cancelled" };
+    /// <remarks>
+    /// Both spellings of cancelled are listed on purpose: the legacy status dictionary ships
+    /// "Canceled", the status model spells it "Cancelled".
+    /// </remarks>
+    protected virtual ISet<string> NonHoldingStatuses { get; } =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ReturnStatus.Draft,
+            ReturnStatus.Cancelled,
+            "Canceled",
+            ReturnStatus.Rejected,
+        };
+
+    /// <summary>
+    /// Statuses where an agent has settled the quantity, so the approved figure is what is held.
+    /// </summary>
+    protected virtual ISet<string> ApprovedStatuses { get; } =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ReturnStatus.Approved,
+            ReturnStatus.PartiallyApproved,
+        };
 }
