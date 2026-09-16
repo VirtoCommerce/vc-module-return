@@ -1,3 +1,4 @@
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using VirtoCommerce.ReturnModule.Core.Models;
@@ -42,4 +43,13 @@ public interface IReturnFlowService
     /// availability is derived from status rather than kept in a counter.
     /// </remarks>
     Task<Return> CancelAsync(string returnId, string reason, ReturnFlowContext context, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Every action known for a return, each flagged with whether it would be accepted now.
+    /// </summary>
+    /// <remarks>
+    /// Takes the loaded return rather than an id, and reads nothing: the xAPI exposes this on every
+    /// return in a list, and a version that had to fetch anything would be a query per row.
+    /// </remarks>
+    IList<ReturnFlowAction> GetAvailableActions(Return orderReturn);
 }

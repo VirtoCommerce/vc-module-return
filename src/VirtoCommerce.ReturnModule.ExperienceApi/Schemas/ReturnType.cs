@@ -1,7 +1,9 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using GraphQL.Types;
+using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.ReturnModule.Core.Models;
+using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.Xapi.Core.Schemas;
 
 namespace VirtoCommerce.ReturnModule.ExperienceApi.Schemas;
@@ -27,5 +29,11 @@ public class ReturnType : ExtendableGraphType<Return>
 
         Field<NonNullGraphType<ListGraphType<NonNullGraphType<ReturnLineItemType>>>>("items")
             .Resolve(context => (IEnumerable<ReturnLineItem>)context.Source.LineItems ?? []);
+
+        Field<NonNullGraphType<ListGraphType<NonNullGraphType<ReturnActionType>>>>("availableActions")
+            .Description("Every known action, each flagged with whether it would be accepted now.")
+            .Resolve(context => (IEnumerable<ReturnFlowAction>)context.RequestServices
+                .GetRequiredService<IReturnFlowService>()
+                .GetAvailableActions(context.Source));
     }
 }

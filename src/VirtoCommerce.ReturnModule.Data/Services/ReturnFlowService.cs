@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -21,19 +21,22 @@ public class ReturnFlowService : IReturnFlowService
     private readonly IReturnEligibilityService _eligibilityService;
     private readonly IReturnAttachmentService _attachmentService;
     private readonly IStoreService _storeService;
+    private readonly IReturnStateProvider _stateProvider;
 
     public ReturnFlowService(
         ICustomerOrderService orderService,
         IReturnService returnService,
         IReturnEligibilityService eligibilityService,
         IReturnAttachmentService attachmentService,
-        IStoreService storeService)
+        IStoreService storeService,
+        IReturnStateProvider stateProvider)
     {
         _orderService = orderService;
         _returnService = returnService;
         _eligibilityService = eligibilityService;
         _attachmentService = attachmentService;
         _storeService = storeService;
+        _stateProvider = stateProvider;
     }
 
     public virtual async Task<Return> CreateDraftAsync(CreateReturnRequest request, ReturnFlowContext context, CancellationToken cancellationToken = default)
@@ -147,7 +150,7 @@ public class ReturnFlowService : IReturnFlowService
         await ValidateAttachmentsAsync(orderReturn);
         await ValidateAvailabilityAsync(orderReturn, order);
 
-        orderReturn.Status = ReturnStatus.Requested;
+        orderReturn.Status = _stateProvider.GetNextStatus(ReturnAction.Submit, orderReturn.Status);
 
         foreach (var lineItem in orderReturn.LineItems)
         {
@@ -165,14 +168,14 @@ public class ReturnFlowService : IReturnFlowService
 
         var orderReturn = await GetOwnedReturnAsync(returnId, context);
 
-        if (!CancellableStatuses.Contains(orderReturn.Status ?? string.Empty))
+        if (!_stateProvider.IsAllowed(ReturnAction.Cancel, orderReturn.Status))
         {
             throw new ReturnFlowException(
                 ReturnFlowError.WrongStatus,
                 $"Return '{returnId}' is '{orderReturn.Status}' and can no longer be cancelled.");
         }
 
-        orderReturn.Status = ReturnStatus.Cancelled;
+        orderReturn.Status = _stateProvider.GetNextStatus(ReturnAction.Cancel, orderReturn.Status);
         orderReturn.CancelReason = reason;
 
         await _returnService.SaveChangesAsync([orderReturn]);
@@ -180,16 +183,10 @@ public class ReturnFlowService : IReturnFlowService
         return orderReturn;
     }
 
-    /// <summary>
-    /// States a buyer may still withdraw from.
-    /// </summary>
-    /// <remarks>
-    /// Requested is included per the spec's transition table. It does let a buyer pull a return out
-    /// from under an agent who is already looking at it — there is no agent side yet, so nothing can
-    /// collide today, and a store that later wants a stricter rule narrows this to Draft alone.
-    /// </remarks>
-    protected virtual ISet<string> CancellableStatuses { get; } =
-        new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ReturnStatus.Draft, ReturnStatus.Requested };
+    public virtual IList<ReturnFlowAction> GetAvailableActions(Return orderReturn)
+    {
+        return _stateProvider.GetActions(orderReturn);
+    }
 
     /// <summary>
     /// Every returned line must carry at least one photo or document, when the store asks for it.
@@ -258,7 +255,7 @@ public class ReturnFlowService : IReturnFlowService
     {
         var orderReturn = await GetOwnedReturnAsync(returnId, context);
 
-        if (!ReturnStatus.Draft.EqualsIgnoreCase(orderReturn.Status))
+        if (!_stateProvider.IsAllowed(ReturnAction.Edit, orderReturn.Status))
         {
             throw new ReturnFlowException(ReturnFlowError.WrongStatus, $"Return '{returnId}' is '{orderReturn.Status}', only a draft can be changed.");
         }

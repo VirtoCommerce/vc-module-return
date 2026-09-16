@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using GraphQL.MicrosoftDI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -62,6 +62,7 @@ namespace VirtoCommerce.ReturnModule.Web
             serviceCollection.AddTransient<IReturnQuantityService, ReturnQuantityService>();
             serviceCollection.AddTransient<IReturnEligibilityService, ReturnEligibilityService>();
             serviceCollection.AddTransient<IReturnAttachmentService, ReturnAttachmentService>();
+            serviceCollection.AddTransient<IReturnStateProvider, ReturnStateProvider>();
             serviceCollection.AddTransient<IReturnFlowService, ReturnFlowService>();
 
             // GraphQL
