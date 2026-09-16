@@ -112,6 +112,15 @@
       "PartiallyApproved": "Aprobada parcialmente",
       "Rejected": "Rechazada",
       "Cancelled": "Cancelada"
+    },
+    "Return.Reasons": {
+      "title": "Motivos de devolución",
+      "description": "Motivos que el comprador elige por línea",
+      "FaultyOnArrival": "Defectuoso a la llegada",
+      "DamagedInTransit": "Dañado en el transporte",
+      "WrongItemDelivered": "Artículo equivocado",
+      "OrderedByMistake": "Pedido por error",
+      "NoLongerNeeded": "Ya no se necesita"
     }
   }
 }

@@ -112,6 +112,15 @@
       "PartiallyApproved": "部分批准",
       "Rejected": "已拒绝",
       "Cancelled": "已取消"
+    },
+    "Return.Reasons": {
+      "title": "退货原因",
+      "description": "买家为每条明细选择的原因",
+      "FaultyOnArrival": "到货时已损坏",
+      "DamagedInTransit": "运输途中损坏",
+      "WrongItemDelivered": "发错商品",
+      "OrderedByMistake": "误下订单",
+      "NoLongerNeeded": "不再需要"
     }
   }
 }

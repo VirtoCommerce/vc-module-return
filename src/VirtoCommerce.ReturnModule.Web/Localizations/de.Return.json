@@ -112,6 +112,15 @@
       "PartiallyApproved": "Teilweise genehmigt",
       "Rejected": "Abgelehnt",
       "Cancelled": "Storniert"
+    },
+    "Return.Reasons": {
+      "title": "Rücksendegründe",
+      "description": "Gründe, die der Käufer je Position wählt",
+      "FaultyOnArrival": "Bei Lieferung defekt",
+      "DamagedInTransit": "Transportschaden",
+      "WrongItemDelivered": "Falscher Artikel geliefert",
+      "OrderedByMistake": "Versehentlich bestellt",
+      "NoLongerNeeded": "Nicht mehr benötigt"
     }
   }
 }

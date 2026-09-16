@@ -112,6 +112,15 @@
       "PartiallyApproved": "Częściowo zatwierdzony",
       "Rejected": "Odrzucony",
       "Cancelled": "Anulowany"
+    },
+    "Return.Reasons": {
+      "title": "Powody zwrotu",
+      "description": "Powody wybierane przez kupującego dla każdej pozycji",
+      "FaultyOnArrival": "Uszkodzony przy dostawie",
+      "DamagedInTransit": "Uszkodzony w transporcie",
+      "WrongItemDelivered": "Dostarczono niewłaściwy produkt",
+      "OrderedByMistake": "Zamówiony przez pomyłkę",
+      "NoLongerNeeded": "Już niepotrzebny"
     }
   }
 }

@@ -112,6 +112,15 @@
       "PartiallyApproved": "Delvis godkjent",
       "Rejected": "Avvist",
       "Cancelled": "Kansellert"
+    },
+    "Return.Reasons": {
+      "title": "Returårsaker",
+      "description": "Årsaker kjøperen velger per linje",
+      "FaultyOnArrival": "Defekt ved levering",
+      "DamagedInTransit": "Skadet under transport",
+      "WrongItemDelivered": "Feil vare levert",
+      "OrderedByMistake": "Bestilt ved en feil",
+      "NoLongerNeeded": "Ikke lenger nødvendig"
     }
   }
 }

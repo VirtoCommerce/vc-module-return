@@ -112,6 +112,15 @@
       "PartiallyApproved": "Osittain hyväksytty",
       "Rejected": "Hylätty",
       "Cancelled": "Peruutettu"
+    },
+    "Return.Reasons": {
+      "title": "Palautuksen syyt",
+      "description": "Syyt, jotka ostaja valitsee riveittäin",
+      "FaultyOnArrival": "Viallinen saapuessaan",
+      "DamagedInTransit": "Vaurioitunut kuljetuksessa",
+      "WrongItemDelivered": "Väärä tuote toimitettu",
+      "OrderedByMistake": "Tilattu vahingossa",
+      "NoLongerNeeded": "Ei enää tarpeen"
     }
   }
 }

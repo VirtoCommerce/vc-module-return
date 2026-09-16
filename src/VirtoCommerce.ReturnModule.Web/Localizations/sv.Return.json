@@ -112,6 +112,15 @@
       "PartiallyApproved": "Delvis godkänd",
       "Rejected": "Avvisad",
       "Cancelled": "Avbruten"
+    },
+    "Return.Reasons": {
+      "title": "Returorsaker",
+      "description": "Orsaker som köparen väljer per rad",
+      "FaultyOnArrival": "Defekt vid leverans",
+      "DamagedInTransit": "Skadad under transport",
+      "WrongItemDelivered": "Fel vara levererad",
+      "OrderedByMistake": "Beställd av misstag",
+      "NoLongerNeeded": "Behövs inte längre"
     }
   }
 }

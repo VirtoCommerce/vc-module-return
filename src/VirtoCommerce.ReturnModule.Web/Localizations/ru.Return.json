@@ -112,6 +112,15 @@
       "PartiallyApproved": "Частично одобрен",
       "Rejected": "Отклонён",
       "Cancelled": "Отменён"
+    },
+    "Return.Reasons": {
+      "title": "Причины возврата",
+      "description": "Причины, которые покупатель выбирает для каждой строки",
+      "FaultyOnArrival": "Брак при получении",
+      "DamagedInTransit": "Повреждён при доставке",
+      "WrongItemDelivered": "Привезли не тот товар",
+      "OrderedByMistake": "Заказан по ошибке",
+      "NoLongerNeeded": "Больше не нужен"
     }
   }
 }

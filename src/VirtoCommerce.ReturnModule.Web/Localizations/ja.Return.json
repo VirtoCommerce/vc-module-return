@@ -112,6 +112,15 @@
       "PartiallyApproved": "一部承認",
       "Rejected": "却下",
       "Cancelled": "キャンセル"
+    },
+    "Return.Reasons": {
+      "title": "返品理由",
+      "description": "購入者が明細ごとに選ぶ理由",
+      "FaultyOnArrival": "到着時に不良",
+      "DamagedInTransit": "輸送中の破損",
+      "WrongItemDelivered": "誤った商品が届いた",
+      "OrderedByMistake": "誤って注文",
+      "NoLongerNeeded": "不要になった"
     }
   }
 }
