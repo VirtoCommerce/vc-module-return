@@ -23,11 +23,11 @@ public class ReturnsQueryBuilder : SearchQueryBuilder<ReturnsQuery, ReturnSearch
     {
         await base.BeforeMediatorSend(context, request);
 
-        request.CustomerId = context.GetCurrentUserId();
-
-        if (string.IsNullOrEmpty(request.CustomerId))
+        if (!context.IsAuthenticated())
         {
             throw AuthorizationError.AnonymousAccessDenied();
         }
+
+        request.CustomerId = context.GetCurrentUserId();
     }
 }

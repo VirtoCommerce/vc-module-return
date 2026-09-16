@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using GraphQL;
 using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.ReturnModule.Core.Models;
@@ -22,11 +22,11 @@ public class ReturnQueryBuilder : QueryBuilder<ReturnQuery, Return, ReturnType>
     {
         await base.BeforeMediatorSend(context, request);
 
-        request.CustomerId = context.GetCurrentUserId();
-
-        if (string.IsNullOrEmpty(request.CustomerId))
+        if (!context.IsAuthenticated())
         {
             throw AuthorizationError.AnonymousAccessDenied();
         }
+
+        request.CustomerId = context.GetCurrentUserId();
     }
 }

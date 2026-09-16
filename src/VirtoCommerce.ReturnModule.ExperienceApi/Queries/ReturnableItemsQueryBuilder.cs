@@ -10,6 +10,7 @@ using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.ExperienceApi.Schemas;
 using VirtoCommerce.Xapi.Core.BaseQueries;
 using VirtoCommerce.Xapi.Core.Extensions;
+using VirtoCommerce.Xapi.Core.Security.Authorization;
 using VirtoCommerce.XOrder.Data.Authorization;
 
 namespace VirtoCommerce.ReturnModule.ExperienceApi.Queries;
@@ -26,6 +27,11 @@ public class ReturnableItemsQueryBuilder : QueryBuilder<ReturnableItemsQuery, IL
     protected override async Task BeforeMediatorSend(IResolveFieldContext<object> context, ReturnableItemsQuery request)
     {
         await base.BeforeMediatorSend(context, request);
+
+        if (!context.IsAuthenticated())
+        {
+            throw AuthorizationError.AnonymousAccessDenied();
+        }
 
         var orderService = context.RequestServices.GetRequiredService<ICustomerOrderService>();
         var order = await orderService.GetNoCloneAsync(request.OrderId);

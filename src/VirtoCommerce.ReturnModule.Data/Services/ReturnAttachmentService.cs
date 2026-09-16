@@ -26,7 +26,7 @@ public class ReturnAttachmentService : IReturnAttachmentService
         _fileUploadService = fileUploadService;
     }
 
-    public virtual Task<IList<File>> UpdateAttachments(Return orderReturn, ReturnLineItem lineItem, IList<string> urls)
+    public virtual Task<ReturnAttachmentChanges> UpdateAttachments(Return orderReturn, ReturnLineItem lineItem, IList<string> urls)
     {
         ArgumentNullException.ThrowIfNull(orderReturn);
         ArgumentNullException.ThrowIfNull(lineItem);
@@ -34,7 +34,7 @@ public class ReturnAttachmentService : IReturnAttachmentService
         return UpdateAttachmentsInternal(orderReturn, lineItem, urls);
     }
 
-    protected virtual async Task<IList<File>> UpdateAttachmentsInternal(Return orderReturn, ReturnLineItem lineItem, IList<string> urls)
+    protected virtual async Task<ReturnAttachmentChanges> UpdateAttachmentsInternal(Return orderReturn, ReturnLineItem lineItem, IList<string> urls)
     {
         lineItem.Attachments ??= [];
 
@@ -42,7 +42,7 @@ public class ReturnAttachmentService : IReturnAttachmentService
         var current = lineItem.Attachments.Select(x => x.Url).ToList();
 
         var files = await GetFilesAsync(wanted.Concat(current));
-        var changedFiles = new List<File>();
+        var changes = new ReturnAttachmentChanges();
 
         var filesByUrl = files
             .Where(x => x.Scope.EqualsIgnoreCase(ModuleConstants.ReturnAttachmentsScope) &&
@@ -53,11 +53,11 @@ public class ReturnAttachmentService : IReturnAttachmentService
         {
             lineItem.Attachments.Remove(attachment);
 
+            // Ownership is left alone here: another line of the same return may still show this
+            // file, and only the caller can see all of them.
             if (filesByUrl.TryGetValue(attachment.Url, out var file))
             {
-                file.OwnerEntityId = null;
-                file.OwnerEntityType = null;
-                changedFiles.Add(file);
+                changes.Released.Add(file);
             }
         }
 
@@ -72,10 +72,10 @@ public class ReturnAttachmentService : IReturnAttachmentService
 
             file.OwnerEntityId = orderReturn.Id;
             file.OwnerEntityType = nameof(Return);
-            changedFiles.Add(file);
+            changes.Claimed.Add(file);
         }
 
-        return changedFiles;
+        return changes;
     }
 
     public virtual async Task SaveFiles(IList<File> files)
@@ -83,6 +83,14 @@ public class ReturnAttachmentService : IReturnAttachmentService
         if (files?.Count > 0)
         {
             await _fileUploadService.SaveChangesAsync(files);
+        }
+    }
+
+    public virtual async Task DeleteFiles(IList<File> files)
+    {
+        if (files?.Count > 0)
+        {
+            await _fileUploadService.DeleteAsync(files.Select(x => x.Id).ToList());
         }
     }
 

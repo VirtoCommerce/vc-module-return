@@ -54,7 +54,10 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
             return false;
         }
 
-        // An unclaimed file is what the buyer has just uploaded and not yet attached to anything.
+        // The only way into this branch is a file just uploaded and not yet attached: a file dropped
+        // from a draft is deleted rather than unowned, so it never returns to this pool. The
+        // platform grants an unowned file to anyone at all; requiring authentication is as narrow
+        // as this can get without an uploader on the model to compare against.
         if (file.OwnerIsEmpty())
         {
             return true;

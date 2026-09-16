@@ -26,12 +26,12 @@ public class CreateReturnCommandBuilder : CommandBuilder<CreateReturnCommand, Re
     {
         await base.BeforeMediatorSend(context, request);
 
-        request.CustomerId = context.GetCurrentUserId();
-
-        if (string.IsNullOrEmpty(request.CustomerId))
+        if (!context.IsAuthenticated())
         {
             throw AuthorizationError.AnonymousAccessDenied();
         }
+
+        request.CustomerId = context.GetCurrentUserId();
 
         var orderService = context.RequestServices.GetRequiredService<ICustomerOrderService>();
         var order = await orderService.GetNoCloneAsync(request.OrderId);

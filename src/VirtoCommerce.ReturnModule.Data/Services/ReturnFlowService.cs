@@ -65,6 +65,8 @@ public class ReturnFlowService : IReturnFlowService
             throw new ReturnFlowException(ReturnFlowError.NoItems, "A return needs at least one line.");
         }
 
+        ValidateNoDuplicateLines(request.Items);
+
         var orderLineItems = (order.Items ?? []).ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
 
         var result = AbstractTypeFactory<Return>.TryCreateInstance();
@@ -89,10 +91,10 @@ public class ReturnFlowService : IReturnFlowService
         // patched back over the persisted rows.
         var saved = await _returnService.GetByIdAsync(result.Id);
 
-        var changedFiles = await UpdateAttachments(saved, request.Items);
+        var changes = await UpdateAttachments(saved, request.Items);
 
         await _returnService.SaveChangesAsync([saved]);
-        await _attachmentService.SaveFiles(changedFiles);
+        await ApplyAttachmentChanges(saved, changes);
 
         return saved;
     }
@@ -106,7 +108,7 @@ public class ReturnFlowService : IReturnFlowService
         var order = await _orderService.GetNoCloneAsync(orderReturn.OrderId);
         var orderLineItems = (order?.Items ?? []).ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
 
-        var changedFiles = new List<File>();
+        var changes = new ReturnAttachmentChanges();
 
         orderReturn.CustomerReference = request.CustomerReference ?? orderReturn.CustomerReference;
         orderReturn.CustomerComment = request.CustomerComment ?? orderReturn.CustomerComment;
@@ -118,27 +120,29 @@ public class ReturnFlowService : IReturnFlowService
                 throw new ReturnFlowException(ReturnFlowError.NoItems, "A return needs at least one line.");
             }
 
+            ValidateNoDuplicateLines(request.Items);
+
             var keptLineItems = request.Items.Select(x => UpdateLineItem(x, orderReturn, orderLineItems)).ToList();
 
-            changedFiles = await ReleaseAttachmentsOfDroppedLinesAsync(orderReturn, keptLineItems);
+            changes = await ReleaseAttachmentsOfDroppedLinesAsync(orderReturn, keptLineItems);
 
             orderReturn.LineItems = keptLineItems;
 
-            changedFiles.AddRange(await UpdateAttachments(orderReturn, request.Items));
+            Merge(changes, await UpdateAttachments(orderReturn, request.Items));
         }
 
         // The return goes first: a failure there must not leave a file reassigned.
         await _returnService.SaveChangesAsync([orderReturn]);
-        await _attachmentService.SaveFiles(changedFiles);
+        await ApplyAttachmentChanges(orderReturn, changes);
 
         return orderReturn;
     }
 
     // A line the buyer removed takes its rows with it, but the files themselves would stay stamped
     // with this return and never come back to the pool.
-    protected virtual async Task<List<File>> ReleaseAttachmentsOfDroppedLinesAsync(Return orderReturn, IList<ReturnLineItem> keptLineItems)
+    protected virtual async Task<ReturnAttachmentChanges> ReleaseAttachmentsOfDroppedLinesAsync(Return orderReturn, IList<ReturnLineItem> keptLineItems)
     {
-        var result = new List<File>();
+        var result = new ReturnAttachmentChanges();
 
         var dropped = (orderReturn.LineItems ?? [])
             .Where(x => !keptLineItems.Contains(x))
@@ -146,15 +150,15 @@ public class ReturnFlowService : IReturnFlowService
 
         foreach (var lineItem in dropped)
         {
-            result.AddRange(await _attachmentService.UpdateAttachments(orderReturn, lineItem, []));
+            Merge(result, await _attachmentService.UpdateAttachments(orderReturn, lineItem, []));
         }
 
         return result;
     }
 
-    protected virtual async Task<List<File>> UpdateAttachments(Return orderReturn, IList<CreateReturnItemRequest> items)
+    protected virtual async Task<ReturnAttachmentChanges> UpdateAttachments(Return orderReturn, IList<CreateReturnItemRequest> items)
     {
-        var result = new List<File>();
+        var result = new ReturnAttachmentChanges();
 
         foreach (var item in items.Where(x => x.AttachmentUrls != null))
         {
@@ -163,12 +167,39 @@ public class ReturnFlowService : IReturnFlowService
 
             if (lineItem != null)
             {
-                result.AddRange(await _attachmentService.UpdateAttachments(orderReturn, lineItem, item.AttachmentUrls));
+                Merge(result, await _attachmentService.UpdateAttachments(orderReturn, lineItem, item.AttachmentUrls));
             }
         }
 
         return result;
     }
+
+    protected static void Merge(ReturnAttachmentChanges target, ReturnAttachmentChanges source)
+    {
+        ((List<File>)target.Claimed).AddRange(source.Claimed);
+        ((List<File>)target.Released).AddRange(source.Released);
+    }
+
+    // A file the buyer dropped from one line may still hang off another, so what to delete can only
+    // be decided once every line has been processed.
+    protected virtual async Task ApplyAttachmentChanges(Return orderReturn, ReturnAttachmentChanges changes)
+    {
+        await _attachmentService.SaveFiles(changes.Claimed);
+
+        var stillUsed = (orderReturn.LineItems ?? [])
+            .SelectMany(x => x.Attachments ?? [])
+            .Select(x => x.Url)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var orphaned = changes.Released
+            .Where(x => !stillUsed.Contains(GetUrl(x)))
+            .DistinctBy(x => x.Id)
+            .ToList();
+
+        await _attachmentService.DeleteFiles(orphaned);
+    }
+
+    protected static string GetUrl(File file) => $"/api/files/{file.Id}";
 
     public virtual async Task<Return> Submit(string returnId, ReturnFlowContext context, CancellationToken cancellationToken = default)
     {
@@ -252,6 +283,22 @@ public class ReturnFlowService : IReturnFlowService
         }
     }
 
+    // Availability is held per order line, so two draft lines pointing at the same one must be
+    // validated together - checked row by row they would each pass against the full amount.
+    protected virtual void ValidateNoDuplicateLines(IList<CreateReturnItemRequest> items)
+    {
+        var duplicate = items
+            .GroupBy(x => x.OrderLineItemId ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault(x => x.Count() > 1);
+
+        if (duplicate != null)
+        {
+            throw new ReturnFlowException(
+                ReturnFlowError.DuplicateLine,
+                $"Order line item '{duplicate.Key}' is listed more than once. Ask for the total on a single line.");
+        }
+    }
+
     protected virtual async Task ValidateAvailabilityAsync(Return orderReturn, CustomerOrder order)
     {
         var returnableItems = (await _eligibilityService.GetReturnableItems(order, orderReturn.Id))
@@ -271,11 +318,26 @@ public class ReturnFlowService : IReturnFlowService
                     $"Line item '{lineItem.OrderLineItemId}' cannot be returned: {returnableItem.IneligibilityReason}.");
             }
 
-            if (lineItem.Quantity < 1 || lineItem.Quantity > returnableItem.ReturnableQuantity)
+            if (lineItem.Quantity < 1)
+            {
+                throw new ReturnFlowException(
+                    ReturnFlowError.InvalidQuantity,
+                    $"Line item '{lineItem.OrderLineItemId}': asked for {lineItem.Quantity}.");
+            }
+        }
+
+        // Summed per order line: the quantity service aggregates the same way, so validating each
+        // row on its own would let a draft claim the full amount once per row.
+        foreach (var group in orderReturn.LineItems.GroupBy(x => x.OrderLineItemId ?? string.Empty, StringComparer.OrdinalIgnoreCase))
+        {
+            var asked = group.Sum(x => x.Quantity);
+            var available = returnableItems[group.Key].ReturnableQuantity;
+
+            if (asked > available)
             {
                 throw new ReturnFlowException(
                     ReturnFlowError.QuantityUnavailable,
-                    $"Line item '{lineItem.OrderLineItemId}': asked for {lineItem.Quantity}, {returnableItem.ReturnableQuantity} available.");
+                    $"Line item '{group.Key}': asked for {asked}, {available} available.");
             }
         }
     }

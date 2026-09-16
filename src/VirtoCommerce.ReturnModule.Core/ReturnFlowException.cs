@@ -9,6 +9,7 @@ public static class ReturnFlowError
     public const string LineItemNotFound = "LINE_ITEM_NOT_FOUND";
     public const string InvalidQuantity = "INVALID_QUANTITY";
     public const string NoItems = "NO_ITEMS";
+    public const string DuplicateLine = "DUPLICATE_LINE";
     public const string ReturnNotFound = "RETURN_NOT_FOUND";
     public const string WrongStatus = "WRONG_STATUS";
     public const string QuantityUnavailable = "RETURN_QUANTITY_UNAVAILABLE";

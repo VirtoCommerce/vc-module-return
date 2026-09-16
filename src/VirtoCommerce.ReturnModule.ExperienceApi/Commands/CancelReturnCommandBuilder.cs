@@ -22,11 +22,11 @@ public class CancelReturnCommandBuilder : CommandBuilder<CancelReturnCommand, Re
     {
         await base.BeforeMediatorSend(context, request);
 
-        request.CustomerId = context.GetCurrentUserId();
-
-        if (string.IsNullOrEmpty(request.CustomerId))
+        if (!context.IsAuthenticated())
         {
             throw AuthorizationError.AnonymousAccessDenied();
         }
+
+        request.CustomerId = context.GetCurrentUserId();
     }
 }
