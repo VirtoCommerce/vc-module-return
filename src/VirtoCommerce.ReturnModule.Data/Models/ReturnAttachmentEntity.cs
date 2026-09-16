@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Domain;
@@ -29,8 +29,7 @@ namespace VirtoCommerce.ReturnModule.Data.Models
 
         public ReturnAttachment ToModel(ReturnAttachment model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             model.Id = Id;
             model.CreatedBy = CreatedBy;
@@ -49,8 +48,7 @@ namespace VirtoCommerce.ReturnModule.Data.Models
 
         public ReturnAttachmentEntity FromModel(ReturnAttachment model, PrimaryKeyResolvingMap pkMap)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             pkMap.AddPair(model, this);
 
@@ -71,8 +69,7 @@ namespace VirtoCommerce.ReturnModule.Data.Models
 
         public void Patch(ReturnAttachmentEntity target)
         {
-            if (target == null)
-                throw new ArgumentNullException(nameof(target));
+            ArgumentNullException.ThrowIfNull(target);
 
             target.Name = Name;
             target.Url = Url;

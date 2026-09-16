@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using EntityFrameworkCore.Triggers;
 using Microsoft.EntityFrameworkCore;
 using VirtoCommerce.ReturnModule.Data.Models;
@@ -23,14 +23,14 @@ namespace VirtoCommerce.ReturnModule.Data.Repositories
             #region Return
 
             modelBuilder.Entity<ReturnEntity>().ToTable("Return").HasKey(x => x.Id);
-            modelBuilder.Entity<ReturnEntity>().Property(x => x.Id).HasMaxLength(128).ValueGeneratedOnAdd();
+            modelBuilder.Entity<ReturnEntity>().Property(x => x.Id).HasMaxLength(IdLength).ValueGeneratedOnAdd();
 
             #endregion Return
 
             #region ReturnLineItem
 
             modelBuilder.Entity<ReturnLineItemEntity>().ToTable("ReturnLineItem").HasKey(x => x.Id);
-            modelBuilder.Entity<ReturnLineItemEntity>().Property(x => x.Id).HasMaxLength(128).ValueGeneratedOnAdd();
+            modelBuilder.Entity<ReturnLineItemEntity>().Property(x => x.Id).HasMaxLength(IdLength).ValueGeneratedOnAdd();
             modelBuilder.Entity<ReturnLineItemEntity>().HasOne(x => x.Return).WithMany(x => x.LineItems)
                 .HasForeignKey(x => x.ReturnId).OnDelete(DeleteBehavior.Cascade);
 
@@ -39,7 +39,7 @@ namespace VirtoCommerce.ReturnModule.Data.Repositories
             #region ReturnAttachment
 
             modelBuilder.Entity<ReturnAttachmentEntity>().ToTable("ReturnAttachment").HasKey(x => x.Id);
-            modelBuilder.Entity<ReturnAttachmentEntity>().Property(x => x.Id).HasMaxLength(128).ValueGeneratedOnAdd();
+            modelBuilder.Entity<ReturnAttachmentEntity>().Property(x => x.Id).HasMaxLength(IdLength).ValueGeneratedOnAdd();
             modelBuilder.Entity<ReturnAttachmentEntity>().HasOne(x => x.ReturnLineItem).WithMany(x => x.Attachments)
                 .HasForeignKey(x => x.ReturnLineItemId).OnDelete(DeleteBehavior.Cascade);
 

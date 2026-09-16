@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -48,6 +48,11 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             if (!criteria.OrderIds.IsNullOrEmpty())
             {
                 query = query.Where(x => criteria.OrderIds.Contains(x.OrderId));
+            }
+
+            if (!string.IsNullOrEmpty(criteria.CustomerId))
+            {
+                query = query.Where(x => x.CustomerId == criteria.CustomerId);
             }
 
             if (!criteria.Statuses.IsNullOrEmpty())

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using VirtoCommerce.Platform.Core.Settings;
 
 namespace VirtoCommerce.ReturnModule.Core
@@ -29,6 +29,12 @@ namespace VirtoCommerce.ReturnModule.Core
         {
             public static class General
             {
+                /// <summary>
+                /// A month, counted from delivery — long enough to notice a fault, short enough that
+                /// a store can shorten it rather than having to lengthen it.
+                /// </summary>
+                private const int DefaultWindowDays = 30;
+
                 public static SettingDescriptor OrderStatus { get; } = new SettingDescriptor
                 {
                     Name = "Return.Status",
@@ -69,7 +75,7 @@ namespace VirtoCommerce.ReturnModule.Core
                     Name = "Return.WindowDays",
                     ValueType = SettingValueType.PositiveInteger,
                     GroupName = "Return|Return",
-                    DefaultValue = 30
+                    DefaultValue = DefaultWindowDays
                 };
 
                 /// <summary>
