@@ -51,9 +51,19 @@ public class ReturnSearchServiceTests
     [Fact]
     public void Statuses_FiltersByAnyOfThem()
     {
-        var found = Search(new ReturnSearchCriteria { Statuses = [ReturnStatus.Draft, ReturnStatus.Cancelled] });
+        var found = Search(new ReturnSearchCriteria { Statuses = [ReturnStatus.Draft] });
 
-        Assert.Equal(new[] { "r2", "r3" }, found.Select(x => x.Id).OrderBy(x => x).ToArray());
+        Assert.Equal("r2", Assert.Single(found).Id);
+    }
+
+    [Theory]
+    [InlineData(ReturnStatus.Cancelled)]
+    [InlineData("Canceled")]
+    public void Statuses_EitherSpellingOfCancelled_FindsBoth(string asked)
+    {
+        var found = Search(new ReturnSearchCriteria { Statuses = [asked] });
+
+        Assert.Equal(new[] { "r3", "r4" }, found.Select(x => x.Id).OrderBy(x => x).ToArray());
     }
 
     [Fact]
@@ -61,7 +71,7 @@ public class ReturnSearchServiceTests
     {
         var found = Search(new ReturnSearchCriteria { Statuses = [] });
 
-        Assert.Equal(3, found.Count);
+        Assert.Equal(4, found.Count);
     }
 
     [Fact]
@@ -93,7 +103,7 @@ public class ReturnSearchServiceTests
     {
         var found = Search(new ReturnSearchCriteria { StartDate = _created });
 
-        Assert.Equal(new[] { "r1", "r3" }, found.Select(x => x.Id).OrderBy(x => x).ToArray());
+        Assert.Equal(new[] { "r1", "r3", "r4" }, found.Select(x => x.Id).OrderBy(x => x).ToArray());
     }
 
     [Fact]
@@ -160,6 +170,7 @@ public class ReturnSearchServiceTests
                 sku: "ARS-P3265LV", name: "Access control panel"),
             MakeReturn("r2", ReturnStatus.Draft, _created.AddDays(-1)),
             MakeReturn("r3", ReturnStatus.Cancelled, _created.AddDays(1)),
+            MakeReturn("r4", "Canceled", _created.AddDays(2)),
         }.BuildMock();
 
         var repository = new Mock<IReturnRepository>();

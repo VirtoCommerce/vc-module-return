@@ -35,11 +35,11 @@ namespace VirtoCommerce.ReturnModule.Core
                     IsDictionary = true,
                     IsLocalizable = true,
                     DefaultValue = "New",
-                    // The first four shipped with the module; the rest are the statuses the buyer
-                    // flow writes.
+                    // The first five shipped with the module; the rest are the statuses the buyer
+                    // flow writes. Both spellings of cancelled are here on purpose.
                     AllowedValues = new[]
                     {
-                        "New", "Approved", "Completed", "Processing",
+                        "New", "Approved", "Completed", "Canceled", "Processing",
                         ReturnStatus.Draft, ReturnStatus.Requested, ReturnStatus.PartiallyApproved,
                         ReturnStatus.Rejected, ReturnStatus.Cancelled,
                     }

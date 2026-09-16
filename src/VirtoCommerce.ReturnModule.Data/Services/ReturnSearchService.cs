@@ -7,6 +7,7 @@ using VirtoCommerce.Platform.Core.Caching;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.GenericCrud;
 using VirtoCommerce.Platform.Data.GenericCrud;
+using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Models.Search;
 using VirtoCommerce.ReturnModule.Core.Services;
@@ -74,7 +75,8 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
             if (!criteria.Statuses.IsNullOrEmpty())
             {
-                query = query.Where(x => criteria.Statuses.Contains(x.Status));
+                var statuses = ExpandStatuses(criteria.Statuses);
+                query = query.Where(x => statuses.Contains(x.Status));
             }
 
             if (criteria.StartDate != null)
@@ -108,6 +110,28 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
             return sortInfos;
         }
+
+        // The shipped dictionary has always offered both spellings of cancelled, so rows written
+        // before the buyer flow carry the other one. Asking for either must find both.
+        protected virtual IList<string> ExpandStatuses(IList<string> statuses)
+        {
+            var result = new List<string>(statuses);
+
+            foreach (var group in StatusSynonyms)
+            {
+                if (result.Any(x => group.Contains(x, StringComparer.OrdinalIgnoreCase)))
+                {
+                    result.AddRange(group.Except(result, StringComparer.OrdinalIgnoreCase));
+                }
+            }
+
+            return result;
+        }
+
+        protected virtual IList<string[]> StatusSynonyms { get; } =
+        [
+            [ReturnStatus.Cancelled, "Canceled"],
+        ];
 
         protected virtual Expression<Func<ReturnEntity, bool>> GetKeywordPredicate(ReturnSearchCriteria criteria)
         {
