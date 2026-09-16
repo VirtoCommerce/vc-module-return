@@ -145,7 +145,7 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             }
         }
 
-        private static void FillMissingSnapshots(IEnumerable<Return> returns, IDictionary<string, CustomerOrder> ordersById)
+        private static void FillMissingSnapshots(IEnumerable<Return> returns, Dictionary<string, CustomerOrder> ordersById)
         {
             foreach (var orderReturn in returns)
             {

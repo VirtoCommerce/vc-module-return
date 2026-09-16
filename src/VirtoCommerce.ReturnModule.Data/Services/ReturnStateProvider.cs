@@ -18,8 +18,6 @@ public class ReturnStateProvider : IReturnStateProvider
         new() { Action = ReturnAction.Cancel, FromStatus = ReturnStatus.Requested, ToStatus = ReturnStatus.Cancelled },
     ];
 
-    public virtual IList<string> Actions => Transitions.Select(x => x.Action).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-
     public virtual bool IsAllowed(string action, string status)
     {
         return Find(action, status) != null;
@@ -34,7 +32,7 @@ public class ReturnStateProvider : IReturnStateProvider
     {
         ArgumentNullException.ThrowIfNull(orderReturn);
 
-        return Actions
+        return GetActionNames()
             .Select(action =>
             {
                 var result = AbstractTypeFactory<ReturnFlowAction>.TryCreateInstance();
@@ -45,6 +43,11 @@ public class ReturnStateProvider : IReturnStateProvider
                 return result;
             })
             .ToList();
+    }
+
+    protected virtual IEnumerable<string> GetActionNames()
+    {
+        return Transitions.Select(x => x.Action).Distinct(StringComparer.OrdinalIgnoreCase);
     }
 
     protected virtual ReturnStateTransition Find(string action, string status)

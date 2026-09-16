@@ -5,8 +5,6 @@ namespace VirtoCommerce.ReturnModule.Core.Services;
 
 public interface IReturnStateProvider
 {
-    IList<string> Actions { get; }
-
     bool IsAllowed(string action, string status);
 
     string GetNextStatus(string action, string status);
