@@ -34,7 +34,7 @@ Finally, you can use the search box to type a keyword or key phrase and thus fil
 
 ![Using the search feature](media/06-return-list-search-new-only.png) 
 
-***Important:*** *You can use both sorting and searching/filtering for all columns, except these three: Order Number, Customer, and Item Count. This is because these columns are borrowed from the Order module and thus are not native to the Return module.*
+***Important:*** *The admin grid does not offer sorting on Order Number, Customer or Item Count. Order Number and Customer are now native columns on the return and both are searchable; Item Count is computed and has nothing to sort on.*
 
 ## Creating Return from List
 There are two ways to create a return. The first one is creating it from a return list with the _Add new return_ located on the toolbar:
@@ -124,9 +124,9 @@ Here is an example of search response:
           "returnId": "2fffc88f-014a-48a0-b80d-29a178a43b29",
           "orderLineItemId": "4c893e7fe56348b5a05c8b4671c5f140",
           "quantity": 9,
-          "availableQuantity": 0,
           "price": 589.99,
-          "reason": "Not wanted",
+          "reasonCode": "FaultyOnArrival",
+          "reasonComment": "Arrived cracked",
           "createdDate": "2022-03-14T07:17:08.074618Z",
           "modifiedDate": "2022-03-15T11:47:47.6054095Z",
           "createdBy": "admin",
@@ -137,9 +137,8 @@ Here is an example of search response:
           "returnId": "2fffc88f-014a-48a0-b80d-29a178a43b29",
           "orderLineItemId": "c32a0b78aac84cb8becf6657fe9895fa",
           "quantity": 7,
-          "availableQuantity": 0,
           "price": 399,
-          "reason": "Not needed",
+          "reasonCode": "NoLongerNeeded",
           "createdDate": "2022-03-14T07:17:08.0818378Z",
           "modifiedDate": "2022-03-15T11:47:16.6209129Z",
           "createdBy": "admin",
@@ -167,6 +166,8 @@ The API has the following URL:
 ```
 
 It receives _Order ID_ as a parameter and returns a quantity available for return for each order's line item considering all existing returns for the order in question.
+
+***Note:*** *this endpoint counts every return regardless of its status, so a cancelled or rejected one still consumes quantity. The storefront does not use it; `returnableItems` in the xAPI applies the status rules described under Quantities.*
 Here is a response example:
 
 ```json
