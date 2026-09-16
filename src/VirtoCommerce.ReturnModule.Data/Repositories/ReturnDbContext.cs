@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using EntityFrameworkCore.Triggers;
 using Microsoft.EntityFrameworkCore;
-using VirtoCommerce.ReturnModule.Data.Models;
 using VirtoCommerce.Platform.Data.Infrastructure;
+using VirtoCommerce.ReturnModule.Data.Models;
 
 namespace VirtoCommerce.ReturnModule.Data.Repositories
 {

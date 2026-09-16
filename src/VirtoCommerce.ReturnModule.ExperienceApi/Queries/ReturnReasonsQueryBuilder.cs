@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using GraphQL.Types;
 using GraphQL;
+using GraphQL.Types;
 using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.ExperienceApi.Schemas;

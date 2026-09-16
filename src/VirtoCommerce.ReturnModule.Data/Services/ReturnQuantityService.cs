@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;

@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Moq;
-using System.Linq;
 using VirtoCommerce.OrdersModule.Core.Model;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Settings;
-using VirtoCommerce.StoreModule.Core.Model;
-using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.Data.Services;
+using VirtoCommerce.StoreModule.Core.Model;
+using VirtoCommerce.StoreModule.Core.Services;
 using Xunit;
 
 namespace VirtoCommerce.ReturnModule.Tests;

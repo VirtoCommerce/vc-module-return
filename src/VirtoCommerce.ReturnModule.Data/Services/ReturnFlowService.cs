@@ -7,12 +7,12 @@ using VirtoCommerce.FileExperienceApi.Core.Models;
 using VirtoCommerce.OrdersModule.Core.Model;
 using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.Data.Validation;
 using VirtoCommerce.StoreModule.Core.Services;
-using VirtoCommerce.Platform.Core.Settings;
 
 namespace VirtoCommerce.ReturnModule.Data.Services;
 
