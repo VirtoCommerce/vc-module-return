@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using GraphQL;
 using GraphQL.Types;
 using VirtoCommerce.ReturnModule.Core.Models.Search;
@@ -8,10 +8,6 @@ namespace VirtoCommerce.ReturnModule.ExperienceApi.Queries;
 
 public class ReturnsQuery : SearchQuery<ReturnSearchResult>
 {
-    /// <summary>
-    /// Taken from the token by the query builder, never from an argument — a buyer must not be
-    /// able to ask for somebody else's returns.
-    /// </summary>
     public string CustomerId { get; set; }
 
     public IList<string> Statuses { get; set; }

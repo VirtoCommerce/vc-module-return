@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,7 +25,6 @@ public class ReturnPolicyQueryHandler : IQueryHandler<ReturnPolicyQuery, ReturnP
     {
         var store = await _storeService.GetNoCloneAsync(request.StoreId);
 
-        // An unknown store falls back to the descriptor defaults rather than failing the query.
         var settings = store?.Settings ?? Array.Empty<ObjectSettingEntry>() as IEnumerable<ObjectSettingEntry>;
 
         var result = AbstractTypeFactory<ReturnPolicy>.TryCreateInstance();

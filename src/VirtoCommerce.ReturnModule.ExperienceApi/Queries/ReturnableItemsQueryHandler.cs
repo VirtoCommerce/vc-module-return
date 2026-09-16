@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using VirtoCommerce.OrdersModule.Core.Services;
@@ -22,7 +22,6 @@ public class ReturnableItemsQueryHandler : IQueryHandler<ReturnableItemsQuery, I
 
     public virtual async Task<IList<ReturnableItem>> Handle(ReturnableItemsQuery request, CancellationToken cancellationToken)
     {
-        // Already loaded and authorized in the builder; the platform caches orders, so this is cheap.
         var order = await _orderService.GetNoCloneAsync(request.OrderId);
 
         return order == null

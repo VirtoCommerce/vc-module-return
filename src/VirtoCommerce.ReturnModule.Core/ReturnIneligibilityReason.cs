@@ -1,12 +1,7 @@
 ﻿namespace VirtoCommerce.ReturnModule.Core;
 
-/// <summary>
-/// Machine-readable reasons a line cannot be returned. The storefront localizes these —
-/// never show them to a buyer as-is.
-/// </summary>
 public static class ReturnIneligibilityReason
 {
-    /// <summary>The store has returns switched off entirely.</summary>
     public const string ReturnsDisabled = "RETURNS_DISABLED";
 
     public const string OrderStatusNotAllowed = "ORDER_STATUS_NOT_ALLOWED";

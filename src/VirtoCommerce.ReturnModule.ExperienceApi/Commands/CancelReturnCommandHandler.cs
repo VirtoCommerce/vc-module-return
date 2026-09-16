@@ -1,4 +1,4 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using GraphQL;
 using MediatR;
@@ -29,8 +29,6 @@ public class CancelReturnCommandHandler : IRequestHandler<CancelReturnCommand, R
         }
         catch (ReturnFlowException exception)
         {
-            // WRONG_STATUS lands here once an agent has moved the return on; the storefront turns it
-            // into "this return can no longer be cancelled" rather than a generic failure.
             throw new ExecutionError(exception.Message, exception) { Code = exception.Code };
         }
     }

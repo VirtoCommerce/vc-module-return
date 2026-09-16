@@ -5,10 +5,6 @@ namespace VirtoCommerce.ReturnModule.Core
 {
     public static class ModuleConstants
     {
-        /// <summary>
-        /// File storage scope the buyer's photos and documents are uploaded into. Allowed types,
-        /// sizes and counts are configured on the scope itself, not here.
-        /// </summary>
         public const string ReturnAttachmentsScope = "return-attachments";
 
         public static class Security
@@ -29,10 +25,6 @@ namespace VirtoCommerce.ReturnModule.Core
         {
             public static class General
             {
-                /// <summary>
-                /// A month, counted from delivery — long enough to notice a fault, short enough that
-                /// a store can shorten it rather than having to lengthen it.
-                /// </summary>
                 private const int DefaultWindowDays = 30;
 
                 public static SettingDescriptor OrderStatus { get; } = new SettingDescriptor
@@ -78,13 +70,6 @@ namespace VirtoCommerce.ReturnModule.Core
                     DefaultValue = DefaultWindowDays
                 };
 
-                /// <summary>
-                /// Comma-separated order statuses a return may be requested from; the platform has no
-                /// multi-value settings, so the list lives in one ShortText. "Delivered" is deliberately
-                /// absent: it is a shipment status, not an order one — see
-                /// <see cref="ReturnAllowedShipmentStatuses"/>. Blank allows nothing; to switch returns
-                /// off entirely use Return.ReturnEnabled instead.
-                /// </summary>
                 public static SettingDescriptor ReturnAllowedOrderStatuses { get; } = new SettingDescriptor
                 {
                     Name = "Return.AllowedOrderStatuses",
@@ -93,14 +78,10 @@ namespace VirtoCommerce.ReturnModule.Core
                     DefaultValue = "Completed"
                 };
 
-                /// <summary>
-                /// Comma-separated shipment statuses that count as delivered. Blank by default, and
-                /// blank means any status: the platform's Shipment.Status dictionary is
-                /// New / PickPack / Cancelled / ReadyToSend / Sent, has no "delivered" value at all,
-                /// and every deployment renames it, so any hardcoded default would silently block
-                /// every return. With no list the filled-in delivery date is the delivery signal;
-                /// set this to whatever terminal status a store actually uses to tighten it.
-                /// </summary>
+                // Blank means any status, unlike the order statuses above where blank allows nothing:
+                // the Shipment.Status dictionary has no "delivered" value and every deployment
+                // renames it, so a hard default would block every return. Delivery is expressed by
+                // DeliveryDate being set.
                 public static SettingDescriptor ReturnAllowedShipmentStatuses { get; } = new SettingDescriptor
                 {
                     Name = "Return.AllowedShipmentStatuses",
@@ -109,10 +90,6 @@ namespace VirtoCommerce.ReturnModule.Core
                     DefaultValue = string.Empty
                 };
 
-                /// <summary>
-                /// Reason codes a buyer picks from. Localizable, so a store can add its own without
-                /// anyone shipping storefront translations for them.
-                /// </summary>
                 public static SettingDescriptor ReturnReasons { get; } = new SettingDescriptor
                 {
                     Name = "Return.Reasons",
@@ -124,9 +101,6 @@ namespace VirtoCommerce.ReturnModule.Core
                     AllowedValues = new[] { "FaultyOnArrival", "DamagedInTransit", "WrongItemDelivered", "OrderedByMistake", "NoLongerNeeded" }
                 };
 
-                /// <summary>
-                /// Comma-separated reason codes that oblige the buyer to explain themselves.
-                /// </summary>
                 public static SettingDescriptor ReturnReasonsRequiringComment { get; } = new SettingDescriptor
                 {
                     Name = "Return.ReasonsRequiringComment",
@@ -135,18 +109,12 @@ namespace VirtoCommerce.ReturnModule.Core
                     DefaultValue = "FaultyOnArrival,DamagedInTransit,WrongItemDelivered"
                 };
 
-                /// <summary>
-                /// Whether every returned line must carry at least one photo or document before the
-                /// return can be submitted.
-                /// </summary>
                 public static SettingDescriptor ReturnAttachmentsRequired { get; } = new SettingDescriptor
                 {
                     Name = "Return.AttachmentsRequired",
                     ValueType = SettingValueType.Boolean,
                     GroupName = "Return|Return",
                     DefaultValue = true,
-                    // Public: the storefront disables the submit button on the same rule the server
-                    // enforces, so turning this off actually unblocks the buyer.
                     IsPublic = true
                 };
 

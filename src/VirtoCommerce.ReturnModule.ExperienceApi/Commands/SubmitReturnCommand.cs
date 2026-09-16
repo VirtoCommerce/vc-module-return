@@ -1,4 +1,4 @@
-using GraphQL.Types;
+﻿using GraphQL.Types;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 
@@ -8,9 +8,6 @@ public class SubmitReturnCommand : ICommand<Return>
 {
     public string ReturnId { get; set; }
 
-    /// <summary>
-    /// Filled by the builder from the token, never accepted as input.
-    /// </summary>
     public string CustomerId { get; set; }
 }
 

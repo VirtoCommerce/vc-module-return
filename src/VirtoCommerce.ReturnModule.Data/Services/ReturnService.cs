@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -99,7 +99,6 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             return result;
         }
 
-
         protected override Task<IList<ReturnEntity>> LoadEntities(IRepository repository, IList<string> ids, string responseGroup)
         {
             return ((IReturnRepository)repository).GetReturnsByIdsAsync(ids, responseGroup);
@@ -117,7 +116,6 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             await EnsureEachReturnHasNumber(returns, ordersById);
             FillMissingSnapshots(returns, ordersById);
         }
-
 
         private async Task EnsureEachReturnHasNumber(IEnumerable<Return> returns, IDictionary<string, CustomerOrder> ordersById)
         {
@@ -147,16 +145,6 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             }
         }
 
-        /// <summary>
-        /// Copies ownership and product details from the order onto anything that has none.
-        /// </summary>
-        /// <remarks>
-        /// The admin UI still saves returns through the original REST contract, which knows nothing
-        /// about these fields, so without this a return raised by an agent would reach the storefront
-        /// with no product name and no owner. Only empty values are touched — a snapshot already
-        /// taken must never be refreshed from the order, or a renamed product or a corrected price
-        /// would silently rewrite history.
-        /// </remarks>
         private static void FillMissingSnapshots(IEnumerable<Return> returns, IDictionary<string, CustomerOrder> ordersById)
         {
             foreach (var orderReturn in returns)

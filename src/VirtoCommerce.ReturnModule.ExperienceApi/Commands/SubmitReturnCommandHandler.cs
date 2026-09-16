@@ -1,4 +1,4 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using GraphQL;
 using MediatR;
@@ -29,8 +29,6 @@ public class SubmitReturnCommandHandler : IRequestHandler<SubmitReturnCommand, R
         }
         catch (ReturnFlowException exception)
         {
-            // RETURN_QUANTITY_UNAVAILABLE lands here: the storefront shows it against the line and
-            // lets the buyer adjust, rather than losing the draft.
             throw new ExecutionError(exception.Message, exception) { Code = exception.Code };
         }
     }

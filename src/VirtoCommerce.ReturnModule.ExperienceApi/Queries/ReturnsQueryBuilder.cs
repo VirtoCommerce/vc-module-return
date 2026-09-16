@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using GraphQL;
 using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.ReturnModule.Core.Models;
@@ -19,11 +19,6 @@ public class ReturnsQueryBuilder : SearchQueryBuilder<ReturnsQuery, ReturnSearch
     {
     }
 
-    /// <summary>
-    /// Scopes the search to the signed-in buyer. The customer is taken from the token rather than
-    /// an argument, so there is nothing for a caller to tamper with; an anonymous visitor has no
-    /// returns to look at and is refused outright.
-    /// </summary>
     protected override async Task BeforeMediatorSend(IResolveFieldContext<object> context, ReturnsQuery request)
     {
         await base.BeforeMediatorSend(context, request);

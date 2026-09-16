@@ -14,14 +14,6 @@ using VirtoCommerce.StoreModule.Core.Services;
 
 namespace VirtoCommerce.ReturnModule.Data.Services;
 
-/// <summary>
-/// Turns uploaded files into a return's attachments.
-/// </summary>
-/// <remarks>
-/// Files arrive through FileExperienceApi with no owner; claiming one stamps the return onto it so
-/// the housekeeping job stops treating it as an orphan. The file itself stays in file storage — the
-/// rows here only keep enough to render the return without the file module being asked.
-/// </remarks>
 public class ReturnAttachmentService : IReturnAttachmentService
 {
     private const string _urlPrefix = "/api/files/";
@@ -50,7 +42,6 @@ public class ReturnAttachmentService : IReturnAttachmentService
         var scope = await GetScopeAsync(orderReturn.StoreId);
         var changedFiles = new List<File>();
 
-        // Only files sitting in our scope and not already claimed by somebody else are eligible.
         var filesByUrl = files
             .Where(x => x.Scope.EqualsIgnoreCase(scope) &&
                         (x.OwnerIsEmpty() || IsOwnedBy(x, orderReturn)))
@@ -77,8 +68,6 @@ public class ReturnAttachmentService : IReturnAttachmentService
 
             lineItem.Attachments.Add(ToAttachment(file));
 
-            // Owned by the return rather than the line: access is decided per return, and a line
-            // has no id yet when the draft is first created.
             file.OwnerEntityId = orderReturn.Id;
             file.OwnerEntityType = nameof(Return);
             changedFiles.Add(file);
@@ -90,16 +79,8 @@ public class ReturnAttachmentService : IReturnAttachmentService
         }
     }
 
-    /// <summary>
-    /// The upload scope this store's return files live in.
-    /// </summary>
-    /// <remarks>
-    /// Read from the store rather than assumed, so a store that overrides Return.FileUploadScopeName
-    /// has its files recognised instead of silently skipped as ineligible — the storefront already
-    /// uploads into whatever the setting says. Note that the authorization requirement factory
-    /// registers one scope name statically, so an overridden scope falls back to the platform's
-    /// default file authorization.
-    /// </remarks>
+    // IFileAuthorizationRequirementFactory registers one scope name statically, so an overridden
+    // scope falls back to the platform's default file authorization.
     protected virtual async Task<string> GetScopeAsync(string storeId)
     {
         var store = string.IsNullOrEmpty(storeId) ? null : await _storeService.GetNoCloneAsync(storeId);

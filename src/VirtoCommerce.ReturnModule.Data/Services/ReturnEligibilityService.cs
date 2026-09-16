@@ -42,8 +42,6 @@ public class ReturnEligibilityService : IReturnEligibilityService
 
         var settings = await GetStoreSettingsAsync(order.StoreId);
         var windowDays = settings.GetValue<int>(ModuleConstants.Settings.General.ReturnWindowDays);
-        // Settled once for the whole order, so every line reports the same truthful reason rather
-        // than blaming the order status for a store that has returns switched off.
         var orderLevelReason = GetOrderLevelReason(order, settings);
 
         var heldQuantities = await _quantityService.GetHeldQuantitiesAsync(order.Id, excludeReturnId);
@@ -82,9 +80,6 @@ public class ReturnEligibilityService : IReturnEligibilityService
         return result;
     }
 
-    /// <summary>
-    /// Why nothing on this order may be returned, or null when the order itself is fine.
-    /// </summary>
     protected virtual string GetOrderLevelReason(CustomerOrder order, IEnumerable<ObjectSettingEntry> settings)
     {
         if (!IsReturnEnabled(settings))
@@ -107,8 +102,8 @@ public class ReturnEligibilityService : IReturnEligibilityService
             return ReturnIneligibilityReason.LineCancelled;
         }
 
-        // No shipment reports a delivery date, so there is no honest point to count the window
-        // from. Deliberately not falling back to the order date — see docs/questions.md 5.1.
+        // No delivery date means no honest point to count the window from; deliberately not falling
+        // back to the order date.
         if (item.ReturnableUntil == null)
         {
             return ReturnIneligibilityReason.NotDelivered;
@@ -127,15 +122,6 @@ public class ReturnEligibilityService : IReturnEligibilityService
         return null;
     }
 
-    /// <summary>
-    /// What was actually delivered per order line item, gathered from the shipments carrying it.
-    /// </summary>
-    /// <remarks>
-    /// A single line can be split across shipments, so quantities add up while the latest date
-    /// wins: the window must not start before the buyer received the last part of the line,
-    /// otherwise a split delivery would quietly shorten it. Shipments that are cancelled, report
-    /// no delivery date, or sit outside Return.AllowedShipmentStatuses count for neither.
-    /// </remarks>
     protected virtual IDictionary<string, LineItemDelivery> GetLineItemDeliveries(CustomerOrder order, IEnumerable<ObjectSettingEntry> settings)
     {
         var result = new Dictionary<string, LineItemDelivery>();
@@ -180,20 +166,12 @@ public class ReturnEligibilityService : IReturnEligibilityService
         public int Quantity { get; set; }
     }
 
-    /// <summary>
-    /// Whether a shipment counts as delivered. An empty allow-list means any status qualifies —
-    /// the delivery date is then the only signal.
-    /// </summary>
     protected virtual bool IsShipmentDelivered(Shipment shipment, IList<string> allowedStatuses)
     {
         return allowedStatuses.Count == 0 ||
                allowedStatuses.Contains(shipment.Status ?? string.Empty, StringComparer.OrdinalIgnoreCase);
     }
 
-    /// <summary>
-    /// The store's master switch. Without this check it only hid the storefront's menu, while the
-    /// xAPI happily went on accepting returns.
-    /// </summary>
     protected virtual bool IsReturnEnabled(IEnumerable<ObjectSettingEntry> settings)
     {
         return settings.GetValue<bool>(ModuleConstants.Settings.General.ReturnEnabled);
@@ -201,7 +179,6 @@ public class ReturnEligibilityService : IReturnEligibilityService
 
     protected virtual bool IsOrderStatusAllowed(CustomerOrder order, IEnumerable<ObjectSettingEntry> settings)
     {
-        // Unlike shipments, an empty list allows nothing: Return.ReturnEnabled is the off switch.
         return ParseStatuses(settings.GetValue<string>(ModuleConstants.Settings.General.ReturnAllowedOrderStatuses))
             .Contains(order.Status ?? string.Empty, StringComparer.OrdinalIgnoreCase);
     }
@@ -215,7 +192,6 @@ public class ReturnEligibilityService : IReturnEligibilityService
     {
         var store = string.IsNullOrEmpty(storeId) ? null : await _storeService.GetNoCloneAsync(storeId);
 
-        // An unknown store falls back to the descriptor defaults rather than failing the read.
         return store?.Settings ?? [];
     }
 }

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.ReturnModule.Core.Models;
@@ -11,7 +11,6 @@ public class ReturnReasonsQueryBuilder : QueryBuilder<ReturnReasonsQuery, IList<
 {
     protected override string Name => "returnReasons";
 
-    // Store-level dictionary, no customer data: intentionally left unauthorized.
     public ReturnReasonsQueryBuilder(IAuthorizationService authorizationService)
         : base(authorizationService)
     {

@@ -1,4 +1,4 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
@@ -23,17 +23,9 @@ public class ReturnQueryHandler : IQueryHandler<ReturnQuery, Return>
     {
         var result = await _returnService.GetNoCloneAsync(request.Id, ReturnResponseGroup.None.ToString());
 
-        // Null rather than "forbidden": a buyer probing ids should not learn which ones exist.
         return result != null && await IsOwnedByAsync(result, request.CustomerId) ? result : null;
     }
 
-    /// <summary>
-    /// Ownership of a return.
-    /// </summary>
-    /// <remarks>
-    /// New returns carry the buyer themselves. Ones raised in the admin UI before that field
-    /// existed do not, so those fall back to the order they belong to.
-    /// </remarks>
     protected virtual async Task<bool> IsOwnedByAsync(Return orderReturn, string customerId)
     {
         if (!string.IsNullOrEmpty(orderReturn.CustomerId))

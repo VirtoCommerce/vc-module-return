@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using GraphQL;
 using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.ReturnModule.Core.Models;
@@ -18,10 +18,6 @@ public class CancelReturnCommandBuilder : CommandBuilder<CancelReturnCommand, Re
     {
     }
 
-    /// <summary>
-    /// Ownership is settled by the flow service against the stored return, so all that is needed
-    /// here is a signed-in caller and the customer taken from the token rather than from input.
-    /// </summary>
     protected override async Task BeforeMediatorSend(IResolveFieldContext<object> context, CancelReturnCommand request)
     {
         await base.BeforeMediatorSend(context, request);

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -37,7 +37,6 @@ public class ReturnReasonsQueryHandler : IQueryHandler<ReturnReasonsQuery, IList
             {
                 var reason = AbstractTypeFactory<ReturnReason>.TryCreateInstance();
                 reason.Code = x.Key;
-                // A store can add a value without translating it; showing the raw code beats a blank.
                 reason.LocalizedName = string.IsNullOrEmpty(x.Value) ? x.Key : x.Value;
                 reason.RequiresComment = requiringComment.Contains(x.Key, StringComparer.OrdinalIgnoreCase);
 

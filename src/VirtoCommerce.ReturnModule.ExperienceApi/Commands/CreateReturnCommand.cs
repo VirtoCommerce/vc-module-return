@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using GraphQL.Types;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.ExperienceApi.Schemas;
@@ -16,9 +16,6 @@ public class CreateReturnCommand : ICommand<Return>
 
     public IList<CreateReturnItemRequest> Items { get; set; }
 
-    /// <summary>
-    /// Filled by the builder from the token, never accepted as input.
-    /// </summary>
     public string CustomerId { get; set; }
 }
 

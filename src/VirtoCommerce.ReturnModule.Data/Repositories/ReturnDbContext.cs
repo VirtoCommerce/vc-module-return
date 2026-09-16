@@ -47,8 +47,6 @@ namespace VirtoCommerce.ReturnModule.Data.Repositories
 
             base.OnModelCreating(modelBuilder);
 
-            // Allows configuration for an entity type for different database types.
-            // Applies configuration from all <see cref="IEntityTypeConfiguration{TEntity}" in VirtoCommerce.ReturnModule.Data.XXX project. /> 
             switch (this.Database.ProviderName)
             {
                 case "Pomelo.EntityFrameworkCore.MySql":
@@ -61,7 +59,6 @@ namespace VirtoCommerce.ReturnModule.Data.Repositories
                     modelBuilder.ApplyConfigurationsFromAssembly(Assembly.Load("VirtoCommerce.ReturnModule.Data.SqlServer"));
                     break;
             }
-
         }
     }
 }

@@ -1,4 +1,4 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using GraphQL;
 using MediatR;
@@ -35,8 +35,6 @@ public class CreateReturnCommandHandler : IRequestHandler<CreateReturnCommand, R
         }
         catch (ReturnFlowException exception)
         {
-            // Surfaced as a code the storefront localizes, so the buyer can fix the line and keep
-            // the draft rather than meeting a raw server error.
             throw new ExecutionError(exception.Message, exception) { Code = exception.Code };
         }
     }

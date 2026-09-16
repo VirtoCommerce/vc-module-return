@@ -2,10 +2,6 @@
 
 namespace VirtoCommerce.ReturnModule.Core;
 
-/// <summary>
-/// Machine-readable failures of a return transition. Surfaced to GraphQL as an error code so the
-/// storefront can localize it and keep the buyer's draft instead of losing it.
-/// </summary>
 public static class ReturnFlowError
 {
     public const string OrderNotFound = "ORDER_NOT_FOUND";

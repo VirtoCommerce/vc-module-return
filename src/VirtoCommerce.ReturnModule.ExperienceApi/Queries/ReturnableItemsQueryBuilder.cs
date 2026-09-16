@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using GraphQL;
 using GraphQL.Types;
@@ -22,15 +22,10 @@ public class ReturnableItemsQueryBuilder : QueryBuilder<ReturnableItemsQuery, IL
     {
     }
 
-    /// <summary>
-    /// The query exposes order line data, so access to the order itself has to be proven first.
-    /// Reuses the Orders requirement, which already covers own / organization / anonymous.
-    /// </summary>
     protected override async Task BeforeMediatorSend(IResolveFieldContext<object> context, ReturnableItemsQuery request)
     {
         await base.BeforeMediatorSend(context, request);
 
-        // Builders are singletons — resolve per request, never through the constructor.
         var orderService = context.RequestServices.GetRequiredService<ICustomerOrderService>();
         var order = await orderService.GetNoCloneAsync(request.OrderId);
 
