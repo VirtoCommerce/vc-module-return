@@ -1,4 +1,4 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.ReturnModule.Core.Models.Search;
@@ -20,6 +20,7 @@ public class ReturnsQueryHandler : IQueryHandler<ReturnsQuery, ReturnSearchResul
     {
         var criteria = request.GetSearchCriteria<ReturnSearchCriteria>();
         criteria.CustomerId = request.CustomerId;
+        criteria.StoreId = request.StoreId;
         criteria.Statuses = request.Statuses;
 
         return await _returnSearchService.SearchNoCloneAsync(criteria);

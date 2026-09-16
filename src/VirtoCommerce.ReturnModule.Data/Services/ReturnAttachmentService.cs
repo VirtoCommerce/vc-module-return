@@ -20,15 +20,13 @@ public class ReturnAttachmentService : IReturnAttachmentService
     private static readonly StringComparer _ignoreCase = StringComparer.OrdinalIgnoreCase;
 
     private readonly IFileUploadService _fileUploadService;
-    private readonly IStoreService _storeService;
 
-    public ReturnAttachmentService(IFileUploadService fileUploadService, IStoreService storeService)
+    public ReturnAttachmentService(IFileUploadService fileUploadService)
     {
         _fileUploadService = fileUploadService;
-        _storeService = storeService;
     }
 
-    public virtual async Task UpdateAttachmentsAsync(Return orderReturn, ReturnLineItem lineItem, IList<string> urls)
+    public virtual async Task<IList<File>> UpdateAttachmentsAsync(Return orderReturn, ReturnLineItem lineItem, IList<string> urls)
     {
         ArgumentNullException.ThrowIfNull(orderReturn);
         ArgumentNullException.ThrowIfNull(lineItem);
@@ -39,11 +37,10 @@ public class ReturnAttachmentService : IReturnAttachmentService
         var current = lineItem.Attachments.Select(x => x.Url).ToList();
 
         var files = await GetFilesAsync(wanted.Concat(current));
-        var scope = await GetScopeAsync(orderReturn.StoreId);
         var changedFiles = new List<File>();
 
         var filesByUrl = files
-            .Where(x => x.Scope.EqualsIgnoreCase(scope) &&
+            .Where(x => x.Scope.EqualsIgnoreCase(ModuleConstants.ReturnAttachmentsScope) &&
                         (x.OwnerIsEmpty() || IsOwnedBy(x, orderReturn)))
             .ToDictionary(x => GetUrl(x.Id), _ignoreCase);
 
@@ -73,21 +70,15 @@ public class ReturnAttachmentService : IReturnAttachmentService
             changedFiles.Add(file);
         }
 
-        if (changedFiles.Count > 0)
-        {
-            await _fileUploadService.SaveChangesAsync(changedFiles);
-        }
+        return changedFiles;
     }
 
-    // IFileAuthorizationRequirementFactory registers one scope name statically, so an overridden
-    // scope falls back to the platform's default file authorization.
-    protected virtual async Task<string> GetScopeAsync(string storeId)
+    public virtual async Task SaveFilesAsync(IList<File> files)
     {
-        var store = string.IsNullOrEmpty(storeId) ? null : await _storeService.GetNoCloneAsync(storeId);
-
-        var scope = store?.Settings.GetValue<string>(ModuleConstants.Settings.General.ReturnFileUploadScopeName);
-
-        return string.IsNullOrEmpty(scope) ? ModuleConstants.ReturnAttachmentsScope : scope;
+        if (files?.Count > 0)
+        {
+            await _fileUploadService.SaveChangesAsync(files);
+        }
     }
 
     protected static bool IsOwnedBy(File file, Return orderReturn)

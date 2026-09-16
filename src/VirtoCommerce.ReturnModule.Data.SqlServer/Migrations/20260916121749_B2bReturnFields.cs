@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
+namespace VirtoCommerce.ReturnModule.Data.SqlServer.Migrations
 {
     /// <inheritdoc />
     public partial class B2bReturnFields : Migration
@@ -14,147 +14,147 @@ namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
             migrationBuilder.AddColumn<int>(
                 name: "ApprovedQuantity",
                 table: "ReturnLineItem",
-                type: "integer",
+                type: "int",
                 nullable: false,
                 defaultValue: 0);
 
             migrationBuilder.AddColumn<string>(
                 name: "ImageUrl",
                 table: "ReturnLineItem",
-                type: "character varying(2048)",
+                type: "nvarchar(2048)",
                 maxLength: 2048,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "ItemState",
                 table: "ReturnLineItem",
-                type: "character varying(64)",
+                type: "nvarchar(64)",
                 maxLength: 64,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "MeasureUnit",
                 table: "ReturnLineItem",
-                type: "character varying(32)",
+                type: "nvarchar(32)",
                 maxLength: 32,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "Name",
                 table: "ReturnLineItem",
-                type: "character varying(1024)",
+                type: "nvarchar(1024)",
                 maxLength: 1024,
                 nullable: true);
 
             migrationBuilder.AddColumn<int>(
                 name: "OrderedQuantity",
                 table: "ReturnLineItem",
-                type: "integer",
+                type: "int",
                 nullable: false,
                 defaultValue: 0);
 
             migrationBuilder.AddColumn<string>(
                 name: "ProductId",
                 table: "ReturnLineItem",
-                type: "character varying(128)",
+                type: "nvarchar(128)",
                 maxLength: 128,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "ReasonCode",
                 table: "ReturnLineItem",
-                type: "character varying(64)",
+                type: "nvarchar(64)",
                 maxLength: 64,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "ReasonComment",
                 table: "ReturnLineItem",
-                type: "character varying(1024)",
+                type: "nvarchar(1024)",
                 maxLength: 1024,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "RejectReason",
                 table: "ReturnLineItem",
-                type: "character varying(1024)",
+                type: "nvarchar(1024)",
                 maxLength: 1024,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "SerialNumber",
                 table: "ReturnLineItem",
-                type: "character varying(128)",
+                type: "nvarchar(128)",
                 maxLength: 128,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "Sku",
                 table: "ReturnLineItem",
-                type: "character varying(128)",
+                type: "nvarchar(128)",
                 maxLength: 128,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "CancelReason",
                 table: "Return",
-                type: "character varying(2048)",
+                type: "nvarchar(2048)",
                 maxLength: 2048,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "Comment",
                 table: "Return",
-                type: "character varying(2048)",
+                type: "nvarchar(2048)",
                 maxLength: 2048,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "CustomerComment",
                 table: "Return",
-                type: "character varying(2048)",
+                type: "nvarchar(2048)",
                 maxLength: 2048,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "CustomerId",
                 table: "Return",
-                type: "character varying(128)",
+                type: "nvarchar(128)",
                 maxLength: 128,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "CustomerName",
                 table: "Return",
-                type: "character varying(256)",
+                type: "nvarchar(256)",
                 maxLength: 256,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "CustomerReference",
                 table: "Return",
-                type: "character varying(128)",
+                type: "nvarchar(128)",
                 maxLength: 128,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "OrderNumber",
                 table: "Return",
-                type: "character varying(64)",
+                type: "nvarchar(64)",
                 maxLength: 64,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "RejectReason",
                 table: "Return",
-                type: "character varying(2048)",
+                type: "nvarchar(2048)",
                 maxLength: 2048,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "StoreId",
                 table: "Return",
-                type: "character varying(128)",
+                type: "nvarchar(128)",
                 maxLength: 128,
                 nullable: true);
 
@@ -162,16 +162,16 @@ namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
                 name: "ReturnAttachment",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    ReturnLineItemId = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    Name = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
-                    Url = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: false),
-                    MimeType = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    Id = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    ReturnLineItemId = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false),
+                    Url = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false),
+                    MimeType = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
                     Size = table.Column<long>(type: "bigint", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ModifiedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    CreatedBy = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true)
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedBy = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -185,6 +185,16 @@ namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Return_CustomerId",
+                table: "Return",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Return_OrderId",
+                table: "Return",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ReturnAttachment_ReturnLineItemId",
                 table: "ReturnAttachment",
                 column: "ReturnLineItemId");
@@ -195,6 +205,14 @@ namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
         {
             migrationBuilder.DropTable(
                 name: "ReturnAttachment");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Return_CustomerId",
+                table: "Return");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Return_OrderId",
+                table: "Return");
 
             migrationBuilder.DropColumn(
                 name: "ApprovedQuantity",

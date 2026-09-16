@@ -71,6 +71,7 @@ namespace VirtoCommerce.ReturnModule.Web
                 builder.AddSchema(serviceCollection, typeof(AssemblyMarker));
             });
 
+            serviceCollection.AddSingleton<IAuthorizationHandler, ReturnAuthorizationHandler>();
             serviceCollection.AddSingleton<IFileAuthorizationRequirementFactory, ReturnFileAuthorizationRequirementFactory>();
             serviceCollection.AddSingleton<ScopedSchemaFactory<AssemblyMarker>>();
         }

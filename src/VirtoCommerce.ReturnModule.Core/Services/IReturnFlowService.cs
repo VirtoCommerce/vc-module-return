@@ -16,4 +16,6 @@ public interface IReturnFlowService
     Task<Return> CancelAsync(string returnId, string reason, ReturnFlowContext context, CancellationToken cancellationToken = default);
 
     IList<ReturnFlowAction> GetAvailableActions(Return orderReturn);
+
+    Task<bool> IsOwnedByAsync(Return orderReturn, string customerId);
 }

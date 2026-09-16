@@ -112,8 +112,7 @@ angular.module('virtoCommerce.returnModule')
                 bladeNavigationService.showBlade(returnDetailsBlade, blade);
             };
 
-            // Same clipboard approach as the order list: the admin runs over http on dev boxes,
-            // where navigator.clipboard is unavailable.
+            // execCommand, not navigator.clipboard: the admin runs over http on dev boxes.
             $scope.copy = (text) => {
                 var copyElement = document.createElement("span");
                 copyElement.appendChild(document.createTextNode(text));

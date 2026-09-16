@@ -106,7 +106,7 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
         protected override async Task BeforeSaveChanges(IList<Return> returns)
         {
-            if (returns.IsNullOrEmpty())
+            if (returns.IsNullOrEmpty() || !returns.Any(NeedsOrder))
             {
                 return;
             }
@@ -115,6 +115,16 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
             await EnsureEachReturnHasNumber(returns, ordersById);
             FillMissingSnapshots(returns, ordersById);
+        }
+
+        // Autosave saves the same draft on every keystroke, and a return that already has its number
+        // and its snapshots has nothing to read the order for.
+        private static bool NeedsOrder(Return orderReturn)
+        {
+            return string.IsNullOrEmpty(orderReturn.Number) ||
+                   string.IsNullOrEmpty(orderReturn.StoreId) ||
+                   string.IsNullOrEmpty(orderReturn.CustomerId) ||
+                   (orderReturn.LineItems ?? []).Any(x => string.IsNullOrEmpty(x.Sku));
         }
 
         private async Task EnsureEachReturnHasNumber(IEnumerable<Return> returns, IDictionary<string, CustomerOrder> ordersById)
@@ -192,7 +202,7 @@ namespace VirtoCommerce.ReturnModule.Data.Services
         private async Task<IList<CustomerOrder>> GetOrdersForReturns(IEnumerable<Return> returns)
         {
             var orderIds = returns.Select(x => x.OrderId).Distinct().ToList();
-            var orders = await _orderService.GetAsync(orderIds);
+            var orders = await _orderService.GetNoCloneAsync(orderIds);
 
             return orders;
         }

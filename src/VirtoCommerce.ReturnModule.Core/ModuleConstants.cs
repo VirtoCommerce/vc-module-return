@@ -79,9 +79,7 @@ namespace VirtoCommerce.ReturnModule.Core
                 };
 
                 // Blank means any status, unlike the order statuses above where blank allows nothing:
-                // the Shipment.Status dictionary has no "delivered" value and every deployment
-                // renames it, so a hard default would block every return. Delivery is expressed by
-                // DeliveryDate being set.
+                // the Shipment.Status dictionary has no "delivered" value. Delivery is DeliveryDate.
                 public static SettingDescriptor ReturnAllowedShipmentStatuses { get; } = new SettingDescriptor
                 {
                     Name = "Return.AllowedShipmentStatuses",
@@ -118,15 +116,6 @@ namespace VirtoCommerce.ReturnModule.Core
                     IsPublic = true
                 };
 
-                public static SettingDescriptor ReturnFileUploadScopeName { get; } = new SettingDescriptor
-                {
-                    Name = "Return.FileUploadScopeName",
-                    ValueType = SettingValueType.ShortText,
-                    GroupName = "Return|Return",
-                    DefaultValue = ReturnAttachmentsScope,
-                    IsPublic = true
-                };
-
                 public static IEnumerable<SettingDescriptor> AllSettings
                 {
                     get
@@ -140,7 +129,6 @@ namespace VirtoCommerce.ReturnModule.Core
                         yield return ReturnReasons;
                         yield return ReturnReasonsRequiringComment;
                         yield return ReturnAttachmentsRequired;
-                        yield return ReturnFileUploadScopeName;
                         yield return OrderStatus;
                     }
                 }
@@ -166,7 +154,6 @@ namespace VirtoCommerce.ReturnModule.Core
                     yield return General.ReturnReasons;
                     yield return General.ReturnReasonsRequiringComment;
                     yield return General.ReturnAttachmentsRequired;
-                    yield return General.ReturnFileUploadScopeName;
                 }
             }
         }

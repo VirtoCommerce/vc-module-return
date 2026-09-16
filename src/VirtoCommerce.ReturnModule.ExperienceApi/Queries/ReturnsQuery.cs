@@ -10,6 +10,8 @@ public class ReturnsQuery : SearchQuery<ReturnSearchResult>
 {
     public string CustomerId { get; set; }
 
+    public string StoreId { get; set; }
+
     public IList<string> Statuses { get; set; }
 
     public override IEnumerable<QueryArgument> GetArguments()
@@ -19,6 +21,7 @@ public class ReturnsQuery : SearchQuery<ReturnSearchResult>
             yield return argument;
         }
 
+        yield return Argument<NonNullGraphType<StringGraphType>>(nameof(StoreId));
         yield return Argument<ListGraphType<StringGraphType>>(nameof(Statuses));
     }
 
@@ -26,6 +29,7 @@ public class ReturnsQuery : SearchQuery<ReturnSearchResult>
     {
         base.Map(context);
 
+        StoreId = context.GetArgument<string>(nameof(StoreId));
         Statuses = context.GetArgument<IList<string>>(nameof(Statuses));
     }
 }

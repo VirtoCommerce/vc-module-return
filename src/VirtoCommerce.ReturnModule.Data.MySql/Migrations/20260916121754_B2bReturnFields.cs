@@ -212,6 +212,16 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Return_CustomerId",
+                table: "Return",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Return_OrderId",
+                table: "Return",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ReturnAttachment_ReturnLineItemId",
                 table: "ReturnAttachment",
                 column: "ReturnLineItemId");
@@ -222,6 +232,14 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
         {
             migrationBuilder.DropTable(
                 name: "ReturnAttachment");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Return_CustomerId",
+                table: "Return");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Return_OrderId",
+                table: "Return");
 
             migrationBuilder.DropColumn(
                 name: "ApprovedQuantity",

@@ -12,7 +12,7 @@ using VirtoCommerce.ReturnModule.Data.Repositories;
 namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
 {
     [DbContext(typeof(ReturnDbContext))]
-    [Migration("20260916101005_B2bReturnFields")]
+    [Migration("20260916121758_B2bReturnFields")]
     partial class B2bReturnFields
     {
         /// <inheritdoc />
@@ -151,6 +151,10 @@ namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
                         .HasColumnType("character varying(128)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("OrderId");
 
                     b.ToTable("Return", (string)null);
                 });

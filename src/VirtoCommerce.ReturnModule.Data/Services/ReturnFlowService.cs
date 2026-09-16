@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using VirtoCommerce.FileExperienceApi.Core.Models;
 using VirtoCommerce.OrdersModule.Core.Model;
 using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
@@ -84,13 +85,14 @@ public class ReturnFlowService : IReturnFlowService
             return result;
         }
 
-        // Read back rather than reuse the assembled instance: saving resolves primary keys into the
-        // models but leaves foreign keys like ReturnLineItem.ReturnId empty, and the update path
-        // would patch those over the persisted rows.
+        // Saving resolves primary keys but not foreign keys, so the assembled instance cannot be
+        // patched back over the persisted rows.
         var saved = await _returnService.GetByIdAsync(result.Id);
 
-        await UpdateAttachmentsAsync(saved, request.Items);
+        var changedFiles = await UpdateAttachmentsAsync(saved, request.Items);
+
         await _returnService.SaveChangesAsync([saved]);
+        await _attachmentService.SaveFilesAsync(changedFiles);
 
         return saved;
     }
@@ -104,6 +106,8 @@ public class ReturnFlowService : IReturnFlowService
         var order = await _orderService.GetNoCloneAsync(orderReturn.OrderId);
         var orderLineItems = (order?.Items ?? []).ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
 
+        var changedFiles = new List<File>();
+
         orderReturn.CustomerReference = request.CustomerReference ?? orderReturn.CustomerReference;
         orderReturn.CustomerComment = request.CustomerComment ?? orderReturn.CustomerComment;
 
@@ -114,18 +118,44 @@ public class ReturnFlowService : IReturnFlowService
                 throw new ReturnFlowException(ReturnFlowError.NoItems, "A return needs at least one line.");
             }
 
-            orderReturn.LineItems = request.Items.Select(x => UpdateLineItem(x, orderReturn, orderLineItems)).ToList();
+            var keptLineItems = request.Items.Select(x => UpdateLineItem(x, orderReturn, orderLineItems)).ToList();
 
-            await UpdateAttachmentsAsync(orderReturn, request.Items);
+            changedFiles = await ReleaseAttachmentsOfDroppedLinesAsync(orderReturn, keptLineItems);
+
+            orderReturn.LineItems = keptLineItems;
+
+            changedFiles.AddRange(await UpdateAttachmentsAsync(orderReturn, request.Items));
         }
 
+        // The return goes first: a failure there must not leave a file reassigned.
         await _returnService.SaveChangesAsync([orderReturn]);
+        await _attachmentService.SaveFilesAsync(changedFiles);
 
         return orderReturn;
     }
 
-    protected virtual async Task UpdateAttachmentsAsync(Return orderReturn, IList<CreateReturnItemRequest> items)
+    // A line the buyer removed takes its rows with it, but the files themselves would stay stamped
+    // with this return and never come back to the pool.
+    protected virtual async Task<List<File>> ReleaseAttachmentsOfDroppedLinesAsync(Return orderReturn, IList<ReturnLineItem> keptLineItems)
     {
+        var result = new List<File>();
+
+        var dropped = (orderReturn.LineItems ?? [])
+            .Where(x => !keptLineItems.Contains(x))
+            .ToList();
+
+        foreach (var lineItem in dropped)
+        {
+            result.AddRange(await _attachmentService.UpdateAttachmentsAsync(orderReturn, lineItem, []));
+        }
+
+        return result;
+    }
+
+    protected virtual async Task<List<File>> UpdateAttachmentsAsync(Return orderReturn, IList<CreateReturnItemRequest> items)
+    {
+        var result = new List<File>();
+
         foreach (var item in items.Where(x => x.AttachmentUrls != null))
         {
             var lineItem = orderReturn.LineItems
@@ -133,9 +163,11 @@ public class ReturnFlowService : IReturnFlowService
 
             if (lineItem != null)
             {
-                await _attachmentService.UpdateAttachmentsAsync(orderReturn, lineItem, item.AttachmentUrls);
+                result.AddRange(await _attachmentService.UpdateAttachmentsAsync(orderReturn, lineItem, item.AttachmentUrls));
             }
         }
+
+        return result;
     }
 
     public virtual async Task<Return> SubmitAsync(string returnId, ReturnFlowContext context, CancellationToken cancellationToken = default)
@@ -143,6 +175,13 @@ public class ReturnFlowService : IReturnFlowService
         ArgumentNullException.ThrowIfNull(context);
 
         var orderReturn = await GetEditableDraftAsync(returnId, context);
+
+        if (!_stateProvider.IsAllowed(ReturnAction.Submit, orderReturn.Status))
+        {
+            throw new ReturnFlowException(
+                ReturnFlowError.WrongStatus,
+                $"Return '{returnId}' is '{orderReturn.Status}' and cannot be submitted.");
+        }
 
         if (orderReturn.LineItems.IsNullOrEmpty())
         {
@@ -265,7 +304,7 @@ public class ReturnFlowService : IReturnFlowService
         return orderReturn;
     }
 
-    protected virtual async Task<bool> IsOwnedByAsync(Return orderReturn, string customerId)
+    public virtual async Task<bool> IsOwnedByAsync(Return orderReturn, string customerId)
     {
         if (!string.IsNullOrEmpty(orderReturn.CustomerId))
         {

@@ -11,6 +11,8 @@ namespace VirtoCommerce.ReturnModule.Core.Models.Search
 
         public string CustomerId { get; set; }
 
+        public string StoreId { get; set; }
+
         public IList<string> Statuses { get; set; }
     }
 }

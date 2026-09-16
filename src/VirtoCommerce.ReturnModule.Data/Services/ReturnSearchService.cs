@@ -55,6 +55,11 @@ namespace VirtoCommerce.ReturnModule.Data.Services
                 query = query.Where(x => x.CustomerId == criteria.CustomerId);
             }
 
+            if (!string.IsNullOrEmpty(criteria.StoreId))
+            {
+                query = query.Where(x => x.StoreId == criteria.StoreId);
+            }
+
             if (!criteria.Statuses.IsNullOrEmpty())
             {
                 query = query.Where(x => criteria.Statuses.Contains(x.Status));

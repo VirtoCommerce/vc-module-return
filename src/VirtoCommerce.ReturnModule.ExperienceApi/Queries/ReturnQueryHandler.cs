@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
@@ -11,30 +10,18 @@ namespace VirtoCommerce.ReturnModule.ExperienceApi.Queries;
 public class ReturnQueryHandler : IQueryHandler<ReturnQuery, Return>
 {
     private readonly IReturnService _returnService;
-    private readonly ICustomerOrderService _orderService;
+    private readonly IReturnFlowService _flowService;
 
-    public ReturnQueryHandler(IReturnService returnService, ICustomerOrderService orderService)
+    public ReturnQueryHandler(IReturnService returnService, IReturnFlowService flowService)
     {
         _returnService = returnService;
-        _orderService = orderService;
+        _flowService = flowService;
     }
 
     public virtual async Task<Return> Handle(ReturnQuery request, CancellationToken cancellationToken)
     {
         var result = await _returnService.GetNoCloneAsync(request.Id, ReturnResponseGroup.None.ToString());
 
-        return result != null && await IsOwnedByAsync(result, request.CustomerId) ? result : null;
-    }
-
-    protected virtual async Task<bool> IsOwnedByAsync(Return orderReturn, string customerId)
-    {
-        if (!string.IsNullOrEmpty(orderReturn.CustomerId))
-        {
-            return orderReturn.CustomerId.EqualsIgnoreCase(customerId);
-        }
-
-        var order = await _orderService.GetNoCloneAsync(orderReturn.OrderId);
-
-        return order != null && order.CustomerId.EqualsIgnoreCase(customerId);
+        return result != null && await _flowService.IsOwnedByAsync(result, request.CustomerId) ? result : null;
     }
 }

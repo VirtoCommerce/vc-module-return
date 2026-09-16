@@ -25,6 +25,11 @@ namespace VirtoCommerce.ReturnModule.Data.Repositories
             modelBuilder.Entity<ReturnEntity>().ToTable("Return").HasKey(x => x.Id);
             modelBuilder.Entity<ReturnEntity>().Property(x => x.Id).HasMaxLength(IdLength).ValueGeneratedOnAdd();
 
+            // "My returns" filters on the customer, and every order page asks what the order is
+            // holding; both would otherwise scan the table.
+            modelBuilder.Entity<ReturnEntity>().HasIndex(x => x.CustomerId);
+            modelBuilder.Entity<ReturnEntity>().HasIndex(x => x.OrderId);
+
             #endregion Return
 
             #region ReturnLineItem
