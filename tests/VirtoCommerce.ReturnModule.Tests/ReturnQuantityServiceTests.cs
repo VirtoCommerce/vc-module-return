@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MockQueryable;
@@ -14,19 +14,11 @@ using Xunit;
 
 namespace VirtoCommerce.ReturnModule.Tests;
 
-/// <summary>
-/// How much of an order line existing returns are holding. This is the arithmetic that decides
-/// whether a buyer is allowed to return anything at all, so each rule gets its own test.
-/// </summary>
 public class ReturnQuantityServiceTests
 {
     private const string OrderId = "order-1";
     private const string LineId = "line-1";
 
-    /// <summary>
-    /// An abandoned draft must not block a line forever: availability is settled when the return is
-    /// submitted, not when it is started.
-    /// </summary>
     [Fact]
     public async Task GetHeldQuantities_Draft_HoldsNothing()
     {
@@ -60,10 +52,6 @@ public class ReturnQuantityServiceTests
         Assert.False(held.ContainsKey(LineId));
     }
 
-    /// <summary>
-    /// Ask for 240, get 200, and the other 40 are free again — the buyer may legitimately ask for
-    /// them later.
-    /// </summary>
     [Theory]
     [InlineData(ReturnStatus.Approved)]
     [InlineData(ReturnStatus.PartiallyApproved)]
@@ -79,11 +67,6 @@ public class ReturnQuantityServiceTests
         Assert.Equal(200, held[LineId]);
     }
 
-    /// <summary>
-    /// "Approved" is also a value in the legacy Return.Status dictionary, and nothing writes
-    /// ApprovedQuantity until the agent side lands. Reading it off such a return would report zero
-    /// held and hand the buyer units an agent has already promised to somebody.
-    /// </summary>
     [Fact]
     public async Task GetHeldQuantities_ApprovedButNoLineWasRuledOn_StillHoldsWhatWasAsked()
     {
@@ -94,9 +77,6 @@ public class ReturnQuantityServiceTests
         Assert.Equal(240, held[LineId]);
     }
 
-    /// <summary>
-    /// A line an agent refused holds nothing, even on a return that is approved as a whole.
-    /// </summary>
     [Fact]
     public async Task GetHeldQuantities_RejectedLine_HoldsNothing()
     {
@@ -110,11 +90,6 @@ public class ReturnQuantityServiceTests
         Assert.False(held.ContainsKey(LineId));
     }
 
-    /// <summary>
-    /// Returns raised in the admin UI carry values from the editable Return.Status dictionary, which
-    /// this module does not control. Counting them is the safe reading: under-counting would let a
-    /// buyer return more than they have.
-    /// </summary>
     [Fact]
     public async Task GetHeldQuantities_StatusOutsideTheModel_StillHolds()
     {
@@ -138,9 +113,6 @@ public class ReturnQuantityServiceTests
         Assert.Equal(240, held[LineId]);
     }
 
-    /// <summary>
-    /// A draft competing with itself would read as unavailable the moment it was saved.
-    /// </summary>
     [Fact]
     public async Task GetHeldQuantities_ExcludedReturn_IsNotCounted()
     {

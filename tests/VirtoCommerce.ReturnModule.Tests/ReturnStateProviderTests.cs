@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Data.Services;
@@ -6,10 +6,6 @@ using Xunit;
 
 namespace VirtoCommerce.ReturnModule.Tests;
 
-/// <summary>
-/// The transition table is the one place the lifecycle rules live, so these lock down every row of
-/// it — a change here is meant to be a deliberate product decision, not a side effect.
-/// </summary>
 public class ReturnStateProviderTests
 {
     private readonly ReturnStateProvider _provider = new();
@@ -42,19 +38,12 @@ public class ReturnStateProviderTests
         Assert.False(_provider.IsAllowed(ReturnAction.Cancel, "SomethingElse"));
     }
 
-    /// <summary>
-    /// A return saved before the status model existed can carry no status at all, and must not
-    /// throw its way out of the list query.
-    /// </summary>
     [Fact]
     public void IsAllowed_NullStatus_ReturnsFalseRatherThanThrowing()
     {
         Assert.False(_provider.IsAllowed(ReturnAction.Cancel, null));
     }
 
-    /// <summary>
-    /// Statuses come from a database column that nothing normalizes.
-    /// </summary>
     [Fact]
     public void IsAllowed_IgnoresCase()
     {
@@ -71,9 +60,6 @@ public class ReturnStateProviderTests
         Assert.Equal(expected, _provider.GetNextStatus(action, status));
     }
 
-    /// <summary>
-    /// Editing leaves the return where it is, which the table says by leaving ToStatus empty.
-    /// </summary>
     [Fact]
     public void GetNextStatus_ActionThatDoesNotMoveTheReturn_ReturnsNull()
     {
@@ -86,10 +72,6 @@ public class ReturnStateProviderTests
         Assert.Null(_provider.GetNextStatus(ReturnAction.Submit, ReturnStatus.Requested));
     }
 
-    /// <summary>
-    /// The storefront renders whatever comes back, so an action must never be dropped from the list
-    /// just because it is unavailable — a disabled control that says why beats a missing one.
-    /// </summary>
     [Fact]
     public void GetActions_ReportsEveryKnownAction_AvailableOrNot()
     {

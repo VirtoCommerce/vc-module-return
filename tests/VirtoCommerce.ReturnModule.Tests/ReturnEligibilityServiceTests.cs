@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,10 +14,6 @@ using Xunit;
 
 namespace VirtoCommerce.ReturnModule.Tests;
 
-/// <summary>
-/// What an order offers for return. The window is counted from delivery, so most of these are about
-/// shipments rather than the order itself.
-/// </summary>
 public class ReturnEligibilityServiceTests
 {
     private const string StoreId = "store-1";
@@ -35,8 +31,6 @@ public class ReturnEligibilityServiceTests
         Assert.False(eligibility.IsEligible);
         Assert.Equal(ReturnIneligibilityReason.ReturnsDisabled, eligibility.Reason);
 
-        // Not "order status not allowed": the store switched returns off, and blaming the order
-        // status would send the buyer chasing the wrong thing.
         Assert.Equal(ReturnIneligibilityReason.ReturnsDisabled, items.Single().IneligibilityReason);
     }
 
@@ -52,10 +46,6 @@ public class ReturnEligibilityServiceTests
         Assert.Equal(ReturnIneligibilityReason.OrderStatusNotAllowed, items.Single().IneligibilityReason);
     }
 
-    /// <summary>
-    /// There is no honest point to count the window from, and falling back to the order date would
-    /// silently measure the wrong thing.
-    /// </summary>
     [Fact]
     public async Task NoDeliveryDate_LineIsNotReturnable()
     {
@@ -79,10 +69,6 @@ public class ReturnEligibilityServiceTests
         Assert.Equal(ReturnIneligibilityReason.OutsideReturnWindow, items.Single().IneligibilityReason);
     }
 
-    /// <summary>
-    /// Several shipments carrying the same line: the window runs from the last delivery, so a part
-    /// that arrived late is not already expired when it turns up.
-    /// </summary>
     [Fact]
     public async Task SeveralDeliveries_WindowRunsFromTheLatest()
     {
@@ -125,9 +111,6 @@ public class ReturnEligibilityServiceTests
         Assert.Equal(ReturnIneligibilityReason.LineCancelled, items.Single().IneligibilityReason);
     }
 
-    /// <summary>
-    /// Only what actually arrived may come back — the ordered quantity is not the limit.
-    /// </summary>
     [Fact]
     public async Task ReturnableQuantity_IsCappedByWhatWasDelivered()
     {
