@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
@@ -38,7 +39,7 @@ public class ReturnQuantityService : IReturnQuantityService
                 query = query.Where(x => x.Id != excludeReturnId);
             }
 
-            returnIds = query.Select(x => x.Id).ToList();
+            returnIds = await query.Select(x => x.Id).ToListAsync();
         }
 
         if (returnIds.Count == 0)
@@ -57,8 +58,8 @@ public class ReturnQuantityService : IReturnQuantityService
                     Quantity = GetHeldQuantity(orderReturn, lineItem),
                 }))
             .Where(x => x.Quantity > 0)
-            .GroupBy(x => x.OrderLineItemId)
-            .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity));
+            .GroupBy(x => x.OrderLineItemId, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity), StringComparer.OrdinalIgnoreCase);
     }
 
     protected virtual int GetHeldQuantity(Return orderReturn, ReturnLineItem lineItem)

@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Models.Search;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.Xapi.Core.Infrastructure;
@@ -19,6 +20,9 @@ public class ReturnsQueryHandler : IQueryHandler<ReturnsQuery, ReturnSearchResul
     public virtual async Task<ReturnSearchResult> Handle(ReturnsQuery request, CancellationToken cancellationToken)
     {
         var criteria = request.GetSearchCriteria<ReturnSearchCriteria>();
+        // ReturnType has no order field; without this the default response group loads one per row
+        // and forces a clone, undoing SearchNoCloneAsync.
+        criteria.ResponseGroup = ReturnResponseGroup.None.ToString();
         criteria.CustomerId = request.CustomerId;
         criteria.StoreId = request.StoreId;
         criteria.Statuses = request.Statuses;

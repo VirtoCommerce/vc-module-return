@@ -55,7 +55,7 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
             if (withOrders && returns.Any())
             {
-                var orders = await GetOrdersForReturns(returns);
+                var orders = await GetOrdersForReturns(returns, clone: true);
 
                 foreach (var orderReturn in returns)
                 {
@@ -111,7 +111,8 @@ namespace VirtoCommerce.ReturnModule.Data.Services
                 return;
             }
 
-            var ordersById = (await GetOrdersForReturns(returns)).ToDictionary(x => x.Id);
+            var ordersById = (await GetOrdersForReturns(returns, clone: false))
+                .ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
 
             await EnsureEachReturnHasNumber(returns, ordersById);
             FillMissingSnapshots(returns, ordersById);
@@ -136,7 +137,8 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             }
 
             var storeIds = ordersById.Values.Select(x => x.StoreId).Distinct().ToList();
-            var storesById = (await _storeService.GetNoCloneAsync(storeIds)).ToDictionary(x => x.Id);
+            var storesById = (await _storeService.GetNoCloneAsync(storeIds))
+                .ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
 
             var settingDescriptor = ModuleConstants.Settings.General.ReturnNewNumberTemplate;
             var globalNumberTemplate = await _settingsManager.GetValueAsync<string>(settingDescriptor);
@@ -145,7 +147,7 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             {
                 var numberTemplate = globalNumberTemplate;
 
-                if (ordersById.TryGetValue(orderReturn.OrderId, out var order) &&
+                if (ordersById.TryGetValue(orderReturn.OrderId ?? string.Empty, out var order) &&
                     storesById.TryGetValue(order.StoreId, out var store))
                 {
                     numberTemplate = store.Settings.GetValue<string>(settingDescriptor);
@@ -164,27 +166,26 @@ namespace VirtoCommerce.ReturnModule.Data.Services
                     continue;
                 }
 
-                orderReturn.StoreId ??= order.StoreId;
-                orderReturn.CustomerId ??= order.CustomerId;
-                orderReturn.CustomerName ??= order.CustomerName;
-                orderReturn.OrderNumber ??= order.Number;
+                orderReturn.StoreId = Fill(orderReturn.StoreId, order.StoreId);
+                orderReturn.CustomerId = Fill(orderReturn.CustomerId, order.CustomerId);
+                orderReturn.CustomerName = Fill(orderReturn.CustomerName, order.CustomerName);
+                orderReturn.OrderNumber = Fill(orderReturn.OrderNumber, order.Number);
 
                 var orderLineItems = (order.Items ?? []).ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
 
                 foreach (var lineItem in orderReturn.LineItems ?? [])
                 {
-                    if (!string.IsNullOrEmpty(lineItem.Sku) ||
-                        !orderLineItems.TryGetValue(lineItem.OrderLineItemId ?? string.Empty, out var orderLineItem))
+                    if (!orderLineItems.TryGetValue(lineItem.OrderLineItemId ?? string.Empty, out var orderLineItem))
                     {
                         continue;
                     }
 
-                    lineItem.ProductId ??= orderLineItem.ProductId;
-                    lineItem.Sku = orderLineItem.Sku;
-                    lineItem.Name ??= orderLineItem.Name;
-                    lineItem.ImageUrl ??= orderLineItem.ImageUrl;
-                    lineItem.MeasureUnit ??= orderLineItem.MeasureUnit;
-                    lineItem.ItemState ??= ReturnItemState.Requested;
+                    lineItem.ProductId = Fill(lineItem.ProductId, orderLineItem.ProductId);
+                    lineItem.Sku = Fill(lineItem.Sku, orderLineItem.Sku);
+                    lineItem.Name = Fill(lineItem.Name, orderLineItem.Name);
+                    lineItem.ImageUrl = Fill(lineItem.ImageUrl, orderLineItem.ImageUrl);
+                    lineItem.MeasureUnit = Fill(lineItem.MeasureUnit, orderLineItem.MeasureUnit);
+                    lineItem.ItemState = Fill(lineItem.ItemState, ReturnItemState.Requested);
 
                     if (lineItem.OrderedQuantity == 0)
                     {
@@ -199,12 +200,18 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             }
         }
 
-        private async Task<IList<CustomerOrder>> GetOrdersForReturns(IEnumerable<Return> returns)
+        // Return.Order is public, so whatever is handed to a caller must be theirs to mutate. The
+        // save path only reads, and cloning an order per keystroke of autosave is not free.
+        private static string Fill(string current, string fromOrder)
+        {
+            return string.IsNullOrEmpty(current) ? fromOrder : current;
+        }
+
+        private async Task<IList<CustomerOrder>> GetOrdersForReturns(IEnumerable<Return> returns, bool clone)
         {
             var orderIds = returns.Select(x => x.OrderId).Distinct().ToList();
-            var orders = await _orderService.GetNoCloneAsync(orderIds);
 
-            return orders;
+            return await _orderService.GetAsync(orderIds, responseGroup: null, clone);
         }
     }
 }

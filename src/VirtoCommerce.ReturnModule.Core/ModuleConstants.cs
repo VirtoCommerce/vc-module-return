@@ -35,8 +35,12 @@ namespace VirtoCommerce.ReturnModule.Core
                     IsDictionary = true,
                     IsLocalizable = true,
                     DefaultValue = "New",
-                    // The first five shipped with the module; the rest are the statuses the buyer
-                    // flow writes. Both spellings of cancelled are here on purpose.
+                    // The first five shipped with the module. Of the rest, the buyer flow writes Draft,
+                    // Requested and Cancelled; PartiallyApproved and Rejected are agent-side and land
+                    // with step 2. Cancelled is this module's spelling, Canceled the shipped one, and
+                    // both stay so that rows carrying either keep resolving. AwaitingDelivery and
+                    // Received exist as constants but are not reachable yet, so they are absent here
+                    // and from the locale files.
                     AllowedValues = new[]
                     {
                         "New", "Approved", "Completed", "Canceled", "Processing",
@@ -115,12 +119,15 @@ namespace VirtoCommerce.ReturnModule.Core
                     DefaultValue = "FaultyOnArrival,DamagedInTransit,WrongItemDelivered"
                 };
 
+                // Off by default: uploads need a FileUpload scope in the platform configuration, and
+                // until it is added every submit would fail with ATTACHMENTS_REQUIRED that the buyer
+                // cannot satisfy.
                 public static SettingDescriptor ReturnAttachmentsRequired { get; } = new SettingDescriptor
                 {
                     Name = "Return.AttachmentsRequired",
                     ValueType = SettingValueType.Boolean,
                     GroupName = "Return|Return",
-                    DefaultValue = true,
+                    DefaultValue = false,
                     IsPublic = true
                 };
 

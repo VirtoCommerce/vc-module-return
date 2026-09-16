@@ -25,8 +25,9 @@ namespace VirtoCommerce.ReturnModule.Data.Models
         [StringLength(IdLength)]
         public string ProductId { get; set; }
 
-        // Widths mirror LineItemEntity in the Orders module: these are copied from the order line,
-        // and a narrower snapshot fails the save.
+        // Sku, Name and MeasureUnit mirror LineItemEntity in the Orders module: these are copied from
+        // the order line, and a narrower snapshot fails the save. ImageUrl is wider than its 1028
+        // there, which a snapshot can afford.
         [StringLength(Length128)]
         public string Sku { get; set; }
 

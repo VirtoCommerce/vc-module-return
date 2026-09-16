@@ -111,8 +111,8 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             return sortInfos;
         }
 
-        // The shipped dictionary has always offered both spellings of cancelled, so rows written
-        // before the buyer flow carry the other one. Asking for either must find both.
+        // The shipped dictionary spells it Canceled; this module's flow writes Cancelled, and both
+        // are now offered. Rows therefore carry either, and asking for one must find both.
         protected virtual IList<string> ExpandStatuses(IList<string> statuses)
         {
             var result = new List<string>(statuses);
