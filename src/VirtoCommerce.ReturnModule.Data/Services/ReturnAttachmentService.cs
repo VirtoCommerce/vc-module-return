@@ -63,9 +63,14 @@ public class ReturnAttachmentService : IReturnAttachmentService
 
         foreach (var url in wanted.Except(current, _ignoreCase))
         {
+            // Missing, in another scope, or owned by another return. Dropping it quietly answers 200
+            // with a line that has no attachment, and the buyer's next signal is ATTACHMENTS_REQUIRED
+            // at submit, which points at the wrong thing.
             if (!filesByUrl.TryGetValue(url, out var file))
             {
-                continue;
+                throw new ReturnFlowException(
+                    ReturnFlowError.AttachmentNotAvailable,
+                    $"File '{url}' is not available to attach to this return.");
             }
 
             lineItem.Attachments.Add(ToAttachment(file));

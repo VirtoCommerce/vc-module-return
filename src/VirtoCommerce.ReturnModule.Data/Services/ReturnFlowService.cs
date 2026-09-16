@@ -10,6 +10,7 @@ using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
+using VirtoCommerce.ReturnModule.Data.Validation;
 using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.Platform.Core.Settings;
 
@@ -17,6 +18,8 @@ namespace VirtoCommerce.ReturnModule.Data.Services;
 
 public class ReturnFlowService : IReturnFlowService
 {
+    private static readonly char[] _settingSeparators = [',', ';'];
+
     private readonly ICustomerOrderService _orderService;
     private readonly IReturnService _returnService;
     private readonly IReturnEligibilityService _eligibilityService;
@@ -66,6 +69,7 @@ public class ReturnFlowService : IReturnFlowService
         }
 
         ValidateNoDuplicateLines(request.Items);
+        await ValidateRequestAsync(order.StoreId, request.CustomerReference, request.CustomerComment, request.Items);
 
         var orderLineItems = (order.Items ?? []).ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
 
@@ -110,6 +114,8 @@ public class ReturnFlowService : IReturnFlowService
 
         var changes = new ReturnAttachmentChanges();
 
+        // null leaves the field alone, an empty string clears it - the same rule the attachment
+        // list already documents on this input.
         orderReturn.CustomerReference = request.CustomerReference ?? orderReturn.CustomerReference;
         orderReturn.CustomerComment = request.CustomerComment ?? orderReturn.CustomerComment;
 
@@ -121,6 +127,7 @@ public class ReturnFlowService : IReturnFlowService
             }
 
             ValidateNoDuplicateLines(request.Items);
+            await ValidateRequestAsync(orderReturn.StoreId, request.CustomerReference, request.CustomerComment, request.Items);
 
             var keptLineItems = request.Items.Select(x => UpdateLineItem(x, orderReturn, orderLineItems)).ToList();
 
@@ -285,6 +292,34 @@ public class ReturnFlowService : IReturnFlowService
 
     // Availability is held per order line, so two draft lines pointing at the same one must be
     // validated together - checked row by row they would each pass against the full amount.
+    protected virtual async Task ValidateRequestAsync(string storeId, string customerReference, string customerComment, IList<CreateReturnItemRequest> items)
+    {
+        var store = string.IsNullOrEmpty(storeId) ? null : await _storeService.GetNoCloneAsync(storeId);
+        var settings = store?.Settings ?? [];
+
+        var validationContext = AbstractTypeFactory<ReturnRequestValidationContext>.TryCreateInstance();
+        validationContext.CustomerReference = customerReference;
+        validationContext.CustomerComment = customerComment;
+        validationContext.Items = items;
+        validationContext.Reasons = ParseSetting(settings, ModuleConstants.Settings.General.ReturnReasons);
+        validationContext.ReasonsRequiringComment = ParseSetting(settings, ModuleConstants.Settings.General.ReturnReasonsRequiringComment);
+
+        var validation = await new ReturnRequestValidator().ValidateAsync(validationContext);
+
+        if (!validation.IsValid)
+        {
+            throw new ReturnFlowException(
+                ReturnFlowError.InvalidRequest,
+                string.Join(" ", validation.Errors.Select(x => x.ErrorMessage)));
+        }
+    }
+
+    protected static IList<string> ParseSetting(IEnumerable<ObjectSettingEntry> settings, SettingDescriptor setting)
+    {
+        return settings.GetValue<string>(setting)
+            ?.Split(_settingSeparators, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
+    }
+
     protected virtual void ValidateNoDuplicateLines(IList<CreateReturnItemRequest> items)
     {
         var duplicate = items
@@ -394,6 +429,7 @@ public class ReturnFlowService : IReturnFlowService
         result.ReasonCode = request.ReasonCode ?? result.ReasonCode;
         result.ReasonComment = request.ReasonComment ?? result.ReasonComment;
         result.SerialNumber = request.SerialNumber ?? result.SerialNumber;
+
 
         return result;
     }
