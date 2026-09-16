@@ -79,6 +79,10 @@ namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
+                    b.Property<string>("CancelReason")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
                     b.Property<string>("Comment")
                         .HasMaxLength(2048)
                         .HasColumnType("character varying(2048)");

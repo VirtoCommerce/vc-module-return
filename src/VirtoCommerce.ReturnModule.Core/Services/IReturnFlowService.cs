@@ -33,4 +33,13 @@ public interface IReturnFlowService
     /// drafting against the same order, and the second one must not be allowed to over-return.
     /// </remarks>
     Task<Return> SubmitAsync(string returnId, ReturnFlowContext context, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Withdraws the buyer's own return, moving it to <see cref="ReturnStatus.Cancelled"/>.
+    /// </summary>
+    /// <remarks>
+    /// Whatever quantity the return was holding goes back to available on its own, because
+    /// availability is derived from status rather than kept in a counter.
+    /// </remarks>
+    Task<Return> CancelAsync(string returnId, string reason, ReturnFlowContext context, CancellationToken cancellationToken = default);
 }

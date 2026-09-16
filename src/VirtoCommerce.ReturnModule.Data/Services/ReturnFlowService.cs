@@ -159,6 +159,38 @@ public class ReturnFlowService : IReturnFlowService
         return orderReturn;
     }
 
+    public virtual async Task<Return> CancelAsync(string returnId, string reason, ReturnFlowContext context, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        var orderReturn = await GetOwnedReturnAsync(returnId, context);
+
+        if (!CancellableStatuses.Contains(orderReturn.Status ?? string.Empty))
+        {
+            throw new ReturnFlowException(
+                ReturnFlowError.WrongStatus,
+                $"Return '{returnId}' is '{orderReturn.Status}' and can no longer be cancelled.");
+        }
+
+        orderReturn.Status = ReturnStatus.Cancelled;
+        orderReturn.CancelReason = reason;
+
+        await _returnService.SaveChangesAsync([orderReturn]);
+
+        return orderReturn;
+    }
+
+    /// <summary>
+    /// States a buyer may still withdraw from.
+    /// </summary>
+    /// <remarks>
+    /// Requested is included per the spec's transition table. It does let a buyer pull a return out
+    /// from under an agent who is already looking at it — there is no agent side yet, so nothing can
+    /// collide today, and a store that later wants a stricter rule narrows this to Draft alone.
+    /// </remarks>
+    protected virtual ISet<string> CancellableStatuses { get; } =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ReturnStatus.Draft, ReturnStatus.Requested };
+
     /// <summary>
     /// Every returned line must carry at least one photo or document, when the store asks for it.
     /// </summary>
@@ -224,16 +256,26 @@ public class ReturnFlowService : IReturnFlowService
     /// </remarks>
     protected virtual async Task<Return> GetEditableDraftAsync(string returnId, ReturnFlowContext context)
     {
+        var orderReturn = await GetOwnedReturnAsync(returnId, context);
+
+        if (!ReturnStatus.Draft.EqualsIgnoreCase(orderReturn.Status))
+        {
+            throw new ReturnFlowException(ReturnFlowError.WrongStatus, $"Return '{returnId}' is '{orderReturn.Status}', only a draft can be changed.");
+        }
+
+        return orderReturn;
+    }
+
+    /// <summary>
+    /// Loads a return belonging to the caller, whatever state it is in.
+    /// </summary>
+    protected virtual async Task<Return> GetOwnedReturnAsync(string returnId, ReturnFlowContext context)
+    {
         var orderReturn = await _returnService.GetByIdAsync(returnId, ReturnResponseGroup.None.ToString());
 
         if (orderReturn == null || !await IsOwnedByAsync(orderReturn, context.CustomerId))
         {
             throw new ReturnFlowException(ReturnFlowError.ReturnNotFound, $"Return '{returnId}' was not found.");
-        }
-
-        if (!ReturnStatus.Draft.EqualsIgnoreCase(orderReturn.Status))
-        {
-            throw new ReturnFlowException(ReturnFlowError.WrongStatus, $"Return '{returnId}' is '{orderReturn.Status}', only a draft can be changed.");
         }
 
         return orderReturn;

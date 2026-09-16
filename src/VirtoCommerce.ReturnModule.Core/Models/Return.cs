@@ -52,6 +52,13 @@ namespace VirtoCommerce.ReturnModule.Core.Models
         /// </summary>
         public string RejectReason { get; set; }
 
+        /// <summary>
+        /// Why the buyer withdrew the return. Kept apart from <see cref="RejectReason"/>, which is
+        /// the agent's word on a return they refused — the two read the same to a machine and mean
+        /// opposite things to a person.
+        /// </summary>
+        public string CancelReason { get; set; }
+
         public CustomerOrder Order { get; set; }
 
         public ICollection<ReturnLineItem> LineItems { get; set; }

@@ -79,6 +79,10 @@ namespace VirtoCommerce.ReturnModule.DataData.SqlServer.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
+                    b.Property<string>("CancelReason")
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
                     b.Property<string>("Comment")
                         .HasMaxLength(2048)
                         .HasColumnType("nvarchar(2048)");

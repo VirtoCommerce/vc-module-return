@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -50,6 +50,9 @@ namespace VirtoCommerce.ReturnModule.Data.Models
         [StringLength(2048)]
         public string RejectReason { get; set; }
 
+        [StringLength(2048)]
+        public string CancelReason { get; set; }
+
         public virtual ObservableCollection<ReturnLineItemEntity> LineItems { get; set; } = new NullCollection<ReturnLineItemEntity>();
 
         public virtual Return ToModel(Return model)
@@ -75,6 +78,7 @@ namespace VirtoCommerce.ReturnModule.Data.Models
             model.CustomerComment = CustomerComment;
             model.Comment = Comment;
             model.RejectReason = RejectReason;
+            model.CancelReason = CancelReason;
 
             model.LineItems = LineItems.Select(x => x.ToModel(AbstractTypeFactory<ReturnLineItem>.TryCreateInstance())).ToList();
 
@@ -106,6 +110,7 @@ namespace VirtoCommerce.ReturnModule.Data.Models
             CustomerComment = model.CustomerComment;
             Comment = model.Comment;
             RejectReason = model.RejectReason;
+            CancelReason = model.CancelReason;
 
             if (model.LineItems != null)
             {
@@ -134,6 +139,7 @@ namespace VirtoCommerce.ReturnModule.Data.Models
             target.CustomerComment = CustomerComment;
             target.Comment = Comment;
             target.RejectReason = RejectReason;
+            target.CancelReason = CancelReason;
 
             if (!LineItems.IsNullCollection())
             {

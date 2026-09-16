@@ -19,6 +19,7 @@ public class ReturnType : ExtendableGraphType<Return>
         Field(x => x.CustomerReference, nullable: true).Description("Buyer's own purchase order reference.");
         Field(x => x.CustomerComment, nullable: true);
         Field(x => x.RejectReason, nullable: true);
+        Field(x => x.CancelReason, nullable: true).Description("Why the buyer withdrew the return.");
 
         Field<NonNullGraphType<IntGraphType>>("itemsQuantity")
             .Description("Total quantity requested across the return's lines.")
