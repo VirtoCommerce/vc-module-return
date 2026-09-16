@@ -33,8 +33,16 @@ namespace VirtoCommerce.ReturnModule.Core
                     ValueType = SettingValueType.ShortText,
                     GroupName = "Return|Return",
                     IsDictionary = true,
+                    IsLocalizable = true,
                     DefaultValue = "New",
-                    AllowedValues = new[] { "New", "Approved", "Completed", "Canceled", "Processing" }
+                    // The first five shipped with the module; the rest are the statuses the buyer
+                    // flow writes. Both spellings of cancelled are here on purpose.
+                    AllowedValues = new[]
+                    {
+                        "New", "Approved", "Completed", "Canceled", "Processing",
+                        ReturnStatus.Draft, ReturnStatus.Requested, ReturnStatus.PartiallyApproved,
+                        ReturnStatus.Rejected, ReturnStatus.Cancelled,
+                    }
                 };
 
                 public static SettingDescriptor ReturnEnabled { get; } = new SettingDescriptor

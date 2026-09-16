@@ -92,6 +92,27 @@ public class ReturnAuthorizationHandlerTests
         Assert.False(context.HasSucceeded);
     }
 
+    [Fact]
+    public async Task AnonymousCallerOnUnclaimedFile_Fails()
+    {
+        var file = new File { Id = "f1", Scope = "return-attachments" };
+        var context = CreateContext(OwnerId, file, authenticated: false);
+
+        await CreateHandler().HandleAsync(context);
+
+        Assert.False(context.HasSucceeded);
+    }
+
+    [Fact]
+    public async Task AnonymousCallerOnOwnedFile_Fails()
+    {
+        var context = CreateContext(OwnerId, OwnedFile(), authenticated: false);
+
+        await CreateHandler().HandleAsync(context);
+
+        Assert.False(context.HasSucceeded);
+    }
+
     private static File OwnedFile()
     {
         return new File
@@ -134,7 +155,11 @@ public class ReturnAuthorizationHandlerTests
         return new TestHandler(returnService.Object, flowService.Object, userId);
     }
 
-    private static AuthorizationHandlerContext CreateContext(string userId, object resource, string role = null)
+    private static AuthorizationHandlerContext CreateContext(
+        string userId,
+        object resource,
+        string role = null,
+        bool authenticated = true)
     {
         var claims = new List<Claim> { new("name", userId), new(ClaimTypes.NameIdentifier, userId) };
 
@@ -143,7 +168,12 @@ public class ReturnAuthorizationHandlerTests
             claims.Add(new Claim(ClaimTypes.Role, role));
         }
 
-        var user = new ClaimsPrincipal(new ClaimsIdentity(claims, "test", "name", ClaimTypes.Role));
+        // An identity with no authentication type reads as anonymous.
+        var identity = authenticated
+            ? new ClaimsIdentity(claims, "test", "name", ClaimTypes.Role)
+            : new ClaimsIdentity(claims, null, "name", ClaimTypes.Role);
+
+        var user = new ClaimsPrincipal(identity);
 
         return new AuthorizationHandlerContext([new ReturnAuthorizationRequirement()], user, resource);
     }

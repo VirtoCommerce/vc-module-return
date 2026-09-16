@@ -44,6 +44,11 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
             return true;
         }
 
+        if (context.User.Identity?.IsAuthenticated != true)
+        {
+            return false;
+        }
+
         if (context.Resource is not File file)
         {
             return false;

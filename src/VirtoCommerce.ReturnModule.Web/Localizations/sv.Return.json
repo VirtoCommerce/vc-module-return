@@ -1,4 +1,4 @@
-{
+﻿{
   "return": {
     "main-menu-title": "Returer",
     "blades": {
@@ -77,7 +77,17 @@
     },
     "Return.Status": {
       "description": "Returstatus för ordrar",
-      "title": "Status för kundreturer"
+      "title": "Status för kundreturer",
+      "New": "Ny",
+      "Approved": "Godkänd",
+      "Completed": "Slutförd",
+      "Canceled": "Avbruten",
+      "Processing": "Behandlas",
+      "Draft": "Utkast",
+      "Requested": "Begärd",
+      "PartiallyApproved": "Delvis godkänd",
+      "Rejected": "Avvisad",
+      "Cancelled": "Avbruten"
     }
   }
 }

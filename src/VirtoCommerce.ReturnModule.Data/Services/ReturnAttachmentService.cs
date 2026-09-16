@@ -26,11 +26,16 @@ public class ReturnAttachmentService : IReturnAttachmentService
         _fileUploadService = fileUploadService;
     }
 
-    public virtual async Task<IList<File>> UpdateAttachmentsAsync(Return orderReturn, ReturnLineItem lineItem, IList<string> urls)
+    public virtual Task<IList<File>> UpdateAttachmentsAsync(Return orderReturn, ReturnLineItem lineItem, IList<string> urls)
     {
         ArgumentNullException.ThrowIfNull(orderReturn);
         ArgumentNullException.ThrowIfNull(lineItem);
 
+        return UpdateAttachmentsInternalAsync(orderReturn, lineItem, urls);
+    }
+
+    protected virtual async Task<IList<File>> UpdateAttachmentsInternalAsync(Return orderReturn, ReturnLineItem lineItem, IList<string> urls)
+    {
         lineItem.Attachments ??= [];
 
         var wanted = urls ?? [];

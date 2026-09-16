@@ -1,4 +1,4 @@
-{
+﻿{
   "return": {
     "main-menu-title": "Zwroty",
     "blades": {
@@ -77,7 +77,17 @@
     },
     "Return.Status": {
       "description": "Statusy zwrotów zamówień",
-      "title": "Statusy zwrotów zamówień klientów"
+      "title": "Statusy zwrotów zamówień klientów",
+      "New": "Nowy",
+      "Approved": "Zatwierdzony",
+      "Completed": "Zakończony",
+      "Canceled": "Anulowany",
+      "Processing": "W trakcie",
+      "Draft": "Wersja robocza",
+      "Requested": "Zgłoszony",
+      "PartiallyApproved": "Częściowo zatwierdzony",
+      "Rejected": "Odrzucony",
+      "Cancelled": "Anulowany"
     }
   }
 }
