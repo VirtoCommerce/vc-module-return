@@ -106,7 +106,7 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
         protected override async Task BeforeSaveChanges(IList<Return> returns)
         {
-            if (returns.IsNullOrEmpty() || !returns.Any(NeedsOrder))
+            if (returns.IsNullOrEmpty())
             {
                 return;
             }
@@ -116,16 +116,6 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
             await EnsureEachReturnHasNumber(returns, ordersById);
             FillMissingSnapshots(returns, ordersById);
-        }
-
-        // Autosave saves the same draft on every keystroke, and a return that already has its number
-        // and its snapshots has nothing to read the order for.
-        private static bool NeedsOrder(Return orderReturn)
-        {
-            return string.IsNullOrEmpty(orderReturn.Number) ||
-                   string.IsNullOrEmpty(orderReturn.StoreId) ||
-                   string.IsNullOrEmpty(orderReturn.CustomerId) ||
-                   (orderReturn.LineItems ?? []).Any(x => string.IsNullOrEmpty(x.Sku));
         }
 
         private async Task EnsureEachReturnHasNumber(IEnumerable<Return> returns, IDictionary<string, CustomerOrder> ordersById)
@@ -200,13 +190,14 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             }
         }
 
-        // Return.Order is public, so whatever is handed to a caller must be theirs to mutate. The
-        // save path only reads, and cloning an order per keystroke of autosave is not free.
         private static string Fill(string current, string fromOrder)
         {
             return string.IsNullOrEmpty(current) ? fromOrder : current;
         }
 
+        // Return.Order is public, so whatever is handed to a caller must be theirs to mutate, which
+        // is what clone is for. The save path only reads, and cloning an order per keystroke of
+        // autosave is not free.
         private async Task<IList<CustomerOrder>> GetOrdersForReturns(IEnumerable<Return> returns, bool clone)
         {
             var orderIds = returns.Select(x => x.OrderId).Distinct().ToList();

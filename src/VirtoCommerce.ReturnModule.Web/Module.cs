@@ -1,4 +1,5 @@
 ﻿using System;
+using FluentValidation;
 using GraphQL.MicrosoftDI;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -13,12 +14,14 @@ using VirtoCommerce.Platform.Data.MySql.Extensions;
 using VirtoCommerce.Platform.Data.PostgreSql.Extensions;
 using VirtoCommerce.Platform.Data.SqlServer.Extensions;
 using VirtoCommerce.ReturnModule.Core;
+using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.Data.MySql;
 using VirtoCommerce.ReturnModule.Data.PostgreSql;
 using VirtoCommerce.ReturnModule.Data.Repositories;
 using VirtoCommerce.ReturnModule.Data.Services;
 using VirtoCommerce.ReturnModule.Data.SqlServer;
+using VirtoCommerce.ReturnModule.Data.Validation;
 using VirtoCommerce.ReturnModule.ExperienceApi;
 using VirtoCommerce.ReturnModule.ExperienceApi.Authorization;
 using VirtoCommerce.StoreModule.Core.Model;
@@ -64,6 +67,7 @@ namespace VirtoCommerce.ReturnModule.Web
             serviceCollection.AddTransient<IReturnAttachmentService, ReturnAttachmentService>();
             serviceCollection.AddTransient<IReturnStateProvider, ReturnStateProvider>();
             serviceCollection.AddTransient<IReturnFlowService, ReturnFlowService>();
+            serviceCollection.AddTransient<AbstractValidator<ReturnRequestValidationContext>, ReturnRequestValidator>();
 
             // GraphQL
             _ = new GraphQLBuilder(serviceCollection, builder =>

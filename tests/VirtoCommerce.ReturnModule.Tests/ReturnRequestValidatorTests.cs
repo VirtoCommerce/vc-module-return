@@ -85,6 +85,25 @@ public class ReturnRequestValidatorTests
         return new ReturnRequestValidator().ValidateAsync(CreateContext(item), TestContext.Current.CancellationToken);
     }
 
+    [Fact]
+    public async Task EmptyReason_IsAcceptedWhileDrafting()
+    {
+        var result = await Validate(new CreateReturnItemRequest { ReasonCode = "" });
+
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public async Task EmptyReason_IsRefusedWhenOneIsRequired()
+    {
+        var context = CreateContext(new CreateReturnItemRequest { ReasonCode = "" });
+        context.RequireReason = true;
+
+        var result = await new ReturnRequestValidator().ValidateAsync(context, TestContext.Current.CancellationToken);
+
+        Assert.False(result.IsValid);
+    }
+
     private static ReturnRequestValidationContext CreateContext(CreateReturnItemRequest item)
     {
         return new ReturnRequestValidationContext

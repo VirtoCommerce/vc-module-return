@@ -9,6 +9,7 @@ using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.Data.Services;
+using VirtoCommerce.ReturnModule.Data.Validation;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
 using Xunit;
@@ -108,6 +109,33 @@ public class ReturnFlowValidationTests
     }
 
     [Fact]
+    public async Task LineWithoutAReason_PassesWhileDrafting()
+    {
+        // Autosave writes the draft on every keystroke, so an unfinished line is not an invalid one.
+        var service = CreateServiceWithReasons("FaultyOnArrival");
+
+        await service.ValidateRequest(
+            "store-1",
+            [new CreateReturnItemRequest { OrderLineItemId = LineId, Quantity = 1 }]);
+    }
+
+    [Fact]
+    public async Task LineWithoutAReason_IsRefusedAtSubmit()
+    {
+        // Clearing the reason used to slip past both reason rules and take the mandatory-comment
+        // setting with it.
+        var service = CreateServiceWithReasons("FaultyOnArrival");
+
+        var exception = await Assert.ThrowsAsync<ReturnFlowException>(() =>
+            service.ValidateRequest(
+                "store-1",
+                [new CreateReturnItemRequest { OrderLineItemId = LineId, Quantity = 1 }],
+                requireReason: true));
+
+        Assert.Equal(ReturnFlowError.InvalidRequest, exception.Code);
+    }
+
+    [Fact]
     public async Task HeaderOnlyUpdate_IsValidatedToo()
     {
         // An update that sends no items still writes the reference, so it still has to pass.
@@ -179,12 +207,12 @@ public class ReturnFlowValidationTests
             IReturnEligibilityService eligibilityService,
             IStoreService storeService = null,
             ILocalizableSettingService localizableSettingService = null)
-            : base(null, null, eligibilityService, null, storeService, null, localizableSettingService)
+            : base(null, null, eligibilityService, null, storeService, null, localizableSettingService, new ReturnRequestValidator())
         {
         }
 
-        public Task ValidateRequest(string storeId, IList<CreateReturnItemRequest> items) =>
-            ValidateRequestAsync(storeId, null, null, items);
+        public Task ValidateRequest(string storeId, IList<CreateReturnItemRequest> items, bool requireReason = false) =>
+            ValidateRequestAsync(storeId, null, null, items, requireReason);
 
         public Task ValidateHeader(string storeId, string customerReference) =>
             ValidateRequestAsync(storeId, customerReference, null, null);

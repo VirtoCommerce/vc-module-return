@@ -41,7 +41,8 @@ There are two ways to create a return. The first one is creating it from a retur
 
 ![Add new return button](media/07-add-new-return-button.png)
 
-This button will take you to a screen with orders. Click the order you need to open another screen with this order's line items. Here, you can select line items to return, enter the return reason and quantity, and optionally change the price. Once you select at least one line item with non-zero quantity, the _Make Return_ button will become active. You can also specify the return reason, which is an optional field.
+This button will take you to a screen with orders. Click the order you need to open another screen with this order's line items. Here, you can select line items to return, enter the return reason and quantity, and optionally change the price. Once you select at least one line item with non-zero quantity, the _Make Return_ button will become active. You can also specify the return reason. It is optional while the return is a draft and required to
+submit it.
 
 > ***Note:*** *The Quantity field gets automatically validated, which means you cannot return more items than the order contains and that have not been returned with other returns related to this order.*
 
@@ -207,6 +208,19 @@ The size and the extension list are yours to choose; the module deliberately imp
 
 `Return.AttachmentsRequired` is off by default for the same reason — turned on before the scope exists,
 it would refuse every submit for a file the buyer has no way to upload.
+
+A buyer may only attach files they uploaded themselves and that no other return has claimed. Dropping
+a line releases its files, and a released file that no return refers to any more is deleted.
+
+## When the rules are applied
+
+A draft is saved on every edit, so a half-filled line has to be allowed to persist: while drafting,
+the module only checks lengths and that a reason, if one is given, is in `Return.Reasons`.
+
+Submit runs the same checks and additionally requires a reason on every line, so
+`Return.ReasonsRequiringComment` cannot be sidestepped by clearing the reason. Submit validates the
+draft as it stands, whoever wrote it — a draft written through `PUT /api/return` is held to the same
+rules as one built in the storefront.
 
 # Permissions
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using VirtoCommerce.FileExperienceApi.Core.Models;
+using FluentValidation;
 using VirtoCommerce.OrdersModule.Core.Model;
 using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
@@ -11,7 +11,6 @@ using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
-using VirtoCommerce.ReturnModule.Data.Validation;
 using VirtoCommerce.StoreModule.Core.Services;
 
 namespace VirtoCommerce.ReturnModule.Data.Services;
@@ -27,6 +26,7 @@ public class ReturnFlowService : IReturnFlowService
     private readonly IStoreService _storeService;
     private readonly IReturnStateProvider _stateProvider;
     private readonly ILocalizableSettingService _localizableSettingService;
+    private readonly AbstractValidator<ReturnRequestValidationContext> _requestValidator;
 
     public ReturnFlowService(
         ICustomerOrderService orderService,
@@ -35,7 +35,8 @@ public class ReturnFlowService : IReturnFlowService
         IReturnAttachmentService attachmentService,
         IStoreService storeService,
         IReturnStateProvider stateProvider,
-        ILocalizableSettingService localizableSettingService)
+        ILocalizableSettingService localizableSettingService,
+        AbstractValidator<ReturnRequestValidationContext> requestValidator)
     {
         _orderService = orderService;
         _returnService = returnService;
@@ -44,6 +45,7 @@ public class ReturnFlowService : IReturnFlowService
         _storeService = storeService;
         _stateProvider = stateProvider;
         _localizableSettingService = localizableSettingService;
+        _requestValidator = requestValidator;
     }
 
     public virtual async Task<Return> CreateDraft(CreateReturnRequest request, ReturnFlowContext context, CancellationToken cancellationToken = default)
@@ -87,6 +89,10 @@ public class ReturnFlowService : IReturnFlowService
         result.CustomerComment = request.CustomerComment;
         result.LineItems = request.Items.Select(x => CreateLineItem(x, orderLineItems)).ToList();
 
+        // Before the first save: a file the buyer cannot attach used to surface after the draft was
+        // committed, leaving an invisible return - and one more on every retry.
+        await _attachmentService.ValidateAvailable(result, request.Items.SelectMany(x => x.AttachmentUrls ?? []));
+
         await _returnService.SaveChangesAsync([result]);
 
         if (!request.Items.Any(x => x.AttachmentUrls != null))
@@ -101,7 +107,7 @@ public class ReturnFlowService : IReturnFlowService
         var changes = await UpdateAttachments(saved, request.Items);
 
         await _returnService.SaveChangesAsync([saved]);
-        await ApplyAttachmentChanges(saved, changes);
+        await ApplyAttachmentChanges(changes);
 
         return saved;
     }
@@ -115,7 +121,7 @@ public class ReturnFlowService : IReturnFlowService
         var order = await _orderService.GetNoCloneAsync(orderReturn.OrderId);
         var orderLineItems = (order?.Items ?? []).ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
 
-        var changes = new ReturnAttachmentChanges();
+        var changes = AbstractTypeFactory<ReturnAttachmentChanges>.TryCreateInstance();
 
         // Ahead of the header assignment, and outside the items branch: a request that only renames
         // the reference still writes it, so it still has to pass.
@@ -146,7 +152,7 @@ public class ReturnFlowService : IReturnFlowService
 
         // The return goes first: a failure there must not leave a file reassigned.
         await _returnService.SaveChangesAsync([orderReturn]);
-        await ApplyAttachmentChanges(orderReturn, changes);
+        await ApplyAttachmentChanges(changes);
 
         return orderReturn;
     }
@@ -155,7 +161,7 @@ public class ReturnFlowService : IReturnFlowService
     // with this return and never come back to the pool.
     protected virtual async Task<ReturnAttachmentChanges> ReleaseAttachmentsOfDroppedLinesAsync(Return orderReturn, IList<ReturnLineItem> keptLineItems)
     {
-        var result = new ReturnAttachmentChanges();
+        var result = AbstractTypeFactory<ReturnAttachmentChanges>.TryCreateInstance();
 
         var dropped = (orderReturn.LineItems ?? [])
             .Where(x => !keptLineItems.Contains(x))
@@ -171,7 +177,7 @@ public class ReturnFlowService : IReturnFlowService
 
     protected virtual async Task<ReturnAttachmentChanges> UpdateAttachments(Return orderReturn, IList<CreateReturnItemRequest> items)
     {
-        var result = new ReturnAttachmentChanges();
+        var result = AbstractTypeFactory<ReturnAttachmentChanges>.TryCreateInstance();
 
         foreach (var item in items.Where(x => x.AttachmentUrls != null))
         {
@@ -189,30 +195,25 @@ public class ReturnFlowService : IReturnFlowService
 
     protected static void Merge(ReturnAttachmentChanges target, ReturnAttachmentChanges source)
     {
-        ((List<File>)target.Claimed).AddRange(source.Claimed);
-        ((List<File>)target.Released).AddRange(source.Released);
+        foreach (var file in source.Claimed)
+        {
+            target.Claimed.Add(file);
+        }
+
+        foreach (var file in source.Released)
+        {
+            target.Released.Add(file);
+        }
     }
 
     // A file the buyer dropped from one line may still hang off another, so what to delete can only
-    // be decided once every line has been processed.
-    protected virtual async Task ApplyAttachmentChanges(Return orderReturn, ReturnAttachmentChanges changes)
+    // be decided once every line has been processed - and the service that mints attachment URLs is
+    // the one that can tell which files are still referenced.
+    protected virtual async Task ApplyAttachmentChanges(ReturnAttachmentChanges changes)
     {
         await _attachmentService.SaveFiles(changes.Claimed);
-
-        var stillUsed = (orderReturn.LineItems ?? [])
-            .SelectMany(x => x.Attachments ?? [])
-            .Select(x => x.Url)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        var orphaned = changes.Released
-            .Where(x => !stillUsed.Contains(GetUrl(x)))
-            .DistinctBy(x => x.Id)
-            .ToList();
-
-        await _attachmentService.DeleteFiles(orphaned);
+        await _attachmentService.DeleteUnreferencedFiles(changes.Released);
     }
-
-    protected static string GetUrl(File file) => $"/api/files/{file.Id}";
 
     public virtual async Task<Return> Submit(string returnId, ReturnFlowContext context, CancellationToken cancellationToken = default)
     {
@@ -234,6 +235,12 @@ public class ReturnFlowService : IReturnFlowService
 
         var order = await _orderService.GetNoCloneAsync(orderReturn.OrderId)
             ?? throw new ReturnFlowException(ReturnFlowError.OrderNotFound, $"Order '{orderReturn.OrderId}' was not found.");
+
+        // Drafts reach this point from the admin REST endpoint and from before this validator existed,
+        // so the rules cannot live in the writers alone. Submit is where the buyer loses the ability
+        // to fix anything, hence also where a reason stops being optional.
+        await ValidateRequestAsync(orderReturn.StoreId, orderReturn.CustomerReference, orderReturn.CustomerComment,
+            orderReturn.LineItems.Select(ToRequest).ToList(), requireReason: true);
 
         await ValidateAttachmentsAsync(orderReturn);
         await ValidateAvailabilityAsync(orderReturn, order);
@@ -276,6 +283,19 @@ public class ReturnFlowService : IReturnFlowService
         return _stateProvider.GetActions(orderReturn);
     }
 
+    protected static CreateReturnItemRequest ToRequest(ReturnLineItem lineItem)
+    {
+        var result = AbstractTypeFactory<CreateReturnItemRequest>.TryCreateInstance();
+
+        result.OrderLineItemId = lineItem.OrderLineItemId;
+        result.Quantity = lineItem.Quantity;
+        result.ReasonCode = lineItem.ReasonCode;
+        result.ReasonComment = lineItem.ReasonComment;
+        result.SerialNumber = lineItem.SerialNumber;
+
+        return result;
+    }
+
     protected virtual async Task ValidateAttachmentsAsync(Return orderReturn)
     {
         var store = string.IsNullOrEmpty(orderReturn.StoreId) ? null : await _storeService.GetNoCloneAsync(orderReturn.StoreId);
@@ -296,9 +316,7 @@ public class ReturnFlowService : IReturnFlowService
         }
     }
 
-    // Availability is held per order line, so two draft lines pointing at the same one must be
-    // validated together - checked row by row they would each pass against the full amount.
-    protected virtual async Task ValidateRequestAsync(string storeId, string customerReference, string customerComment, IList<CreateReturnItemRequest> items)
+    protected virtual async Task ValidateRequestAsync(string storeId, string customerReference, string customerComment, IList<CreateReturnItemRequest> items, bool requireReason = false)
     {
         var store = string.IsNullOrEmpty(storeId) ? null : await _storeService.GetNoCloneAsync(storeId);
         var settings = store?.Settings ?? [];
@@ -309,8 +327,9 @@ public class ReturnFlowService : IReturnFlowService
         validationContext.Items = items ?? [];
         validationContext.Reasons = await GetReasonsAsync();
         validationContext.ReasonsRequiringComment = ParseSetting(settings, ModuleConstants.Settings.General.ReturnReasonsRequiringComment);
+        validationContext.RequireReason = requireReason;
 
-        var validation = await new ReturnRequestValidator().ValidateAsync(validationContext);
+        var validation = await _requestValidator.ValidateAsync(validationContext);
 
         if (!validation.IsValid)
         {
