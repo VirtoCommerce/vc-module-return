@@ -7,25 +7,20 @@ using FluentValidation;
 using VirtoCommerce.OrdersModule.Core.Model;
 using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
-using VirtoCommerce.StoreModule.Core.Services;
 
 namespace VirtoCommerce.ReturnModule.Data.Services;
 
 public class ReturnFlowService : IReturnFlowService
 {
-    private static readonly char[] _settingSeparators = [',', ';'];
-
     private readonly ICustomerOrderService _orderService;
     private readonly IReturnService _returnService;
     private readonly IReturnEligibilityService _eligibilityService;
     private readonly IReturnAttachmentService _attachmentService;
-    private readonly IStoreService _storeService;
     private readonly IReturnStateProvider _stateProvider;
-    private readonly ILocalizableSettingService _localizableSettingService;
+    private readonly IReturnSettingsService _settingsService;
     private readonly AbstractValidator<ReturnRequestValidationContext> _requestValidator;
 
     public ReturnFlowService(
@@ -33,18 +28,16 @@ public class ReturnFlowService : IReturnFlowService
         IReturnService returnService,
         IReturnEligibilityService eligibilityService,
         IReturnAttachmentService attachmentService,
-        IStoreService storeService,
         IReturnStateProvider stateProvider,
-        ILocalizableSettingService localizableSettingService,
+        IReturnSettingsService settingsService,
         AbstractValidator<ReturnRequestValidationContext> requestValidator)
     {
         _orderService = orderService;
         _returnService = returnService;
         _eligibilityService = eligibilityService;
         _attachmentService = attachmentService;
-        _storeService = storeService;
         _stateProvider = stateProvider;
-        _localizableSettingService = localizableSettingService;
+        _settingsService = settingsService;
         _requestValidator = requestValidator;
     }
 
@@ -298,10 +291,9 @@ public class ReturnFlowService : IReturnFlowService
 
     protected virtual async Task ValidateAttachmentsAsync(Return orderReturn)
     {
-        var store = string.IsNullOrEmpty(orderReturn.StoreId) ? null : await _storeService.GetNoCloneAsync(orderReturn.StoreId);
-        var settings = store?.Settings ?? [];
+        var rules = await _settingsService.GetRulesAsync(orderReturn.StoreId);
 
-        if (!settings.GetValue<bool>(ModuleConstants.Settings.General.ReturnAttachmentsRequired))
+        if (!rules.AttachmentsRequired)
         {
             return;
         }
@@ -318,15 +310,14 @@ public class ReturnFlowService : IReturnFlowService
 
     protected virtual async Task ValidateRequestAsync(string storeId, string customerReference, string customerComment, IList<CreateReturnItemRequest> items, bool requireReason = false)
     {
-        var store = string.IsNullOrEmpty(storeId) ? null : await _storeService.GetNoCloneAsync(storeId);
-        var settings = store?.Settings ?? [];
+        var rules = await _settingsService.GetRulesAsync(storeId);
 
         var validationContext = AbstractTypeFactory<ReturnRequestValidationContext>.TryCreateInstance();
         validationContext.CustomerReference = customerReference;
         validationContext.CustomerComment = customerComment;
         validationContext.Items = items ?? [];
-        validationContext.Reasons = await GetReasonsAsync();
-        validationContext.ReasonsRequiringComment = ParseSetting(settings, ModuleConstants.Settings.General.ReturnReasonsRequiringComment);
+        validationContext.Reasons = rules.Reasons;
+        validationContext.ReasonsRequiringComment = rules.ReasonsRequiringComment;
         validationContext.RequireReason = requireReason;
 
         var validation = await _requestValidator.ValidateAsync(validationContext);
@@ -337,21 +328,6 @@ public class ReturnFlowService : IReturnFlowService
                 ReturnFlowError.InvalidRequest,
                 string.Join(" ", validation.Errors.Select(x => x.ErrorMessage)));
         }
-    }
-
-    // Return.Reasons is a dictionary setting: GetValue would answer the store's single current value
-    // rather than the items an operator actually offers, so only one reason would ever validate.
-    protected virtual async Task<IList<string>> GetReasonsAsync()
-    {
-        var values = await _localizableSettingService.GetValuesAsync(ModuleConstants.Settings.General.ReturnReasons.Name, null);
-
-        return values.Select(x => x.Key).ToList();
-    }
-
-    protected static IList<string> ParseSetting(IEnumerable<ObjectSettingEntry> settings, SettingDescriptor setting)
-    {
-        return settings.GetValue<string>(setting)
-            ?.Split(_settingSeparators, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
     }
 
     protected virtual void ValidateNoDuplicateLines(IList<CreateReturnItemRequest> items)

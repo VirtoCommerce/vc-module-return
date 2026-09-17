@@ -65,6 +65,7 @@ namespace VirtoCommerce.ReturnModule.Web
             serviceCollection.AddTransient<IReturnQuantityService, ReturnQuantityService>();
             serviceCollection.AddTransient<IReturnEligibilityService, ReturnEligibilityService>();
             serviceCollection.AddTransient<IReturnAttachmentService, ReturnAttachmentService>();
+            serviceCollection.AddTransient<IReturnSettingsService, ReturnSettingsService>();
             serviceCollection.AddTransient<IReturnStateProvider, ReturnStateProvider>();
             serviceCollection.AddTransient<IReturnFlowService, ReturnFlowService>();
             serviceCollection.AddTransient<AbstractValidator<ReturnRequestValidationContext>, ReturnRequestValidator>();

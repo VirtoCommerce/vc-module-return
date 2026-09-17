@@ -1,17 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using VirtoCommerce.OrdersModule.Core.Model;
-using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.Data.Services;
 using VirtoCommerce.ReturnModule.Data.Validation;
-using VirtoCommerce.StoreModule.Core.Model;
-using VirtoCommerce.StoreModule.Core.Services;
 using Xunit;
 
 namespace VirtoCommerce.ReturnModule.Tests;
@@ -170,17 +165,12 @@ public class ReturnFlowValidationTests
 
     private static TestableReturnFlowService CreateServiceWithReasons(params string[] reasons)
     {
-        var storeService = new Mock<IStoreService>();
-        storeService
-            .Setup(x => x.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
-            .ReturnsAsync([new Store { Id = "store-1" }]);
+        var settingsService = new Mock<IReturnSettingsService>();
+        settingsService
+            .Setup(x => x.GetRulesAsync(It.IsAny<string>()))
+            .ReturnsAsync(new ReturnStoreRules { Reasons = reasons });
 
-        var localizableSettingService = new Mock<ILocalizableSettingService>();
-        localizableSettingService
-            .Setup(x => x.GetValuesAsync(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(reasons.Select(x => new KeyValue { Key = x, Value = x }).ToList());
-
-        return new TestableReturnFlowService(new Mock<IReturnEligibilityService>().Object, storeService.Object, localizableSettingService.Object);
+        return new TestableReturnFlowService(new Mock<IReturnEligibilityService>().Object, settingsService.Object);
     }
 
     private static TestableReturnFlowService CreateService(int returnableQuantity = 0)
@@ -205,9 +195,8 @@ public class ReturnFlowValidationTests
     {
         public TestableReturnFlowService(
             IReturnEligibilityService eligibilityService,
-            IStoreService storeService = null,
-            ILocalizableSettingService localizableSettingService = null)
-            : base(null, null, eligibilityService, null, storeService, null, localizableSettingService, new ReturnRequestValidator())
+            IReturnSettingsService settingsService = null)
+            : base(null, null, eligibilityService, null, null, settingsService, new ReturnRequestValidator())
         {
         }
 

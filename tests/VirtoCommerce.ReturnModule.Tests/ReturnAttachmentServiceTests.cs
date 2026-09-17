@@ -129,7 +129,9 @@ public class ReturnAttachmentServiceTests
             .Setup(x => x.DeleteAsync(It.IsAny<IList<string>>(), It.IsAny<bool>()))
             .ThrowsAsync(new InvalidOperationException("blob store is down"));
 
-        await context.Service.DeleteUnreferencedFiles([MakeFile(FileId)]);
+        var exception = await Record.ExceptionAsync(() => context.Service.DeleteUnreferencedFiles([MakeFile(FileId)]));
+
+        Assert.Null(exception);
     }
 
     private static File MakeFile(string id)

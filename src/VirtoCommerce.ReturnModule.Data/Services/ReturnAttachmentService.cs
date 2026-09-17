@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -50,20 +50,28 @@ public class ReturnAttachmentService : IReturnAttachmentService
         return UpdateAttachmentsInternal(orderReturn, lineItem, urls);
     }
 
-    public virtual async Task ValidateAvailable(Return orderReturn, IEnumerable<string> urls)
+    public virtual Task ValidateAvailable(Return orderReturn, IEnumerable<string> urls)
     {
         ArgumentNullException.ThrowIfNull(orderReturn);
 
+        return ValidateAvailableInternal(orderReturn, urls);
+    }
+
+    protected virtual async Task ValidateAvailableInternal(Return orderReturn, IEnumerable<string> urls)
+    {
         var wanted = (urls ?? []).Distinct(_ignoreCase).ToList();
 
-        if (wanted.Count > 0)
+        if (wanted.Count == 0)
         {
-            var available = await GetAttachableFilesAsync(orderReturn, wanted);
+            return;
+        }
 
-            foreach (var url in wanted.Where(x => !available.ContainsKey(x)))
-            {
-                throw NotAvailable(url);
-            }
+        var available = await GetAttachableFilesAsync(orderReturn, wanted);
+        var missing = wanted.Find(x => !available.ContainsKey(x));
+
+        if (missing != null)
+        {
+            throw NotAvailable(missing);
         }
     }
 
