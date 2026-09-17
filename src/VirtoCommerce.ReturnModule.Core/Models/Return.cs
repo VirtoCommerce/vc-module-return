@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using VirtoCommerce.OrdersModule.Core.Model;
@@ -10,11 +10,29 @@ namespace VirtoCommerce.ReturnModule.Core.Models
     {
         public string Number { get; set; }
 
+        public string StoreId { get; set; }
+
+        public string CustomerId { get; set; }
+
+        public string CustomerName { get; set; }
+
         public string OrderId { get; set; }
+
+        public string OrderNumber { get; set; }
+
+        public string CustomerReference { get; set; }
 
         public string Status { get; set; }
 
         public string Resolution { get; set; }
+
+        public string CustomerComment { get; set; }
+
+        public string Comment { get; set; }
+
+        public string RejectReason { get; set; }
+
+        public string CancelReason { get; set; }
 
         public CustomerOrder Order { get; set; }
 

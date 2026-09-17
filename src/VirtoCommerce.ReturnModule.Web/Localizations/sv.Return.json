@@ -1,4 +1,4 @@
-{
+﻿{
   "return": {
     "main-menu-title": "Returer",
     "blades": {
@@ -17,7 +17,9 @@
           "created-by": "Skapad av",
           "items-count": "Antal artiklar",
           "add-return": "Lägg till ny retur",
-          "create-return": "Skapa retur"
+          "create-return": "Skapa retur",
+          "copy-id": "Kopiera ID",
+          "copy-number": "Kopiera nummer"
         }
       },
       "order-list": {
@@ -71,11 +73,54 @@
       "ReturnNewNumberTemplate": {
         "title": "Mall för returnummer",
         "description": "Använd denna mall för att generera nya returer"
+      },
+      "WindowDays": {
+        "title": "Returfönster, dagar",
+        "description": "Hur länge efter leverans en rad kan returneras. Räknas per rad från det senaste leveransdatumet."
+      },
+      "AllowedOrderStatuses": {
+        "title": "Orderstatusar som tillåter retur",
+        "description": "Kommaseparerade orderstatusar som retur får begäras från. Tomt tillåter ingenting."
+      },
+      "AllowedShipmentStatuses": {
+        "title": "Leveransstatusar som räknas som levererade",
+        "description": "Kommaseparerade leveransstatusar som räknas som levererade. Tomt godtar alla statusar och leveransen hämtas från leveransens leveransdatum."
+      },
+      "Reasons": {
+        "title": "Returorsaker",
+        "description": "Orsaker som köparen väljer per rad. Kan översättas."
+      },
+      "ReasonsRequiringComment": {
+        "title": "Orsaker som kräver kommentar",
+        "description": "Kommaseparerade orsakskoder som kräver att köparen förklarar."
+      },
+      "AttachmentsRequired": {
+        "title": "Foton eller dokument krävs",
+        "description": "Kräv minst en fil på varje returnerad rad."
       }
     },
     "Return.Status": {
       "description": "Returstatus för ordrar",
-      "title": "Status för kundreturer"
-    } 
+      "title": "Status för kundreturer",
+      "New": "Ny",
+      "Approved": "Godkänd",
+      "Completed": "Slutförd",
+      "Canceled": "Avbruten",
+      "Processing": "Behandlas",
+      "Draft": "Utkast",
+      "Requested": "Begärd",
+      "PartiallyApproved": "Delvis godkänd",
+      "Rejected": "Avvisad",
+      "Cancelled": "Avbruten"
+    },
+    "Return.Reasons": {
+      "title": "Returorsaker",
+      "description": "Orsaker som köparen väljer per rad",
+      "FaultyOnArrival": "Defekt vid leverans",
+      "DamagedInTransit": "Skadad under transport",
+      "WrongItemDelivered": "Fel vara levererad",
+      "OrderedByMistake": "Beställd av misstag",
+      "NoLongerNeeded": "Behövs inte längre"
+    }
   }
 }

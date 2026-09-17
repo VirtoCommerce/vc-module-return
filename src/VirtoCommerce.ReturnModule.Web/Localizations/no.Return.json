@@ -1,4 +1,4 @@
-{
+﻿{
   "return": {
     "main-menu-title": "Returer",
     "blades": {
@@ -17,7 +17,9 @@
           "created-by": "Opprettet av",
           "items-count": "Antall varer",
           "add-return": "Legg til ny retur",
-          "create-return": "Opprett retur"
+          "create-return": "Opprett retur",
+          "copy-id": "Kopier ID",
+          "copy-number": "Kopier nummer"
         }
       },
       "order-list": {
@@ -71,11 +73,54 @@
       "ReturnNewNumberTemplate": {
         "title": "Mal for returnummer",
         "description": "Bruk denne malen for å generere nye returer"
+      },
+      "WindowDays": {
+        "title": "Returfrist, dager",
+        "description": "Hvor lenge etter levering en linje kan returneres. Telles per linje fra siste leveringsdato."
+      },
+      "AllowedOrderStatuses": {
+        "title": "Ordrestatuser som tillater retur",
+        "description": "Kommaseparerte ordrestatuser det kan bes om retur fra. Tomt tillater ingenting."
+      },
+      "AllowedShipmentStatuses": {
+        "title": "Forsendelsesstatuser som regnes som levert",
+        "description": "Kommaseparerte forsendelsesstatuser som regnes som levert. Tomt godtar enhver status, og leveringen hentes fra forsendelsens leveringsdato."
+      },
+      "Reasons": {
+        "title": "Returårsaker",
+        "description": "Årsaker kjøperen velger per linje. Kan oversettes."
+      },
+      "ReasonsRequiringComment": {
+        "title": "Årsaker som krever kommentar",
+        "description": "Kommaseparerte årsakskoder som krever at kjøperen forklarer."
+      },
+      "AttachmentsRequired": {
+        "title": "Bilder eller dokumenter påkrevd",
+        "description": "Krev minst én fil på hver returnert linje."
       }
     },
     "Return.Status": {
       "description": "Returstatuser for ordre",
-      "title": "Statuser for kunders returer"
-    } 
+      "title": "Statuser for kunders returer",
+      "New": "Ny",
+      "Approved": "Godkjent",
+      "Completed": "Fullført",
+      "Canceled": "Kansellert",
+      "Processing": "Behandles",
+      "Draft": "Utkast",
+      "Requested": "Forespørt",
+      "PartiallyApproved": "Delvis godkjent",
+      "Rejected": "Avvist",
+      "Cancelled": "Kansellert"
+    },
+    "Return.Reasons": {
+      "title": "Returårsaker",
+      "description": "Årsaker kjøperen velger per linje",
+      "FaultyOnArrival": "Defekt ved levering",
+      "DamagedInTransit": "Skadet under transport",
+      "WrongItemDelivered": "Feil vare levert",
+      "OrderedByMistake": "Bestilt ved en feil",
+      "NoLongerNeeded": "Ikke lenger nødvendig"
+    }
   }
 }

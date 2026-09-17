@@ -9,4 +9,8 @@
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- Xapi.Core pulls AutoMapper.Extensions.Microsoft.DependencyInjection, which pins AutoMapper to exactly 12.0.1; the patched 15.1.1 is out of range. -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rvv3-g6hj-g44x" />
+  </ItemGroup>
 </Project>

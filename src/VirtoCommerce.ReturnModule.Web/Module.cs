@@ -1,8 +1,12 @@
-using System;
+﻿using System;
+using FluentValidation;
+using GraphQL.MicrosoftDI;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using VirtoCommerce.FileExperienceApi.Core.Authorization;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Settings;
@@ -10,13 +14,19 @@ using VirtoCommerce.Platform.Data.MySql.Extensions;
 using VirtoCommerce.Platform.Data.PostgreSql.Extensions;
 using VirtoCommerce.Platform.Data.SqlServer.Extensions;
 using VirtoCommerce.ReturnModule.Core;
+using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.Data.MySql;
 using VirtoCommerce.ReturnModule.Data.PostgreSql;
 using VirtoCommerce.ReturnModule.Data.Repositories;
 using VirtoCommerce.ReturnModule.Data.Services;
 using VirtoCommerce.ReturnModule.Data.SqlServer;
+using VirtoCommerce.ReturnModule.Data.Validation;
+using VirtoCommerce.ReturnModule.ExperienceApi;
+using VirtoCommerce.ReturnModule.ExperienceApi.Authorization;
 using VirtoCommerce.StoreModule.Core.Model;
+using VirtoCommerce.Xapi.Core.Extensions;
+using VirtoCommerce.Xapi.Core.Infrastructure;
 
 
 namespace VirtoCommerce.ReturnModule.Web
@@ -52,10 +62,29 @@ namespace VirtoCommerce.ReturnModule.Web
             serviceCollection.AddTransient<Func<IReturnRepository>>(provider => () => provider.CreateScope().ServiceProvider.GetRequiredService<IReturnRepository>());
             serviceCollection.AddTransient<IReturnService, ReturnService>();
             serviceCollection.AddTransient<IReturnSearchService, ReturnSearchService>();
+            serviceCollection.AddTransient<IReturnQuantityService, ReturnQuantityService>();
+            serviceCollection.AddTransient<IReturnEligibilityService, ReturnEligibilityService>();
+            serviceCollection.AddTransient<IReturnAttachmentService, ReturnAttachmentService>();
+            serviceCollection.AddTransient<IReturnSettingsService, ReturnSettingsService>();
+            serviceCollection.AddTransient<IReturnStateProvider, ReturnStateProvider>();
+            serviceCollection.AddTransient<IReturnFlowService, ReturnFlowService>();
+            serviceCollection.AddTransient<AbstractValidator<ReturnRequestValidationContext>, ReturnRequestValidator>();
+
+            // GraphQL
+            _ = new GraphQLBuilder(serviceCollection, builder =>
+            {
+                builder.AddSchema(serviceCollection, typeof(AssemblyMarker));
+            });
+
+            serviceCollection.AddSingleton<IAuthorizationHandler, ReturnAuthorizationHandler>();
+            serviceCollection.AddSingleton<IFileAuthorizationRequirementFactory, ReturnFileAuthorizationRequirementFactory>();
+            serviceCollection.AddSingleton<ScopedSchemaFactory<AssemblyMarker>>();
         }
 
         public void PostInitialize(IApplicationBuilder appBuilder)
         {
+            appBuilder.UseScopedSchema<AssemblyMarker>("return");
+
             // Register settings
             var settingsRegistrar = appBuilder.ApplicationServices.GetRequiredService<ISettingsRegistrar>();
             settingsRegistrar.RegisterSettings(ModuleConstants.Settings.AllSettings, ModuleInfo.Id);

@@ -1,4 +1,4 @@
-{
+﻿{
   "return": {
     "main-menu-title": "Rückgaben",
     "blades": {
@@ -17,7 +17,9 @@
           "created-by": "Erstellt von",
           "items-count": "Artikelanzahl",
           "add-return": "Neue Rückgabe hinzufügen",
-          "create-return": "Rückgabe erstellen"
+          "create-return": "Rückgabe erstellen",
+          "copy-id": "ID kopieren",
+          "copy-number": "Nummer kopieren"
         }
       },
       "order-list": {
@@ -71,11 +73,54 @@
       "ReturnNewNumberTemplate": {
         "title": "Rückgabenummer-Vorlage",
         "description": "Verwenden Sie diese Vorlage, um neue Bestellrückgaben zu generieren"
+      },
+      "WindowDays": {
+        "title": "Rücksendefrist, Tage",
+        "description": "Wie lange eine Position nach der Lieferung zurückgesendet werden kann. Pro Position ab dem letzten Lieferdatum gezählt."
+      },
+      "AllowedOrderStatuses": {
+        "title": "Bestellstatus mit erlaubter Rücksendung",
+        "description": "Kommagetrennte Bestellstatus, aus denen eine Rücksendung beantragt werden darf. Leer erlaubt nichts."
+      },
+      "AllowedShipmentStatuses": {
+        "title": "Als geliefert geltende Sendungsstatus",
+        "description": "Kommagetrennte Sendungsstatus, die als geliefert gelten. Leer akzeptiert jeden Status, die Lieferung wird dann dem Lieferdatum der Sendung entnommen."
+      },
+      "Reasons": {
+        "title": "Rücksendegründe",
+        "description": "Gründe, die der Käufer je Position wählt. Lokalisierbar."
+      },
+      "ReasonsRequiringComment": {
+        "title": "Gründe, die einen Kommentar erfordern",
+        "description": "Kommagetrennte Grund-Codes, die den Käufer zu einer Erläuterung verpflichten."
+      },
+      "AttachmentsRequired": {
+        "title": "Fotos oder Dokumente erforderlich",
+        "description": "Mindestens eine Datei je zurückgesendeter Position verlangen."
       }
     },
     "Return.Status": {
       "description": "Bestellrückgabestatus",
-      "title": "Kundenbestellrückgabestatus"
+      "title": "Kundenbestellrückgabestatus",
+      "New": "Neu",
+      "Approved": "Genehmigt",
+      "Completed": "Abgeschlossen",
+      "Canceled": "Storniert",
+      "Processing": "In Bearbeitung",
+      "Draft": "Entwurf",
+      "Requested": "Angefragt",
+      "PartiallyApproved": "Teilweise genehmigt",
+      "Rejected": "Abgelehnt",
+      "Cancelled": "Storniert"
+    },
+    "Return.Reasons": {
+      "title": "Rücksendegründe",
+      "description": "Gründe, die der Käufer je Position wählt",
+      "FaultyOnArrival": "Bei Lieferung defekt",
+      "DamagedInTransit": "Transportschaden",
+      "WrongItemDelivered": "Falscher Artikel geliefert",
+      "OrderedByMistake": "Versehentlich bestellt",
+      "NoLongerNeeded": "Nicht mehr benötigt"
     }
   }
 }

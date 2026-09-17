@@ -1,4 +1,4 @@
-{
+﻿{
   "return": {
     "main-menu-title": "Zwroty",
     "blades": {
@@ -17,7 +17,9 @@
           "created-by": "Utworzono przez",
           "items-count": "Liczba przedmiotów",
           "add-return": "Dodaj nowy zwrot",
-          "create-return": "Utwórz zwrot"
+          "create-return": "Utwórz zwrot",
+          "copy-id": "Kopiuj identyfikator",
+          "copy-number": "Kopiuj numer"
         }
       },
       "order-list": {
@@ -71,11 +73,54 @@
       "ReturnNewNumberTemplate": {
         "title": "Szablon numeru zwrotu",
         "description": "Użyj tego szablonu do generowania nowych numerów zwrotów zamówień"
+      },
+      "WindowDays": {
+        "title": "Okno zwrotu, dni",
+        "description": "Jak długo po dostawie pozycję można zwrócić. Liczone dla każdej pozycji od ostatniej daty dostawy."
+      },
+      "AllowedOrderStatuses": {
+        "title": "Statusy zamówienia zezwalające na zwrot",
+        "description": "Statusy zamówienia oddzielone przecinkami, z których można zgłosić zwrot. Puste nie zezwala na nic."
+      },
+      "AllowedShipmentStatuses": {
+        "title": "Statusy wysyłki uznawane za dostarczone",
+        "description": "Statusy wysyłki oddzielone przecinkami uznawane za dostarczone. Puste akceptuje każdy status, a dostawę ustala data dostawy wysyłki."
+      },
+      "Reasons": {
+        "title": "Powody zwrotu",
+        "description": "Powody wybierane przez kupującego dla każdej pozycji. Podlegają tłumaczeniu."
+      },
+      "ReasonsRequiringComment": {
+        "title": "Powody wymagające komentarza",
+        "description": "Kody powodów oddzielone przecinkami, które zobowiązują kupującego do wyjaśnienia."
+      },
+      "AttachmentsRequired": {
+        "title": "Zdjęcia lub dokumenty wymagane",
+        "description": "Wymagaj co najmniej jednego pliku dla każdej zwracanej pozycji."
       }
     },
     "Return.Status": {
       "description": "Statusy zwrotów zamówień",
-      "title": "Statusy zwrotów zamówień klientów"
+      "title": "Statusy zwrotów zamówień klientów",
+      "New": "Nowy",
+      "Approved": "Zatwierdzony",
+      "Completed": "Zakończony",
+      "Canceled": "Anulowany",
+      "Processing": "W trakcie",
+      "Draft": "Wersja robocza",
+      "Requested": "Zgłoszony",
+      "PartiallyApproved": "Częściowo zatwierdzony",
+      "Rejected": "Odrzucony",
+      "Cancelled": "Anulowany"
+    },
+    "Return.Reasons": {
+      "title": "Powody zwrotu",
+      "description": "Powody wybierane przez kupującego dla każdej pozycji",
+      "FaultyOnArrival": "Uszkodzony przy dostawie",
+      "DamagedInTransit": "Uszkodzony w transporcie",
+      "WrongItemDelivered": "Dostarczono niewłaściwy produkt",
+      "OrderedByMistake": "Zamówiony przez pomyłkę",
+      "NoLongerNeeded": "Już niepotrzebny"
     }
   }
 }
