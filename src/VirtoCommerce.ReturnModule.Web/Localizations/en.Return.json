@@ -97,6 +97,14 @@
       "AttachmentsRequired": {
         "title": "Photos or documents required",
         "description": "Require at least one file on every returned line."
+      },
+      "SendNotifications": {
+        "title": "Return email notifications",
+        "description": "Email the buyer when a return is registered, approved, partly approved or declined."
+      },
+      "SendPushNotifications": {
+        "title": "Return push notifications",
+        "description": "Also send an in-app push message on the same events. Requires the Push Messages module."
       }
     },
     "Return.Status": {

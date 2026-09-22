@@ -97,6 +97,14 @@
       "AttachmentsRequired": {
         "title": "必须提供照片或文件",
         "description": "要求每条退货明细至少上传一个文件。"
+      },
+      "SendNotifications": {
+        "title": "退货邮件通知",
+        "description": "当退货被登记、批准、部分批准或拒绝时，向买家发送邮件。"
+      },
+      "SendPushNotifications": {
+        "title": "退货推送通知",
+        "description": "在相同事件下同时发送应用内推送消息。需要 Push Messages 模块。"
       }
     },
     "Return.Status": {

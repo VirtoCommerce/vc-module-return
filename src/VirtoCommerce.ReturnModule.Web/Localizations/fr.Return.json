@@ -97,6 +97,14 @@
       "AttachmentsRequired": {
         "title": "Photos ou documents obligatoires",
         "description": "Exiger au moins un fichier sur chaque ligne retournée."
+      },
+      "SendNotifications": {
+        "title": "Notifications par e-mail des retours",
+        "description": "Envoyer un e-mail à l'acheteur lorsqu'un retour est enregistré, approuvé, partiellement approuvé ou refusé."
+      },
+      "SendPushNotifications": {
+        "title": "Notifications push des retours",
+        "description": "Envoyer également un message push dans l'application pour les mêmes événements. Nécessite le module Push Messages."
       }
     },
     "Return.Status": {

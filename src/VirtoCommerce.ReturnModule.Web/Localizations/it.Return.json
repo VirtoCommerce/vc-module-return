@@ -97,6 +97,14 @@
       "AttachmentsRequired": {
         "title": "Foto o documenti obbligatori",
         "description": "Richiedere almeno un file per ogni riga resa."
+      },
+      "SendNotifications": {
+        "title": "Notifiche e-mail sui resi",
+        "description": "Invia un'e-mail all'acquirente quando un reso viene registrato, approvato, approvato parzialmente o rifiutato."
+      },
+      "SendPushNotifications": {
+        "title": "Notifiche push sui resi",
+        "description": "Invia anche un messaggio push nell'app per gli stessi eventi. Richiede il modulo Push Messages."
       }
     },
     "Return.Status": {

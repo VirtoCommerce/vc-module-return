@@ -97,6 +97,14 @@
       "AttachmentsRequired": {
         "title": "Fotos oder Dokumente erforderlich",
         "description": "Mindestens eine Datei je zurückgesendeter Position verlangen."
+      },
+      "SendNotifications": {
+        "title": "E-Mail-Benachrichtigungen zu Rücksendungen",
+        "description": "Den Käufer per E-Mail benachrichtigen, wenn eine Rücksendung registriert, genehmigt, teilweise genehmigt oder abgelehnt wird."
+      },
+      "SendPushNotifications": {
+        "title": "Push-Benachrichtigungen zu Rücksendungen",
+        "description": "Bei denselben Ereignissen zusätzlich eine In-App-Push-Nachricht senden. Erfordert das Modul Push Messages."
       }
     },
     "Return.Status": {

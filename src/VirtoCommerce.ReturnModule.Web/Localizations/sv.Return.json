@@ -97,6 +97,14 @@
       "AttachmentsRequired": {
         "title": "Foton eller dokument krävs",
         "description": "Kräv minst en fil på varje returnerad rad."
+      },
+      "SendNotifications": {
+        "title": "E-postaviseringar om returer",
+        "description": "Skicka e-post till köparen när en retur registreras, godkänns, delvis godkänns eller avslås."
+      },
+      "SendPushNotifications": {
+        "title": "Push-aviseringar om returer",
+        "description": "Skicka även ett push-meddelande i appen vid samma händelser. Kräver modulen Push Messages."
       }
     },
     "Return.Status": {

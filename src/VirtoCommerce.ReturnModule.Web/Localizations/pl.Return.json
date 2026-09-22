@@ -97,6 +97,14 @@
       "AttachmentsRequired": {
         "title": "Zdjęcia lub dokumenty wymagane",
         "description": "Wymagaj co najmniej jednego pliku dla każdej zwracanej pozycji."
+      },
+      "SendNotifications": {
+        "title": "Powiadomienia e-mail o zwrotach",
+        "description": "Wyślij kupującemu wiadomość e-mail, gdy zwrot zostanie zarejestrowany, zatwierdzony, częściowo zatwierdzony lub odrzucony."
+      },
+      "SendPushNotifications": {
+        "title": "Powiadomienia push o zwrotach",
+        "description": "Wyślij również wiadomość push w aplikacji przy tych samych zdarzeniach. Wymaga modułu Push Messages."
       }
     },
     "Return.Status": {

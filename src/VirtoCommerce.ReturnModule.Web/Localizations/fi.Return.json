@@ -97,6 +97,14 @@
       "AttachmentsRequired": {
         "title": "Kuvat tai asiakirjat pakollisia",
         "description": "Vaadi vähintään yksi tiedosto jokaiselle palautettavalle riville."
+      },
+      "SendNotifications": {
+        "title": "Palautusten sähköposti-ilmoitukset",
+        "description": "Lähetä ostajalle sähköposti, kun palautus rekisteröidään, hyväksytään, hyväksytään osittain tai hylätään."
+      },
+      "SendPushNotifications": {
+        "title": "Palautusten push-ilmoitukset",
+        "description": "Lähetä samoista tapahtumista myös push-viesti sovellukseen. Vaatii Push Messages -moduulin."
       }
     },
     "Return.Status": {

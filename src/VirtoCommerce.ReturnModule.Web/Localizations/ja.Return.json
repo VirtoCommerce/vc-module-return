@@ -97,6 +97,14 @@
       "AttachmentsRequired": {
         "title": "写真または書類が必須",
         "description": "返品する各明細に少なくとも1つのファイルを必須にします。"
+      },
+      "SendNotifications": {
+        "title": "返品のメール通知",
+        "description": "返品が登録、承認、一部承認、または却下されたときに購入者へメールを送信します。"
+      },
+      "SendPushNotifications": {
+        "title": "返品のプッシュ通知",
+        "description": "同じイベントでアプリ内プッシュ通知も送信します。Push Messages モジュールが必要です。"
       }
     },
     "Return.Status": {

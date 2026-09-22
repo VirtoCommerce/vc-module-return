@@ -97,6 +97,14 @@
       "AttachmentsRequired": {
         "title": "Bilder eller dokumenter påkrevd",
         "description": "Krev minst én fil på hver returnert linje."
+      },
+      "SendNotifications": {
+        "title": "E-postvarsler for returer",
+        "description": "Send e-post til kjøperen når en retur registreres, godkjennes, delvis godkjennes eller avslås."
+      },
+      "SendPushNotifications": {
+        "title": "Push-varsler for returer",
+        "description": "Send også en push-melding i appen ved de samme hendelsene. Krever modulen Push Messages."
       }
     },
     "Return.Status": {

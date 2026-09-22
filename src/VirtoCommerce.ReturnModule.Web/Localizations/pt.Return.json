@@ -97,6 +97,14 @@
       "AttachmentsRequired": {
         "title": "Fotografias ou documentos obrigatórios",
         "description": "Exigir pelo menos um ficheiro em cada linha devolvida."
+      },
+      "SendNotifications": {
+        "title": "Notificações por e-mail de devoluções",
+        "description": "Enviar um e-mail ao comprador quando uma devolução for registada, aprovada, parcialmente aprovada ou recusada."
+      },
+      "SendPushNotifications": {
+        "title": "Notificações push de devoluções",
+        "description": "Enviar também uma mensagem push na aplicação nos mesmos eventos. Requer o módulo Push Messages."
       }
     },
     "Return.Status": {
