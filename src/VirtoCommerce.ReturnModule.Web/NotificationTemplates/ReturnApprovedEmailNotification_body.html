@@ -36,6 +36,9 @@
                 <th align="right" style="padding:8px 0 8px 8px;border-bottom:1px solid #dcdcdc;font-size:12px;text-transform:uppercase;color:#6b6b6b">Approved</th>
               </tr>
             </thead>
+            <!-- This status means every line was approved in full, so the approved column is the
+                 requested quantity. Reading approved_quantity here would print a zero until the
+                 agent side starts writing it, contradicting the sentence above. -->
             <tbody>
               {% for line_item in return.line_items %}
               <tr>
@@ -45,7 +48,7 @@
                   {% if line_item.reject_reason %}<br /><span style="color:#b00020;font-size:12px">Declined: {{ line_item.reject_reason }}</span>{% endif %}
                 </td>
                 <td align="right" style="padding:10px 8px;border-bottom:1px solid #f0f0f0;vertical-align:top;white-space:nowrap">{{ line_item.quantity }}{% if line_item.measure_unit %} {{ line_item.measure_unit }}{% endif %}</td>
-                <td align="right" style="padding:10px 0 10px 8px;border-bottom:1px solid #f0f0f0;vertical-align:top;white-space:nowrap">{{ line_item.approved_quantity }}{% if line_item.measure_unit %} {{ line_item.measure_unit }}{% endif %}</td>
+                <td align="right" style="padding:10px 0 10px 8px;border-bottom:1px solid #f0f0f0;vertical-align:top;white-space:nowrap">{{ line_item.quantity }}{% if line_item.measure_unit %} {{ line_item.measure_unit }}{% endif %}</td>
               </tr>
               {% endfor %}
             </tbody>
