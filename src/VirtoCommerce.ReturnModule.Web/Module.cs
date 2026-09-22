@@ -80,14 +80,17 @@ namespace VirtoCommerce.ReturnModule.Web
             serviceCollection.AddTransient<IReturnFlowService, ReturnFlowService>();
             serviceCollection.AddTransient<AbstractValidator<ReturnRequestValidationContext>, ReturnRequestValidator>();
 
-            serviceCollection.AddTransient<IEventHandler<ReturnChangedEvent>, ReturnStatusChangedEventPublisher>();
-            serviceCollection.AddTransient<IEventHandler<ReturnStatusChangedEvent>, SendNotificationsReturnStatusChangedEventHandler>();
+            // The concrete types, because RegisterEventHandler resolves them by their own name. The
+            // subscription itself happens in PostInitialize: the bus keeps its own handler list and
+            // never looks in the container.
+            serviceCollection.AddTransient<ReturnStatusChangedEventPublisher>();
+            serviceCollection.AddTransient<SendNotificationsReturnStatusChangedEventHandler>();
 
             // The handler names IPushMessageService, so resolving it at all would load an assembly
             // that is not there when the optional module is not installed.
             if (ModuleService.IsInstalled(PushMessagesModuleId))
             {
-                serviceCollection.AddTransient<IEventHandler<ReturnStatusChangedEvent>, SendPushMessagesReturnStatusChangedEventHandler>();
+                serviceCollection.AddTransient<SendPushMessagesReturnStatusChangedEventHandler>();
             }
 
             // GraphQL
@@ -113,6 +116,15 @@ namespace VirtoCommerce.ReturnModule.Web
             // Register permissions
             var permissionsRegistrar = appBuilder.ApplicationServices.GetRequiredService<IPermissionsRegistrar>();
             permissionsRegistrar.RegisterPermissions(ModuleInfo.Id, "Return", ModuleConstants.Security.Permissions.AllPermissions);
+
+            // Subscribe the handlers
+            appBuilder.RegisterEventHandler<ReturnChangedEvent, ReturnStatusChangedEventPublisher>();
+            appBuilder.RegisterEventHandler<ReturnStatusChangedEvent, SendNotificationsReturnStatusChangedEventHandler>();
+
+            if (ModuleService.IsInstalled(PushMessagesModuleId))
+            {
+                appBuilder.RegisterEventHandler<ReturnStatusChangedEvent, SendPushMessagesReturnStatusChangedEventHandler>();
+            }
 
             // Register notifications
             var notificationRegistrar = appBuilder.ApplicationServices.GetRequiredService<INotificationRegistrar>();
