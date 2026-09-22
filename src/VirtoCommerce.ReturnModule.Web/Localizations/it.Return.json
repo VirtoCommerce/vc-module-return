@@ -130,5 +130,23 @@
       "OrderedByMistake": "Ordinato per errore",
       "NoLongerNeeded": "Non più necessario"
     }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Reso registrato",
+      "description": "L'acquirente riceve un'e-mail quando la sua richiesta di reso viene registrata ed è in attesa di verifica"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Reso approvato",
+      "description": "L'acquirente riceve un'e-mail quando ogni riga del reso viene approvata per intero"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Reso approvato parzialmente",
+      "description": "L'acquirente riceve un'e-mail quando una parte delle quantità richieste viene approvata e una parte no"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Reso rifiutato",
+      "description": "L'acquirente riceve un'e-mail quando nessuna delle quantità richieste viene approvata"
+    }
   }
 }

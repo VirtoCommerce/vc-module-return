@@ -130,5 +130,23 @@
       "OrderedByMistake": "Zamówiony przez pomyłkę",
       "NoLongerNeeded": "Już niepotrzebny"
     }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Zwrot zarejestrowany",
+      "description": "Kupujący otrzymuje wiadomość e-mail, gdy jego wniosek o zwrot zostanie zarejestrowany i czeka na rozpatrzenie"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Zwrot zatwierdzony",
+      "description": "Kupujący otrzymuje wiadomość e-mail, gdy każda pozycja zwrotu zostanie zatwierdzona w całości"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Zwrot zatwierdzony częściowo",
+      "description": "Kupujący otrzymuje wiadomość e-mail, gdy część wnioskowanych ilości zostanie zatwierdzona, a część nie"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Zwrot odrzucony",
+      "description": "Kupujący otrzymuje wiadomość e-mail, gdy żadna z wnioskowanych ilości nie zostanie zatwierdzona"
+    }
   }
 }

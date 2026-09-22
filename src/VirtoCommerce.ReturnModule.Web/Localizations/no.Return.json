@@ -130,5 +130,23 @@
       "OrderedByMistake": "Bestilt ved en feil",
       "NoLongerNeeded": "Ikke lenger nødvendig"
     }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Retur registrert",
+      "description": "Kjøperen får en e-post når returforespørselen er registrert og venter på behandling"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Retur godkjent",
+      "description": "Kjøperen får en e-post når hver linje i returen er godkjent i sin helhet"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Retur delvis godkjent",
+      "description": "Kjøperen får en e-post når noen av de forespurte antallene godkjennes og andre ikke"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Retur avslått",
+      "description": "Kjøperen får en e-post når ingen av de forespurte antallene godkjennes"
+    }
   }
 }

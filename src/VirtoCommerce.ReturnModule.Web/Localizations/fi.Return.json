@@ -130,5 +130,23 @@
       "OrderedByMistake": "Tilattu vahingossa",
       "NoLongerNeeded": "Ei enää tarpeen"
     }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Palautus rekisteröity",
+      "description": "Ostaja saa sähköpostin, kun hänen palautuspyyntönsä on rekisteröity ja odottaa käsittelyä"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Palautus hyväksytty",
+      "description": "Ostaja saa sähköpostin, kun palautuksen jokainen rivi hyväksytään kokonaan"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Palautus hyväksytty osittain",
+      "description": "Ostaja saa sähköpostin, kun osa pyydetyistä määristä hyväksytään ja osa ei"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Palautus hylätty",
+      "description": "Ostaja saa sähköpostin, kun yhtään pyydettyä määrää ei hyväksytä"
+    }
   }
 }

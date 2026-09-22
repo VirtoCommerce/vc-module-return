@@ -130,5 +130,23 @@
       "OrderedByMistake": "Ordered by mistake",
       "NoLongerNeeded": "No longer needed"
     }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Return registered",
+      "description": "The buyer gets an email when their return request is registered and waiting to be reviewed"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Return approved",
+      "description": "The buyer gets an email when every line of their return is approved in full"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Return partly approved",
+      "description": "The buyer gets an email when some of the requested quantities are approved and some are not"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Return declined",
+      "description": "The buyer gets an email when none of the requested quantities are approved"
+    }
   }
 }

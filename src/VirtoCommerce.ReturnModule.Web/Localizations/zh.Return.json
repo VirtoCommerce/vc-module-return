@@ -130,5 +130,23 @@
       "OrderedByMistake": "误下订单",
       "NoLongerNeeded": "不再需要"
     }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "退货已登记",
+      "description": "买家的退货申请被登记并等待审核时，会收到邮件"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "退货已批准",
+      "description": "退货的每一条明细都被全额批准时，买家会收到邮件"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "退货部分批准",
+      "description": "申请数量中有一部分被批准、另一部分未被批准时，买家会收到邮件"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "退货被拒绝",
+      "description": "申请数量全部未获批准时，买家会收到邮件"
+    }
   }
 }

@@ -130,5 +130,23 @@
       "OrderedByMistake": "Encomendado por engano",
       "NoLongerNeeded": "Já não é necessário"
     }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Devolução registada",
+      "description": "O comprador recebe um e-mail quando o seu pedido de devolução é registado e fica a aguardar análise"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Devolução aprovada",
+      "description": "O comprador recebe um e-mail quando todas as linhas da devolução são aprovadas na totalidade"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Devolução aprovada parcialmente",
+      "description": "O comprador recebe um e-mail quando parte das quantidades pedidas é aprovada e parte não"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Devolução recusada",
+      "description": "O comprador recebe um e-mail quando nenhuma das quantidades pedidas é aprovada"
+    }
   }
 }

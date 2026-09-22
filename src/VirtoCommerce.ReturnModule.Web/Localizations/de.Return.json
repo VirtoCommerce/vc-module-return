@@ -130,5 +130,23 @@
       "OrderedByMistake": "Versehentlich bestellt",
       "NoLongerNeeded": "Nicht mehr benötigt"
     }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Rücksendung registriert",
+      "description": "Der Käufer erhält eine E-Mail, wenn seine Rücksendeanfrage registriert wurde und auf Prüfung wartet"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Rücksendung genehmigt",
+      "description": "Der Käufer erhält eine E-Mail, wenn jede Position seiner Rücksendung vollständig genehmigt wurde"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Rücksendung teilweise genehmigt",
+      "description": "Der Käufer erhält eine E-Mail, wenn ein Teil der angefragten Mengen genehmigt wurde und ein Teil nicht"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Rücksendung abgelehnt",
+      "description": "Der Käufer erhält eine E-Mail, wenn keine der angefragten Mengen genehmigt wurde"
+    }
   }
 }

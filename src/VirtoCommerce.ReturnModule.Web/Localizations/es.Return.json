@@ -130,5 +130,23 @@
       "OrderedByMistake": "Pedido por error",
       "NoLongerNeeded": "Ya no se necesita"
     }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Devolución registrada",
+      "description": "El comprador recibe un correo cuando su solicitud de devolución queda registrada y pendiente de revisión"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Devolución aprobada",
+      "description": "El comprador recibe un correo cuando todas las líneas de su devolución se aprueban por completo"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Devolución aprobada parcialmente",
+      "description": "El comprador recibe un correo cuando parte de las cantidades solicitadas se aprueban y parte no"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Devolución rechazada",
+      "description": "El comprador recibe un correo cuando no se aprueba ninguna de las cantidades solicitadas"
+    }
   }
 }

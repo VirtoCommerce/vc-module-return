@@ -130,5 +130,23 @@
       "OrderedByMistake": "Заказан по ошибке",
       "NoLongerNeeded": "Больше не нужен"
     }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Возврат зарегистрирован",
+      "description": "Покупатель получает письмо, когда его заявка на возврат зарегистрирована и ожидает рассмотрения"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Возврат одобрен",
+      "description": "Покупатель получает письмо, когда все строки возврата одобрены полностью"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Возврат одобрен частично",
+      "description": "Покупатель получает письмо, когда часть запрошенных количеств одобрена, а часть нет"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Возврат отклонён",
+      "description": "Покупатель получает письмо, когда ни одно из запрошенных количеств не одобрено"
+    }
   }
 }

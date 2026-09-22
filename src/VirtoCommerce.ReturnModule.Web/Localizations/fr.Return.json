@@ -130,5 +130,23 @@
       "OrderedByMistake": "Commandé par erreur",
       "NoLongerNeeded": "N’est plus nécessaire"
     }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Retour enregistré",
+      "description": "L'acheteur reçoit un e-mail lorsque sa demande de retour est enregistrée et en attente d'examen"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Retour approuvé",
+      "description": "L'acheteur reçoit un e-mail lorsque chaque ligne de son retour est approuvée en totalité"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Retour partiellement approuvé",
+      "description": "L'acheteur reçoit un e-mail lorsqu'une partie des quantités demandées est approuvée et l'autre non"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Retour refusé",
+      "description": "L'acheteur reçoit un e-mail lorsqu'aucune des quantités demandées n'est approuvée"
+    }
   }
 }

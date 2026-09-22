@@ -130,5 +130,23 @@
       "OrderedByMistake": "誤って注文",
       "NoLongerNeeded": "不要になった"
     }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "返品を受け付け",
+      "description": "返品依頼が登録され、確認待ちになったときに購入者へメールが届きます"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "返品を承認",
+      "description": "返品のすべての明細が全数承認されたときに購入者へメールが届きます"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "返品を一部承認",
+      "description": "依頼された数量の一部が承認され、一部が承認されなかったときに購入者へメールが届きます"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "返品を却下",
+      "description": "依頼された数量がいずれも承認されなかったときに購入者へメールが届きます"
+    }
   }
 }
