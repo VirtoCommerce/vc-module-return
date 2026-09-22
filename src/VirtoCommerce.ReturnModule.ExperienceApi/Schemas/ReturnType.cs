@@ -53,6 +53,10 @@ public class ReturnType : ExtendableGraphType<Return>
             .Description("Total quantity requested across the return's lines.")
             .Resolve(context => context.Source.LineItems?.Sum(x => x.Quantity) ?? 0);
 
+        Field<NonNullGraphType<IntGraphType>>("approvedQuantity")
+            .Description("Total quantity authorized across the return's lines.")
+            .Resolve(context => context.Source.LineItems?.Sum(x => x.ApprovedQuantity) ?? 0);
+
         Field<NonNullGraphType<ListGraphType<NonNullGraphType<ReturnLineItemType>>>>("items")
             .Resolve(context => (IEnumerable<ReturnLineItem>)context.Source.LineItems ?? []);
 

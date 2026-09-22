@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace VirtoCommerce.ReturnModule.Core.Models;
 
@@ -10,4 +10,8 @@ public class ReturnStoreRules
     public IList<string> ReasonsRequiringComment { get; set; } = [];
 
     public bool AttachmentsRequired { get; set; }
+
+    public bool SendNotifications { get; set; }
+
+    public bool SendPushNotifications { get; set; }
 }

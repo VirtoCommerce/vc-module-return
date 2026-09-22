@@ -131,6 +131,26 @@ namespace VirtoCommerce.ReturnModule.Core
                     IsPublic = true
                 };
 
+                // Off would mean a store that upgrades the module silently stops telling buyers
+                // anything, which is the opposite of what this module is for.
+                public static SettingDescriptor ReturnSendNotifications { get; } = new SettingDescriptor
+                {
+                    Name = "Return.SendNotifications",
+                    ValueType = SettingValueType.Boolean,
+                    GroupName = "Return|Notifications",
+                    DefaultValue = true
+                };
+
+                // Off by default, unlike the emails: every transactional push adds a row to the
+                // Push Messages admin list, and a retention approach for those is not agreed yet.
+                public static SettingDescriptor ReturnSendPushNotifications { get; } = new SettingDescriptor
+                {
+                    Name = "Return.SendPushNotifications",
+                    ValueType = SettingValueType.Boolean,
+                    GroupName = "Return|Notifications",
+                    DefaultValue = false
+                };
+
                 public static IEnumerable<SettingDescriptor> AllSettings
                 {
                     get
@@ -144,6 +164,8 @@ namespace VirtoCommerce.ReturnModule.Core
                         yield return ReturnReasons;
                         yield return ReturnReasonsRequiringComment;
                         yield return ReturnAttachmentsRequired;
+                        yield return ReturnSendNotifications;
+                        yield return ReturnSendPushNotifications;
                         yield return OrderStatus;
                     }
                 }
@@ -169,6 +191,8 @@ namespace VirtoCommerce.ReturnModule.Core
                     yield return General.ReturnReasons;
                     yield return General.ReturnReasonsRequiringComment;
                     yield return General.ReturnAttachmentsRequired;
+                    yield return General.ReturnSendNotifications;
+                    yield return General.ReturnSendPushNotifications;
                 }
             }
         }

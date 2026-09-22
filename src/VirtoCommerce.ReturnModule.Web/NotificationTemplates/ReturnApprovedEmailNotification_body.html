@@ -1,0 +1,62 @@
+<div style="font-family:helvetica,arial,sans-serif;font-size:14px;line-height:20px;color:#2b2b2b;background:#f6f6f6;padding:24px 0;margin:0">
+  <table cellpadding="0" cellspacing="0" align="center" style="border-collapse:collapse;width:640px;max-width:100%;background:#ffffff">
+    <tbody>
+      <tr>
+        <td style="padding:28px 28px 8px 28px">
+          <h1 style="font-size:20px;line-height:26px;margin:0 0 16px 0">Your return has been approved</h1>
+          <p style="margin:0 0 12px 0">Hello{% if customer.name %} {{ customer.name }}{% endif %},</p>
+          <p style="margin:0 0 16px 0">Every line of your return request has been approved in full.</p>
+          <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 20px 0">
+            <tbody>
+              <tr>
+                <td style="padding:2px 16px 2px 0;color:#6b6b6b">Return number</td>
+                <td style="padding:2px 0"><strong>{{ return.number }}</strong></td>
+              </tr>
+              <tr>
+                <td style="padding:2px 16px 2px 0;color:#6b6b6b">Order number</td>
+                <td style="padding:2px 0">{{ return.order_number }}</td>
+              </tr>
+              {% if return.customer_reference %}
+              <tr>
+                <td style="padding:2px 16px 2px 0;color:#6b6b6b">Your reference</td>
+                <td style="padding:2px 0">{{ return.customer_reference }}</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:0 28px">
+          <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%">
+            <thead>
+              <tr>
+                <th align="left" style="padding:8px 8px 8px 0;border-bottom:1px solid #dcdcdc;font-size:12px;text-transform:uppercase;color:#6b6b6b">Item</th>
+                <th align="right" style="padding:8px;border-bottom:1px solid #dcdcdc;font-size:12px;text-transform:uppercase;color:#6b6b6b">Requested</th>
+                <th align="right" style="padding:8px 0 8px 8px;border-bottom:1px solid #dcdcdc;font-size:12px;text-transform:uppercase;color:#6b6b6b">Approved</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for line_item in return.line_items %}
+              <tr>
+                <td align="left" style="padding:10px 8px 10px 0;border-bottom:1px solid #f0f0f0;vertical-align:top">
+                  {{ line_item.name }}
+                  {% if line_item.sku %}<br /><span style="color:#6b6b6b;font-size:12px">{{ line_item.sku }}</span>{% endif %}
+                  {% if line_item.reject_reason %}<br /><span style="color:#b00020;font-size:12px">Declined: {{ line_item.reject_reason }}</span>{% endif %}
+                </td>
+                <td align="right" style="padding:10px 8px;border-bottom:1px solid #f0f0f0;vertical-align:top;white-space:nowrap">{{ line_item.quantity }}{% if line_item.measure_unit %} {{ line_item.measure_unit }}{% endif %}</td>
+                <td align="right" style="padding:10px 0 10px 8px;border-bottom:1px solid #f0f0f0;vertical-align:top;white-space:nowrap">{{ line_item.approved_quantity }}{% if line_item.measure_unit %} {{ line_item.measure_unit }}{% endif %}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:20px 28px 28px 28px">
+          <p style="margin:0 0 8px 0">Please send the goods back using the instructions you received with your order.</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
