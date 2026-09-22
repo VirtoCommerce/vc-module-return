@@ -79,6 +79,7 @@ public class ReturnFlowService : IReturnFlowService
         result.CustomerId = order.CustomerId;
         result.CustomerName = order.CustomerName ?? context.CustomerName;
         result.CustomerReference = request.CustomerReference ?? order.PurchaseOrderNumber;
+        result.LanguageCode = context.LanguageCode ?? order.LanguageCode;
         result.CustomerComment = request.CustomerComment;
         result.LineItems = request.Items.Select(x => CreateLineItem(x, orderLineItems)).ToList();
 

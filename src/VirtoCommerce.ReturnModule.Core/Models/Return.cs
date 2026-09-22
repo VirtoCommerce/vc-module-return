@@ -22,6 +22,12 @@ namespace VirtoCommerce.ReturnModule.Core.Models
 
         public string CustomerReference { get; set; }
 
+        /// <summary>
+        /// Culture the buyer was using when the return was raised. Notifications are rendered in it,
+        /// which is why it is a snapshot: the buyer's current preference may have moved on since.
+        /// </summary>
+        public string LanguageCode { get; set; }
+
         public string Status { get; set; }
 
         public string Resolution { get; set; }
