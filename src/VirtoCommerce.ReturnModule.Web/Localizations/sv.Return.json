@@ -51,6 +51,7 @@
           "customer": "Kund",
           "resolution": "Lösning",
             "rejectReason": "Orsak till avslag",
+            "customerReference": "Köparens referens",
           "status": "Status"
         }
       }

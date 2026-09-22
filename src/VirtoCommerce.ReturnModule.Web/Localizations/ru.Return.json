@@ -51,6 +51,7 @@
           "customer": "Клиент",
           "resolution": "Решение",
             "rejectReason": "Причина отказа",
+            "customerReference": "Референс покупателя",
           "status": "Статус"
         }
       }

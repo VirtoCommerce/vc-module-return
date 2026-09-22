@@ -51,6 +51,7 @@
           "customer": "Kunde",
           "resolution": "Lösung",
             "rejectReason": "Grund der Ablehnung",
+            "customerReference": "Referenz des Käufers",
           "status": "Status"
         }
       }

@@ -51,6 +51,7 @@
           "customer": "Customer",
           "resolution": "Resolution",
             "rejectReason": "Reason for decline",
+            "customerReference": "Buyer's reference",
           "status": "Status"
         }
       }

@@ -51,6 +51,7 @@
           "customer": "顧客",
           "resolution": "解決策",
             "rejectReason": "却下の理由",
+            "customerReference": "購入者の参照番号",
           "status": "状況"
         }
       }

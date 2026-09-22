@@ -51,6 +51,7 @@
           "customer": "Asiakas",
           "resolution": "Ratkaisu",
             "rejectReason": "Hylkäyksen syy",
+            "customerReference": "Ostajan viite",
           "status": "Tila"
         }
       }

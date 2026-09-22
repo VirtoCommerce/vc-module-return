@@ -51,6 +51,7 @@
           "customer": "Klient",
           "resolution": "Rozwiązanie",
             "rejectReason": "Powód odrzucenia",
+            "customerReference": "Numer referencyjny kupującego",
           "status": "Status"
         }
       }

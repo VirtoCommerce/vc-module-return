@@ -72,6 +72,12 @@ angular.module('virtoCommerce.returnModule')
                     templateUrl: 'statusSelector.html'
                 },
                 {
+                    name: 'customerReference',
+                    isReadOnly: true,
+                    title: "return.blades.return-details.labels.customerReference",
+                    valueType: "ShortText"
+                },
+                {
                     name: 'resolution',
                     isRequired: false,
                     title: "return.blades.return-details.labels.resolution",

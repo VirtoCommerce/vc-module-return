@@ -51,6 +51,7 @@
           "customer": "客户",
           "resolution": "解决方案",
             "rejectReason": "拒绝原因",
+            "customerReference": "买家参考号",
           "status": "状态"
         }
       }
