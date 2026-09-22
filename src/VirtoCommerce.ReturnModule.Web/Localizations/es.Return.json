@@ -151,6 +151,10 @@
     "ReturnRejectedEmailNotification": {
       "displayName": "Devolución rechazada",
       "description": "El comprador recibe un correo cuando no se aprueba ninguna de las cantidades solicitadas"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Devolución cancelada",
+      "description": "El comprador recibe un correo cuando su solicitud de devolución se cancela y deja de estar pendiente de revisión"
     }
   }
 }

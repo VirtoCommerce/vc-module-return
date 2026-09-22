@@ -87,7 +87,7 @@ public class ReturnPushMessageHandlerTests
 
     [Theory]
     [InlineData(ReturnStatus.Draft)]
-    [InlineData(ReturnStatus.Cancelled)]
+    [InlineData(ReturnStatus.Processing)]
     [InlineData(null)]
     public async Task StatusWithNoTemplate_QueuesNothing(string status)
     {

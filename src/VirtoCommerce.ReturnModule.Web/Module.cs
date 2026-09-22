@@ -134,6 +134,7 @@ namespace VirtoCommerce.ReturnModule.Web
             notificationRegistrar.RegisterNotification<ReturnApprovedEmailNotification>().WithTemplatesFromPath(templatesPath);
             notificationRegistrar.RegisterNotification<ReturnPartiallyApprovedEmailNotification>().WithTemplatesFromPath(templatesPath);
             notificationRegistrar.RegisterNotification<ReturnRejectedEmailNotification>().WithTemplatesFromPath(templatesPath);
+            notificationRegistrar.RegisterNotification<ReturnCancelledEmailNotification>().WithTemplatesFromPath(templatesPath);
 
             // Apply migrations
             using var serviceScope = appBuilder.ApplicationServices.CreateScope();

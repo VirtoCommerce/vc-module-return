@@ -4,6 +4,7 @@ using VirtoCommerce.Platform.Core.Events;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Events;
 using VirtoCommerce.ReturnModule.Core.Models;
+using VirtoCommerce.ReturnModule.Core.Notifications;
 
 namespace VirtoCommerce.ReturnModule.Data.Handlers;
 
@@ -66,10 +67,8 @@ public class ReturnStatusChangedEventPublisher : IEventHandler<ReturnChangedEven
 
     protected virtual string Normalize(string status)
     {
-        return status.EqualsIgnoreCase(LegacyCancelledSpelling)
+        return status.EqualsIgnoreCase(ReturnNotificationTypes.LegacyCancelledSpelling)
             ? ReturnStatus.Cancelled
             : status ?? string.Empty;
     }
-
-    protected const string LegacyCancelledSpelling = "Canceled";
 }

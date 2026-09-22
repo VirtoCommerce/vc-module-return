@@ -151,6 +151,10 @@
     "ReturnRejectedEmailNotification": {
       "displayName": "Return declined",
       "description": "The buyer gets an email when none of the requested quantities are approved"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Return cancelled",
+      "description": "The buyer gets an email when their return request is cancelled and no longer waiting to be reviewed"
     }
   }
 }

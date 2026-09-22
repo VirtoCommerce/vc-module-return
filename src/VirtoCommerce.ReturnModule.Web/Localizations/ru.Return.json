@@ -151,6 +151,10 @@
     "ReturnRejectedEmailNotification": {
       "displayName": "Возврат отклонён",
       "description": "Покупатель получает письмо, когда ни одно из запрошенных количеств не одобрено"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Возврат отменён",
+      "description": "Покупатель получает письмо, когда его заявка на возврат отменена и больше не ожидает рассмотрения"
     }
   }
 }

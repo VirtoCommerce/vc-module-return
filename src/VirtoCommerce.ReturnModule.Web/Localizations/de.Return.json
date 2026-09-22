@@ -151,6 +151,10 @@
     "ReturnRejectedEmailNotification": {
       "displayName": "Rücksendung abgelehnt",
       "description": "Der Käufer erhält eine E-Mail, wenn keine der angefragten Mengen genehmigt wurde"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Rücksendung storniert",
+      "description": "Der Käufer erhält eine E-Mail, wenn seine Rücksendeanfrage storniert wurde und nicht mehr auf Prüfung wartet"
     }
   }
 }

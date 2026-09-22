@@ -151,6 +151,10 @@
     "ReturnRejectedEmailNotification": {
       "displayName": "Retour refusé",
       "description": "L'acheteur reçoit un e-mail lorsqu'aucune des quantités demandées n'est approuvée"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Retour annulé",
+      "description": "L'acheteur reçoit un e-mail lorsque sa demande de retour est annulée et n'est plus en attente d'examen"
     }
   }
 }

@@ -78,6 +78,8 @@ public class ReturnNotificationHandlerTests
     [InlineData(ReturnStatus.Approved, nameof(ReturnApprovedEmailNotification))]
     [InlineData(ReturnStatus.PartiallyApproved, nameof(ReturnPartiallyApprovedEmailNotification))]
     [InlineData(ReturnStatus.Rejected, nameof(ReturnRejectedEmailNotification))]
+    [InlineData(ReturnStatus.Cancelled, nameof(ReturnCancelledEmailNotification))]
+    [InlineData("Canceled", nameof(ReturnCancelledEmailNotification))]
     public async Task EachAnnouncedStatus_SendsItsOwnNotification(string status, string expectedType)
     {
         await HandleAndSend(status);
@@ -88,7 +90,7 @@ public class ReturnNotificationHandlerTests
 
     [Theory]
     [InlineData(ReturnStatus.Draft)]
-    [InlineData(ReturnStatus.Cancelled)]
+    [InlineData(ReturnStatus.Processing)]
     [InlineData(ReturnStatus.Completed)]
     [InlineData(null)]
     public async Task StatusWithNoTemplate_QueuesNothing(string status)
@@ -219,6 +221,7 @@ public class ReturnNotificationHandlerTests
             nameof(ReturnApprovedEmailNotification) => new ReturnApprovedEmailNotification(),
             nameof(ReturnPartiallyApprovedEmailNotification) => new ReturnPartiallyApprovedEmailNotification(),
             nameof(ReturnRejectedEmailNotification) => new ReturnRejectedEmailNotification(),
+            nameof(ReturnCancelledEmailNotification) => new ReturnCancelledEmailNotification(),
             _ => throw new InvalidOperationException($"Unexpected notification type '{type}'."),
         };
     }

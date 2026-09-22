@@ -17,6 +17,14 @@ namespace VirtoCommerce.ReturnModule.Core.Notifications
                 [ReturnStatus.Approved] = nameof(ReturnApprovedEmailNotification),
                 [ReturnStatus.PartiallyApproved] = nameof(ReturnPartiallyApprovedEmailNotification),
                 [ReturnStatus.Rejected] = nameof(ReturnRejectedEmailNotification),
+                [ReturnStatus.Cancelled] = nameof(ReturnCancelledEmailNotification),
+
+                // The spelling the module shipped with. Both are in the Return.Status dictionary, so
+                // an operator can pick either, and a buyer whose return was cancelled should hear
+                // about it whichever one was picked.
+                [LegacyCancelledSpelling] = nameof(ReturnCancelledEmailNotification),
             });
+
+        public const string LegacyCancelledSpelling = "Canceled";
     }
 }

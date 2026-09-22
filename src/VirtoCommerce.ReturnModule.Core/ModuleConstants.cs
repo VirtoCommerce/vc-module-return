@@ -141,14 +141,14 @@ namespace VirtoCommerce.ReturnModule.Core
                     DefaultValue = true
                 };
 
-                // Off by default, unlike the emails: every transactional push adds a row to the
-                // Push Messages admin list, and a retention approach for those is not agreed yet.
+                // Transactional pushes accumulate in the Push Messages admin list, which was agreed
+                // to be acceptable, so this follows the emails rather than waiting to be switched on.
                 public static SettingDescriptor ReturnSendPushNotifications { get; } = new SettingDescriptor
                 {
                     Name = "Return.SendPushNotifications",
                     ValueType = SettingValueType.Boolean,
                     GroupName = "Return|Notifications",
-                    DefaultValue = false
+                    DefaultValue = true
                 };
 
                 public static IEnumerable<SettingDescriptor> AllSettings

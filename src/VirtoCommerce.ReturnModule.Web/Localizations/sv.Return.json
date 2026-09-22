@@ -151,6 +151,10 @@
     "ReturnRejectedEmailNotification": {
       "displayName": "Retur avslagen",
       "description": "Köparen får ett e-postmeddelande när ingen av de begärda kvantiteterna godkänns"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Retur annullerad",
+      "description": "Köparen får ett e-postmeddelande när returförfrågan annulleras och inte längre väntar på granskning"
     }
   }
 }

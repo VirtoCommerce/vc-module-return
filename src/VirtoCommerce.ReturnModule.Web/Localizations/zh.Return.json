@@ -151,6 +151,10 @@
     "ReturnRejectedEmailNotification": {
       "displayName": "退货被拒绝",
       "description": "申请数量全部未获批准时，买家会收到邮件"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "退货已取消",
+      "description": "退货申请被取消、不再等待审核时，买家会收到邮件"
     }
   }
 }

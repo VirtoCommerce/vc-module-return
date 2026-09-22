@@ -151,6 +151,10 @@
     "ReturnRejectedEmailNotification": {
       "displayName": "Reso rifiutato",
       "description": "L'acquirente riceve un'e-mail quando nessuna delle quantità richieste viene approvata"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Reso annullato",
+      "description": "L'acquirente riceve un'e-mail quando la sua richiesta di reso viene annullata e non è più in attesa di verifica"
     }
   }
 }

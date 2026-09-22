@@ -151,6 +151,10 @@
     "ReturnRejectedEmailNotification": {
       "displayName": "Palautus hylätty",
       "description": "Ostaja saa sähköpostin, kun yhtään pyydettyä määrää ei hyväksytä"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Palautus peruutettu",
+      "description": "Ostaja saa sähköpostin, kun hänen palautuspyyntönsä peruutetaan eikä se enää odota käsittelyä"
     }
   }
 }

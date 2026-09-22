@@ -151,6 +151,10 @@
     "ReturnRejectedEmailNotification": {
       "displayName": "返品を却下",
       "description": "依頼された数量がいずれも承認されなかったときに購入者へメールが届きます"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "返品を取り消し",
+      "description": "返品依頼が取り消され、確認待ちでなくなったときに購入者へメールが届きます"
     }
   }
 }
