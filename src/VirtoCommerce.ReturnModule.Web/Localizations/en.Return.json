@@ -35,7 +35,9 @@
           "reason": "Return reason",
           "quantity": "Quantity",
           "price": "Price",
-          "sku": "SKU"
+          "sku": "SKU",
+            "approved-quantity": "Approved",
+            "reject-reason": "Decline reason"
         }
       },
       "return-details": {
@@ -48,6 +50,7 @@
           "createdBy": "Created by",
           "customer": "Customer",
           "resolution": "Resolution",
+            "rejectReason": "Reason for decline",
           "status": "Status"
         }
       }

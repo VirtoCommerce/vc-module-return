@@ -35,7 +35,9 @@
           "reason": "Причина возврата",
           "quantity": "Количество",
           "price": "Цена",
-          "sku": "Артикул"
+          "sku": "Артикул",
+            "approved-quantity": "Одобрено",
+            "reject-reason": "Причина отказа"
         }
       },
       "return-details": {
@@ -48,6 +50,7 @@
           "createdBy": "Создано",
           "customer": "Клиент",
           "resolution": "Решение",
+            "rejectReason": "Причина отказа",
           "status": "Статус"
         }
       }

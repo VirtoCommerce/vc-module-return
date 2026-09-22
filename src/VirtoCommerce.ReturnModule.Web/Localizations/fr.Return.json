@@ -35,7 +35,9 @@
           "reason": "Motif du retour",
           "quantity": "Quantité",
           "price": "Prix",
-          "sku": "Référence"
+          "sku": "Référence",
+            "approved-quantity": "Approuvé",
+            "reject-reason": "Motif du refus"
         }
       },
       "return-details": {
@@ -48,6 +50,7 @@
           "createdBy": "Créé par",
           "customer": "Client",
           "resolution": "Résolution",
+            "rejectReason": "Motif du refus",
           "status": "Statut"
         }
       }

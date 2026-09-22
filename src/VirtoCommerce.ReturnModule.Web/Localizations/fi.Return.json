@@ -35,7 +35,9 @@
           "reason": "Palautuksen syy",
           "quantity": "Määrä",
           "price": "Hinta",
-          "sku": "Tuotekoodi"
+          "sku": "Tuotekoodi",
+            "approved-quantity": "Hyväksytty",
+            "reject-reason": "Hylkäyksen syy"
         }
       },
       "return-details": {
@@ -48,6 +50,7 @@
           "createdBy": "Luonut",
           "customer": "Asiakas",
           "resolution": "Ratkaisu",
+            "rejectReason": "Hylkäyksen syy",
           "status": "Tila"
         }
       }

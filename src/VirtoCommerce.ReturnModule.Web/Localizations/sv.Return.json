@@ -35,7 +35,9 @@
           "reason": "Returskäl",
           "quantity": "Antal",
           "price": "Pris",
-          "sku": "Artikelnummer"
+          "sku": "Artikelnummer",
+            "approved-quantity": "Godkänt",
+            "reject-reason": "Orsak till avslag"
         }
       },
       "return-details": {
@@ -48,6 +50,7 @@
           "createdBy": "Skapad av",
           "customer": "Kund",
           "resolution": "Lösning",
+            "rejectReason": "Orsak till avslag",
           "status": "Status"
         }
       }

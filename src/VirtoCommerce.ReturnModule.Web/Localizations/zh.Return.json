@@ -35,7 +35,9 @@
           "reason": "退货原因",
           "quantity": "数量",
           "price": "价格",
-          "sku": "SKU"
+          "sku": "SKU",
+            "approved-quantity": "已批准数量",
+            "reject-reason": "拒绝原因"
         }
       },
       "return-details": {
@@ -48,6 +50,7 @@
           "createdBy": "创建人",
           "customer": "客户",
           "resolution": "解决方案",
+            "rejectReason": "拒绝原因",
           "status": "状态"
         }
       }

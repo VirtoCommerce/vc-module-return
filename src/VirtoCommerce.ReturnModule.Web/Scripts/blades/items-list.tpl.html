@@ -16,6 +16,8 @@
               <th class="table-col" width="33%">{{ 'return.blades.items-list.labels.reason' | translate }}</th>
               <th class="table-col" width="17%" ng-if="blade.editMode">{{ 'return.blades.items-list.labels.sku' | translate }}</th>
               <th class="table-col">{{ 'return.blades.items-list.labels.quantity' | translate }}</th>
+              <th class="table-col" ng-if="blade.editMode">{{ 'return.blades.items-list.labels.approved-quantity' | translate }}</th>
+              <th class="table-col" width="20%" ng-if="blade.editMode">{{ 'return.blades.items-list.labels.reject-reason' | translate }}</th>
               <th class="table-col">{{ 'return.blades.items-list.labels.price' | translate }}</th>
             </tr>
           </thead>
@@ -57,6 +59,27 @@
                            required
                            ng-model="data.quantity"
                            ng-model-options="{ updateOn: 'blur' }">
+                  </div>
+                </div>
+              </td>
+              <td class="table-col" ng-if="blade.editMode">
+                <div class="form-input __mini __inline">
+                  <div class="form-input __mini __number">
+                    <input smart-float
+                           type="number"
+                           min="0"
+                           max="{{ data.quantity }}"
+                           oninput="this.value = this.value < this.min ? Math.abs(Math.max(this.min, this.value)) : Math.min(this.max, this.value)"
+                           num-type="integer"
+                           ng-model="data.approvedQuantity"
+                           ng-model-options="{ updateOn: 'blur' }">
+                  </div>
+                </div>
+              </td>
+              <td class="table-col" ng-if="blade.editMode">
+                <div class="form-input __inline">
+                  <div class="form-input">
+                    <input ng-model="data.rejectReason" ng-model-options="{ updateOn: 'blur' }">
                   </div>
                 </div>
               </td>

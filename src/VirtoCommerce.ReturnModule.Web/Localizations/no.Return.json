@@ -35,7 +35,9 @@
           "reason": "Returårsak",
           "quantity": "Antall",
           "price": "Pris",
-          "sku": "SKU"
+          "sku": "SKU",
+            "approved-quantity": "Godkjent",
+            "reject-reason": "Årsak til avslag"
         }
       },
       "return-details": {
@@ -48,6 +50,7 @@
           "createdBy": "Opprettet av",
           "customer": "Kunde",
           "resolution": "Løsning",
+            "rejectReason": "Årsak til avslag",
           "status": "Status"
         }
       }

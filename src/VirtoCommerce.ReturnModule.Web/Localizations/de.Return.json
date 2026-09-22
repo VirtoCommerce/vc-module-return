@@ -35,7 +35,9 @@
           "reason": "Rückgabegrund",
           "quantity": "Menge",
           "price": "Preis",
-          "sku": "Artikelnummer"
+          "sku": "Artikelnummer",
+            "approved-quantity": "Genehmigt",
+            "reject-reason": "Ablehnungsgrund"
         }
       },
       "return-details": {
@@ -48,6 +50,7 @@
           "createdBy": "Erstellt von",
           "customer": "Kunde",
           "resolution": "Lösung",
+            "rejectReason": "Grund der Ablehnung",
           "status": "Status"
         }
       }

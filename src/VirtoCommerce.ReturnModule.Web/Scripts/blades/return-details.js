@@ -76,6 +76,12 @@ angular.module('virtoCommerce.returnModule')
                     isRequired: false,
                     title: "return.blades.return-details.labels.resolution",
                     valueType: "LongText"
+                },
+                {
+                    name: 'rejectReason',
+                    isRequired: false,
+                    title: "return.blades.return-details.labels.rejectReason",
+                    valueType: "LongText"
                 }
             ];
 

@@ -35,7 +35,9 @@
           "reason": "返品理由",
           "quantity": "数量",
           "price": "価格",
-          "sku": "SKU"
+          "sku": "SKU",
+            "approved-quantity": "承認数量",
+            "reject-reason": "却下理由"
         }
       },
       "return-details": {
@@ -48,6 +50,7 @@
           "createdBy": "作成者",
           "customer": "顧客",
           "resolution": "解決策",
+            "rejectReason": "却下の理由",
           "status": "状況"
         }
       }
