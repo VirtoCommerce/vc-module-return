@@ -303,8 +303,9 @@ public class ReturnFlowService : IReturnFlowService
         if (lineWithoutFiles != null)
         {
             throw new ReturnFlowException(
-                ReturnFlowError.AttachmentsRequired,
-                $"Line item '{lineWithoutFiles.OrderLineItemId}' needs at least one photo or document.");
+                    ReturnFlowError.AttachmentsRequired,
+                    $"Line item '{lineWithoutFiles.OrderLineItemId}' needs at least one photo or document.")
+                .WithValue(ReturnFlowErrorValue.OrderLineItemId, lineWithoutFiles.OrderLineItemId);
         }
     }
 
@@ -353,21 +354,27 @@ public class ReturnFlowService : IReturnFlowService
         {
             if (!returnableItems.TryGetValue(lineItem.OrderLineItemId ?? string.Empty, out var returnableItem))
             {
-                throw new ReturnFlowException(ReturnFlowError.LineItemNotFound, $"Line item '{lineItem.OrderLineItemId}' is not on this order.");
+                throw new ReturnFlowException(ReturnFlowError.LineItemNotFound, $"Line item '{lineItem.OrderLineItemId}' is not on this order.")
+                    .WithValue(ReturnFlowErrorValue.OrderLineItemId, lineItem.OrderLineItemId);
             }
 
             if (!returnableItem.IsReturnable)
             {
                 throw new ReturnFlowException(
-                    ReturnFlowError.LineNotReturnable,
-                    $"Line item '{lineItem.OrderLineItemId}' cannot be returned: {returnableItem.IneligibilityReason}.");
+                        ReturnFlowError.LineNotReturnable,
+                        $"Line item '{lineItem.OrderLineItemId}' cannot be returned: {returnableItem.IneligibilityReason}.")
+                    .WithValue(ReturnFlowErrorValue.OrderLineItemId, lineItem.OrderLineItemId)
+                    .WithValue(ReturnFlowErrorValue.IneligibilityReason, returnableItem.IneligibilityReason)
+                    .WithValue(ReturnFlowErrorValue.AvailableQuantity, returnableItem.ReturnableQuantity);
             }
 
             if (lineItem.Quantity < 1)
             {
                 throw new ReturnFlowException(
-                    ReturnFlowError.InvalidQuantity,
-                    $"Line item '{lineItem.OrderLineItemId}': asked for {lineItem.Quantity}.");
+                        ReturnFlowError.InvalidQuantity,
+                        $"Line item '{lineItem.OrderLineItemId}': asked for {lineItem.Quantity}.")
+                    .WithValue(ReturnFlowErrorValue.OrderLineItemId, lineItem.OrderLineItemId)
+                    .WithValue(ReturnFlowErrorValue.RequestedQuantity, lineItem.Quantity);
             }
         }
 
@@ -381,8 +388,11 @@ public class ReturnFlowService : IReturnFlowService
             if (asked > available)
             {
                 throw new ReturnFlowException(
-                    ReturnFlowError.QuantityUnavailable,
-                    $"Line item '{group.Key}': asked for {asked}, {available} available.");
+                        ReturnFlowError.QuantityUnavailable,
+                        $"Line item '{group.Key}': asked for {asked}, {available} available.")
+                    .WithValue(ReturnFlowErrorValue.OrderLineItemId, group.Key)
+                    .WithValue(ReturnFlowErrorValue.RequestedQuantity, asked)
+                    .WithValue(ReturnFlowErrorValue.AvailableQuantity, available);
             }
         }
     }
