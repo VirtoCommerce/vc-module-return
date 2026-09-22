@@ -79,6 +79,64 @@ public class ReturnFlowValidationTests
     }
 
     [Fact]
+    public async Task QuantityUnavailable_CarriesTheNumbersRatherThanOnlyTheSentence()
+    {
+        // The storefront renders this per line in its own language, so parsing the English message
+        // is not an option.
+        var service = CreateService(returnableQuantity: 4);
+
+        var orderReturn = new Return
+        {
+            LineItems = [new ReturnLineItem { OrderLineItemId = LineId, Quantity = 6 }],
+        };
+
+        var exception = await Assert.ThrowsAsync<ReturnFlowException>(() =>
+            service.Validate(orderReturn, new CustomerOrder()));
+
+        Assert.Equal(ReturnFlowError.QuantityUnavailable, exception.Code);
+        Assert.Equal(LineId, exception.Values[ReturnFlowErrorValue.OrderLineItemId]);
+        Assert.Equal(6, exception.Values[ReturnFlowErrorValue.RequestedQuantity]);
+        Assert.Equal(4, exception.Values[ReturnFlowErrorValue.AvailableQuantity]);
+    }
+
+    [Fact]
+    public async Task LineNotReturnable_CarriesTheReasonRatherThanOnlyTheSentence()
+    {
+        // The same race reaches the buyer as this code once the units are gone entirely.
+        var service = CreateService(returnableQuantity: 0, isReturnable: false);
+
+        var orderReturn = new Return
+        {
+            LineItems = [new ReturnLineItem { OrderLineItemId = LineId, Quantity = 1 }],
+        };
+
+        var exception = await Assert.ThrowsAsync<ReturnFlowException>(() =>
+            service.Validate(orderReturn, new CustomerOrder()));
+
+        Assert.Equal(ReturnFlowError.LineNotReturnable, exception.Code);
+        Assert.Equal(LineId, exception.Values[ReturnFlowErrorValue.OrderLineItemId]);
+        Assert.Equal(ReturnIneligibilityReason.NothingLeftToReturn, exception.Values[ReturnFlowErrorValue.IneligibilityReason]);
+        Assert.Equal(0, exception.Values[ReturnFlowErrorValue.AvailableQuantity]);
+    }
+
+    [Fact]
+    public async Task LineNotOnTheOrder_NamesTheLine()
+    {
+        var service = CreateService(returnableQuantity: 5);
+
+        var orderReturn = new Return
+        {
+            LineItems = [new ReturnLineItem { OrderLineItemId = "not-on-this-order", Quantity = 1 }],
+        };
+
+        var exception = await Assert.ThrowsAsync<ReturnFlowException>(() =>
+            service.Validate(orderReturn, new CustomerOrder()));
+
+        Assert.Equal(ReturnFlowError.LineItemNotFound, exception.Code);
+        Assert.Equal("not-on-this-order", exception.Values[ReturnFlowErrorValue.OrderLineItemId]);
+    }
+
+    [Fact]
     public async Task EveryReasonTheStoreOffers_IsAccepted()
     {
         // Return.Reasons is a dictionary setting, so its items come from the localization store and
@@ -173,7 +231,7 @@ public class ReturnFlowValidationTests
         return new TestableReturnFlowService(new Mock<IReturnEligibilityService>().Object, settingsService.Object);
     }
 
-    private static TestableReturnFlowService CreateService(int returnableQuantity = 0)
+    private static TestableReturnFlowService CreateService(int returnableQuantity = 0, bool isReturnable = true)
     {
         var eligibilityService = new Mock<IReturnEligibilityService>();
         eligibilityService
@@ -183,7 +241,8 @@ public class ReturnFlowValidationTests
                 new ReturnableItem
                 {
                     OrderLineItemId = LineId,
-                    IsReturnable = true,
+                    IsReturnable = isReturnable,
+                    IneligibilityReason = isReturnable ? null : ReturnIneligibilityReason.NothingLeftToReturn,
                     ReturnableQuantity = returnableQuantity,
                 },
             ]);

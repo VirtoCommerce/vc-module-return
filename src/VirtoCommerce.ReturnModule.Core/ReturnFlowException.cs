@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace VirtoCommerce.ReturnModule.Core;
 
@@ -28,4 +29,26 @@ public class ReturnFlowException : Exception
     }
 
     public string Code { get; }
+
+    /// <summary>
+    /// What a caller needs to act on the error, as values rather than as a sentence. The message
+    /// says "asked for 6, 4 available" in English only, and a storefront with ten languages cannot
+    /// translate that by parsing it. These reach the client as GraphQL error extensions.
+    /// </summary>
+    public IDictionary<string, object> Values { get; } = new Dictionary<string, object>();
+
+    public ReturnFlowException WithValue(string name, object value)
+    {
+        Values[name] = value;
+
+        return this;
+    }
+}
+
+public static class ReturnFlowErrorValue
+{
+    public const string OrderLineItemId = "orderLineItemId";
+    public const string RequestedQuantity = "requestedQuantity";
+    public const string AvailableQuantity = "availableQuantity";
+    public const string IneligibilityReason = "ineligibilityReason";
 }

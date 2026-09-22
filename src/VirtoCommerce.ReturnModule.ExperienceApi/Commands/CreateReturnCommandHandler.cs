@@ -6,6 +6,7 @@ using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
+using VirtoCommerce.ReturnModule.ExperienceApi.Extensions;
 
 namespace VirtoCommerce.ReturnModule.ExperienceApi.Commands;
 
@@ -36,7 +37,7 @@ public class CreateReturnCommandHandler : IRequestHandler<CreateReturnCommand, R
         }
         catch (ReturnFlowException exception)
         {
-            throw new ExecutionError(exception.Message, exception) { Code = exception.Code };
+            throw exception.ToExecutionError();
         }
     }
 }
