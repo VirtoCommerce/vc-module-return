@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.FileExperienceApi.Core.Extensions;
 using VirtoCommerce.FileExperienceApi.Core.Models;
 using VirtoCommerce.Platform.Core;
@@ -16,13 +17,15 @@ public class ReturnAuthorizationRequirement : IAuthorizationRequirement
 
 public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizationRequirement>
 {
-    private readonly IReturnService _returnService;
-    private readonly IReturnFlowService _flowService;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public ReturnAuthorizationHandler(IReturnService returnService, IReturnFlowService flowService)
+    // The handler is a singleton, as every authorization handler in the platform is, so it cannot
+    // hold the return services: their graph reaches IUserNameResolver, which is scoped, and
+    // capturing it fails DI validation at startup rather than at the first request. A scope per
+    // check is what the platform's own Func<UserManager<..>> factories amount to.
+    public ReturnAuthorizationHandler(IServiceScopeFactory scopeFactory)
     {
-        _returnService = returnService;
-        _flowService = flowService;
+        _scopeFactory = scopeFactory;
     }
 
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, ReturnAuthorizationRequirement requirement)
@@ -68,9 +71,14 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
             return false;
         }
 
-        var orderReturn = await _returnService.GetNoCloneAsync(file.OwnerEntityId, ReturnResponseGroup.None.ToString());
+        using var scope = _scopeFactory.CreateScope();
 
-        return orderReturn != null && await _flowService.IsOwnedBy(orderReturn, GetUserId(context));
+        var returnService = scope.ServiceProvider.GetRequiredService<IReturnService>();
+        var flowService = scope.ServiceProvider.GetRequiredService<IReturnFlowService>();
+
+        var orderReturn = await returnService.GetNoCloneAsync(file.OwnerEntityId, ReturnResponseGroup.None.ToString());
+
+        return orderReturn != null && await flowService.IsOwnedBy(orderReturn, GetUserId(context));
     }
 
     protected virtual string GetUserId(AuthorizationHandlerContext context)

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using VirtoCommerce.FileExperienceApi.Core.Models;
 using VirtoCommerce.Platform.Core;
@@ -128,8 +129,8 @@ public class ReturnAuthorizationHandlerTests
     {
         private readonly string _userId;
 
-        public TestHandler(IReturnService returnService, IReturnFlowService flowService, string userId)
-            : base(returnService, flowService)
+        public TestHandler(IServiceScopeFactory scopeFactory, string userId)
+            : base(scopeFactory)
         {
             _userId = userId;
         }
@@ -152,7 +153,19 @@ public class ReturnAuthorizationHandlerTests
             .Setup(x => x.IsOwnedBy(It.IsAny<Return>(), It.IsAny<string>()))
             .ReturnsAsync((Return x, string customerId) => x.CustomerId == customerId);
 
-        return new TestHandler(returnService.Object, flowService.Object, userId);
+        return new TestHandler(ScopeFactoryFor(returnService.Object, flowService.Object), userId);
+    }
+
+    // The handler is a singleton and resolves the return services per check, so the test has to
+    // hand it a scope rather than the services themselves.
+    private static IServiceScopeFactory ScopeFactoryFor(IReturnService returnService, IReturnFlowService flowService)
+    {
+        var provider = new ServiceCollection()
+            .AddSingleton(returnService)
+            .AddSingleton(flowService)
+            .BuildServiceProvider();
+
+        return provider.GetRequiredService<IServiceScopeFactory>();
     }
 
     private static AuthorizationHandlerContext CreateContext(
