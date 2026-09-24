@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using VirtoCommerce.ReturnModule.Data.Repositories;
@@ -11,9 +12,11 @@ using VirtoCommerce.ReturnModule.Data.Repositories;
 namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
 {
     [DbContext(typeof(ReturnDbContext))]
-    partial class ReturnDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260924074021_ReturnOrganization")]
+    partial class ReturnOrganization
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

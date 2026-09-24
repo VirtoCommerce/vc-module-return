@@ -62,7 +62,9 @@
     "return:create": "Crea dati di reso",
     "return:read": "Visualizza dati di reso",
     "return:update": "Aggiorna dati di reso",
-    "return:delete": "Elimina dati di reso"
+    "return:delete": "Elimina dati di reso",
+    "xapi:my_organization:return:view": "Visualizza i resi dell'organizzazione",
+    "xapi:my_organization:return:submit": "Invia i resi dell'organizzazione"
   },
   "settings": {
     "Return": {
@@ -109,6 +111,10 @@
       "SendPushNotifications": {
         "title": "Notifiche push sui resi",
         "description": "Invia anche un messaggio push nell'app per gli stessi eventi. Richiede il modulo Push Messages."
+      },
+      "NotifyOrganizationEmail": {
+        "title": "Copia le e-mail di reso all'organizzazione",
+        "description": "Invia ogni e-mail di reso ricevuta dall'acquirente anche all'indirizzo e-mail della sua organizzazione."
       }
     },
     "Return.Status": {

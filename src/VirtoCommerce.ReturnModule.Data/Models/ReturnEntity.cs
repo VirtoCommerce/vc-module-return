@@ -31,6 +31,12 @@ namespace VirtoCommerce.ReturnModule.Data.Models
         [StringLength(Length256)]
         public string CustomerName { get; set; }
 
+        [StringLength(IdLength)]
+        public string OrganizationId { get; set; }
+
+        [StringLength(Length256)]
+        public string OrganizationName { get; set; }
+
         [StringLength(Length128)]
         public string CustomerReference { get; set; }
 
@@ -74,6 +80,8 @@ namespace VirtoCommerce.ReturnModule.Data.Models
             model.StoreId = StoreId;
             model.CustomerId = CustomerId;
             model.CustomerName = CustomerName;
+            model.OrganizationId = OrganizationId;
+            model.OrganizationName = OrganizationName;
             model.CustomerReference = CustomerReference;
             model.LanguageCode = LanguageCode;
             model.Status = Status;
@@ -107,6 +115,8 @@ namespace VirtoCommerce.ReturnModule.Data.Models
             StoreId = model.StoreId;
             CustomerId = model.CustomerId;
             CustomerName = model.CustomerName;
+            OrganizationId = model.OrganizationId;
+            OrganizationName = model.OrganizationName;
             CustomerReference = model.CustomerReference;
             LanguageCode = model.LanguageCode;
             Status = model.Status;
@@ -137,6 +147,8 @@ namespace VirtoCommerce.ReturnModule.Data.Models
             target.StoreId = StoreId;
             target.CustomerId = CustomerId;
             target.CustomerName = CustomerName;
+            target.OrganizationId = OrganizationId;
+            target.OrganizationName = OrganizationName;
             target.CustomerReference = CustomerReference;
             target.LanguageCode = LanguageCode;
             target.Status = Status;

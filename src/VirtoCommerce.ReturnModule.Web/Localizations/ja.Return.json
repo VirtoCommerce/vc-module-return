@@ -62,7 +62,9 @@
     "return:create": "返品データを作成",
     "return:read": "返品データを表示",
     "return:update": "返品データを更新",
-    "return:delete": "返品データを削除"
+    "return:delete": "返品データを削除",
+    "xapi:my_organization:return:view": "組織の返品を表示",
+    "xapi:my_organization:return:submit": "組織の返品を送信"
   },
   "settings": {
     "Return": {
@@ -109,6 +111,10 @@
       "SendPushNotifications": {
         "title": "返品のプッシュ通知",
         "description": "同じイベントでアプリ内プッシュ通知も送信します。Push Messages モジュールが必要です。"
+      },
+      "NotifyOrganizationEmail": {
+        "title": "返品メールを組織にもコピー",
+        "description": "購入者が受け取るすべての返品メールを、購入者の組織のメールアドレスにも送信します。"
       }
     },
     "Return.Status": {

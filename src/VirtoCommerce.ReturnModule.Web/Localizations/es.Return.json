@@ -62,7 +62,9 @@
     "return:create": "Crear datos de devolución",
     "return:read": "Ver datos de devolución",
     "return:update": "Actualizar datos de devolución",
-    "return:delete": "Eliminar datos de devolución"
+    "return:delete": "Eliminar datos de devolución",
+    "xapi:my_organization:return:view": "Ver devoluciones de la organización",
+    "xapi:my_organization:return:submit": "Enviar devoluciones de la organización"
   },
   "settings": {
     "Return": {
@@ -109,6 +111,10 @@
       "SendPushNotifications": {
         "title": "Notificaciones push de devoluciones",
         "description": "Enviar además un mensaje push en la aplicación en los mismos eventos. Requiere el módulo Push Messages."
+      },
+      "NotifyOrganizationEmail": {
+        "title": "Copiar los correos de devolución a la organización",
+        "description": "Enviar también cada correo de devolución que recibe el comprador a la dirección de correo de su organización."
       }
     },
     "Return.Status": {

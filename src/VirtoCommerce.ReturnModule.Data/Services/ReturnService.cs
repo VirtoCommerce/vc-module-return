@@ -159,6 +159,8 @@ namespace VirtoCommerce.ReturnModule.Data.Services
                 orderReturn.StoreId = Fill(orderReturn.StoreId, order.StoreId);
                 orderReturn.CustomerId = Fill(orderReturn.CustomerId, order.CustomerId);
                 orderReturn.CustomerName = Fill(orderReturn.CustomerName, order.CustomerName);
+                orderReturn.OrganizationId = Fill(orderReturn.OrganizationId, order.OrganizationId);
+                orderReturn.OrganizationName = Fill(orderReturn.OrganizationName, order.OrganizationName);
                 orderReturn.OrderNumber = Fill(orderReturn.OrderNumber, order.Number);
 
                 var orderLineItems = (order.Items ?? []).ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);

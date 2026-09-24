@@ -28,6 +28,7 @@ namespace VirtoCommerce.ReturnModule.Data.Repositories
             // "My returns" always filters by customer and store and sorts by date, so the composite
             // serves the seek and the order in one pass; every order page asks what the order is holding.
             modelBuilder.Entity<ReturnEntity>().HasIndex(x => new { x.CustomerId, x.StoreId, x.CreatedDate });
+            modelBuilder.Entity<ReturnEntity>().HasIndex(x => new { x.OrganizationId, x.StoreId, x.CreatedDate });
             modelBuilder.Entity<ReturnEntity>().HasIndex(x => x.OrderId);
 
             #endregion Return

@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.Xapi.Core.Infrastructure;
@@ -22,6 +23,21 @@ public class ReturnQueryHandler : IQueryHandler<ReturnQuery, Return>
     {
         var result = await _returnService.GetNoCloneAsync(request.Id, ReturnResponseGroup.None.ToString());
 
-        return result != null && await _flowService.IsOwnedBy(result, request.CustomerId) ? result : null;
+        if (result == null)
+        {
+            return null;
+        }
+
+        if (await _flowService.IsOwnedBy(result, request.CustomerId))
+        {
+            return result;
+        }
+
+        // The same rule the organization list applies: a colleague's draft is not theirs to see yet.
+        return !string.IsNullOrEmpty(request.OrganizationId) &&
+            result.OrganizationId.EqualsIgnoreCase(request.OrganizationId) &&
+            !result.Status.EqualsIgnoreCase(ReturnStatus.Draft)
+            ? result
+            : null;
     }
 }

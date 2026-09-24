@@ -19,6 +19,16 @@ namespace VirtoCommerce.ReturnModule.Core
 
                 public static string[] AllPermissions { get; } = { Read, Create, Access, Update, Delete };
             }
+
+            // Granted to storefront contacts through their role, like the other my_organization
+            // permissions of xAPI, rather than to back-office users.
+            public static class XapiPermissions
+            {
+                public const string MyOrganizationReturnView = "xapi:my_organization:return:view";
+                public const string MyOrganizationReturnSubmit = "xapi:my_organization:return:submit";
+
+                public static string[] AllPermissions { get; } = { MyOrganizationReturnView, MyOrganizationReturnSubmit };
+            }
         }
 
         public static class Settings
@@ -151,6 +161,16 @@ namespace VirtoCommerce.ReturnModule.Core
                     DefaultValue = true
                 };
 
+                // Off by default: the copy goes to whatever address the organization carries, which
+                // is often a person rather than a shared mailbox, and they did not ask for it.
+                public static SettingDescriptor ReturnNotifyOrganizationEmail { get; } = new SettingDescriptor
+                {
+                    Name = "Return.NotifyOrganizationEmail",
+                    ValueType = SettingValueType.Boolean,
+                    GroupName = "Return|Notifications",
+                    DefaultValue = false
+                };
+
                 public static IEnumerable<SettingDescriptor> AllSettings
                 {
                     get
@@ -166,6 +186,7 @@ namespace VirtoCommerce.ReturnModule.Core
                         yield return ReturnAttachmentsRequired;
                         yield return ReturnSendNotifications;
                         yield return ReturnSendPushNotifications;
+                        yield return ReturnNotifyOrganizationEmail;
                         yield return OrderStatus;
                     }
                 }
@@ -193,6 +214,7 @@ namespace VirtoCommerce.ReturnModule.Core
                     yield return General.ReturnAttachmentsRequired;
                     yield return General.ReturnSendNotifications;
                     yield return General.ReturnSendPushNotifications;
+                    yield return General.ReturnNotifyOrganizationEmail;
                 }
             }
         }

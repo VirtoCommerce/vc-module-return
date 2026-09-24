@@ -222,8 +222,27 @@ Submit runs the same checks and additionally requires a reason on every line, so
 draft as it stands, whoever wrote it — a draft written through `PUT /api/return` is held to the same
 rules as one built in the storefront.
 
+## Organization copies
+
+With `Return.NotifyOrganizationEmail` on, every email the buyer gets about a return also goes to the
+first email address of the organization the return was raised for. The copy is the buyer's own email,
+not a separate template. Push messages stay with the buyer.
+
 # Permissions
 
 The Return module provides a standard set of permissions: access, create, read, delete, and update.
 
 ![Settings template](media/14-permissions.png)
+
+Two storefront permissions are granted to contacts through their role:
+
+* `xapi:my_organization:return:view` lets a contact list and open the returns of the organization they
+  have currently selected, with `returns(scope: ORGANIZATION)`. Asking for that scope without the
+  permission is refused, not narrowed to the contact's own returns. Colleagues' drafts stay out of it
+  until they are submitted. A colleague's return is read-only:
+  its actions come back unavailable, every mutation still requires the buyer who raised it, and its
+  attachments can be opened but not deleted.
+* `xapi:my_organization:return:submit` is registered but not checked yet.
+
+Returns raised before the organization was recorded on them are filled in from their order when the
+module is upgraded, provided the Orders tables are in the same database.

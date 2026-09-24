@@ -62,7 +62,9 @@
     "return:create": "Skapa returdata",
     "return:read": "Visa returdata",
     "return:update": "Uppdatera returdata",
-    "return:delete": "Radera returdata"
+    "return:delete": "Radera returdata",
+    "xapi:my_organization:return:view": "Visa organisationens returer",
+    "xapi:my_organization:return:submit": "Skicka in organisationens returer"
   },
   "settings": {
     "Return": {
@@ -109,6 +111,10 @@
       "SendPushNotifications": {
         "title": "Push-aviseringar om returer",
         "description": "Skicka även ett push-meddelande i appen vid samma händelser. Kräver modulen Push Messages."
+      },
+      "NotifyOrganizationEmail": {
+        "title": "Kopiera returmejl till organisationen",
+        "description": "Skicka även varje returmejl som köparen får till e-postadressen för köparens organisation."
       }
     },
     "Return.Status": {

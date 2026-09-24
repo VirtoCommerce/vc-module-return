@@ -78,6 +78,8 @@ public class ReturnFlowService : IReturnFlowService
         result.StoreId = order.StoreId;
         result.CustomerId = order.CustomerId;
         result.CustomerName = order.CustomerName ?? context.CustomerName;
+        result.OrganizationId = order.OrganizationId;
+        result.OrganizationName = order.OrganizationName;
         result.CustomerReference = request.CustomerReference ?? order.PurchaseOrderNumber;
         result.LanguageCode = context.LanguageCode ?? order.LanguageCode;
         result.CustomerComment = request.CustomerComment;

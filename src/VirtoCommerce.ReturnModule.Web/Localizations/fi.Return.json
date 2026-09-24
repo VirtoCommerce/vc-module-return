@@ -62,7 +62,9 @@
     "return:create": "Luo palautustietoja",
     "return:read": "Näytä palautustietoja",
     "return:update": "Päivitä palautustietoja",
-    "return:delete": "Poista palautustietoja"
+    "return:delete": "Poista palautustietoja",
+    "xapi:my_organization:return:view": "Näytä organisaation palautukset",
+    "xapi:my_organization:return:submit": "Lähetä organisaation palautuksia"
   },
   "settings": {
     "Return": {
@@ -109,6 +111,10 @@
       "SendPushNotifications": {
         "title": "Palautusten push-ilmoitukset",
         "description": "Lähetä samoista tapahtumista myös push-viesti sovellukseen. Vaatii Push Messages -moduulin."
+      },
+      "NotifyOrganizationEmail": {
+        "title": "Kopioi palautussähköpostit organisaatiolle",
+        "description": "Lähetä jokainen ostajan saama palautussähköposti myös ostajan organisaation sähköpostiosoitteeseen."
       }
     },
     "Return.Status": {

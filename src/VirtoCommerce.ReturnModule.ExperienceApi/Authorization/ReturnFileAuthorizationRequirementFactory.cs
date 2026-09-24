@@ -11,6 +11,6 @@ public class ReturnFileAuthorizationRequirementFactory : IFileAuthorizationRequi
 
     public IAuthorizationRequirement Create(File file, string permission)
     {
-        return new ReturnAuthorizationRequirement();
+        return new ReturnAuthorizationRequirement { Permission = permission };
     }
 }

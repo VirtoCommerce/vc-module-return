@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -27,6 +28,7 @@ public class ReturnNotificationHandlerTests
     private const string StoreId = "B2B-store";
     private const string CustomerId = "contact-1";
     private const string ReturnId = "return-1";
+    private const string OrganizationId = "org-1";
 
     private readonly Mock<INotificationSearchService> _notificationSearchService = new();
     private readonly Mock<INotificationSender> _notificationSender = new();
@@ -58,6 +60,10 @@ public class ReturnNotificationHandlerTests
         _memberService
             .Setup(x => x.GetByIdAsync(CustomerId, It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(() => new Contact { Id = CustomerId, Name = "Jan de Vries", Emails = ["jan@aras.example"] });
+
+        _memberService
+            .Setup(x => x.GetByIdAsync(OrganizationId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Organization { Id = OrganizationId, Name = "ARAS Security BV", Emails = ["purchasing@aras.example"] });
 
         _notificationSearchService
             .Setup(x => x.SearchNotificationsAsync(It.IsAny<NotificationSearchCriteria>()))
@@ -166,6 +172,81 @@ public class ReturnNotificationHandlerTests
         await HandleAndSend(ReturnStatus.Requested);
 
         Assert.Empty(_sent);
+    }
+
+    [Fact]
+    public async Task OrganizationCopyEnabled_SendsTheSameEmailToTheOrganization()
+    {
+        _rules.NotifyOrganizationEmail = true;
+        _orderReturn.OrganizationId = OrganizationId;
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        Assert.Equal(["jan@aras.example", "purchasing@aras.example"], _sent.Select(x => ((EmailNotification)x).To));
+        Assert.All(_sent, x => Assert.Equal(nameof(ReturnApprovedEmailNotification), x.Type));
+    }
+
+    [Fact]
+    public async Task OrganizationCopyDisabled_SendsOnlyToTheBuyer()
+    {
+        _orderReturn.OrganizationId = OrganizationId;
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        Assert.Equal("jan@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
+    }
+
+    [Fact]
+    public async Task OrganizationCopyEnabled_ReturnWithoutOrganization_SendsOnlyToTheBuyer()
+    {
+        _rules.NotifyOrganizationEmail = true;
+
+        var handler = await HandleAndSend(ReturnStatus.Approved);
+
+        Assert.False(Assert.Single(handler.Enqueued).NotifyOrganization);
+        Assert.Equal("jan@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
+    }
+
+    [Fact]
+    public async Task OrganizationSharesTheBuyersAddress_SendsItOnce()
+    {
+        _rules.NotifyOrganizationEmail = true;
+        _orderReturn.OrganizationId = OrganizationId;
+        _memberService
+            .Setup(x => x.GetByIdAsync(OrganizationId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Organization { Id = OrganizationId, Emails = ["JAN@aras.example"] });
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        Assert.Single(_sent);
+    }
+
+    [Fact]
+    public async Task BuyerWithoutEmail_StillCopiesTheOrganization()
+    {
+        _rules.NotifyOrganizationEmail = true;
+        _orderReturn.OrganizationId = OrganizationId;
+        _memberService
+            .Setup(x => x.GetByIdAsync(CustomerId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Contact { Id = CustomerId, Name = "Jan de Vries", Emails = [] });
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        Assert.Equal("purchasing@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
+    }
+
+    [Fact]
+    public async Task OrganizationWithoutEmail_SendsOnlyToTheBuyer()
+    {
+        _rules.NotifyOrganizationEmail = true;
+        _orderReturn.OrganizationId = OrganizationId;
+        _memberService
+            .Setup(x => x.GetByIdAsync(OrganizationId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Organization { Id = OrganizationId, Emails = [] });
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        Assert.Equal("jan@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
     }
 
     /// <summary>

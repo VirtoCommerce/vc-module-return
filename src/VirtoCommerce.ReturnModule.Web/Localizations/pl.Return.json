@@ -62,7 +62,9 @@
     "return:create": "Utwórz dane zwrotu",
     "return:read": "Wyświetl dane zwrotu",
     "return:update": "Zaktualizuj dane zwrotu",
-    "return:delete": "Usuń dane zwrotu"
+    "return:delete": "Usuń dane zwrotu",
+    "xapi:my_organization:return:view": "Wyświetlanie zwrotów organizacji",
+    "xapi:my_organization:return:submit": "Zgłaszanie zwrotów organizacji"
   },
   "settings": {
     "Return": {
@@ -109,6 +111,10 @@
       "SendPushNotifications": {
         "title": "Powiadomienia push o zwrotach",
         "description": "Wyślij również wiadomość push w aplikacji przy tych samych zdarzeniach. Wymaga modułu Push Messages."
+      },
+      "NotifyOrganizationEmail": {
+        "title": "Kopia e-maili o zwrotach do organizacji",
+        "description": "Wysyłaj każdy e-mail o zwrocie, który otrzymuje kupujący, także na adres e-mail jego organizacji."
       }
     },
     "Return.Status": {

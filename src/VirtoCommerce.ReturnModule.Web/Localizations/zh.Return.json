@@ -62,7 +62,9 @@
     "return:create": "创建退货数据",
     "return:read": "查看退货数据",
     "return:update": "更新退货数据",
-    "return:delete": "删除退货数据"
+    "return:delete": "删除退货数据",
+    "xapi:my_organization:return:view": "查看组织退货",
+    "xapi:my_organization:return:submit": "提交组织退货"
   },
   "settings": {
     "Return": {
@@ -109,6 +111,10 @@
       "SendPushNotifications": {
         "title": "退货推送通知",
         "description": "在相同事件下同时发送应用内推送消息。需要 Push Messages 模块。"
+      },
+      "NotifyOrganizationEmail": {
+        "title": "将退货邮件抄送给组织",
+        "description": "将买家收到的每封退货邮件同时发送到买家所在组织的电子邮件地址。"
       }
     },
     "Return.Status": {

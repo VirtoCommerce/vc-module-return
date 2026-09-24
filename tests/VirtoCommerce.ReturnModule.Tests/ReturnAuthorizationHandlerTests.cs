@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using VirtoCommerce.FileExperienceApi.Core.Models;
+using FilePermissions = VirtoCommerce.FileExperienceApi.Core.ModuleConstants.Security.Permissions;
 using VirtoCommerce.Platform.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
@@ -114,6 +115,46 @@ public class ReturnAuthorizationHandlerTests
         Assert.False(context.HasSucceeded);
     }
 
+    [Fact]
+    public async Task OrganizationViewerReadingAColleaguesFile_Succeeds()
+    {
+        var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Read);
+
+        await CreateHandler(OtherId, organizationViewer: true).HandleAsync(context);
+
+        Assert.True(context.HasSucceeded);
+    }
+
+    [Fact]
+    public async Task OrganizationViewerDeletingAColleaguesFile_Fails()
+    {
+        var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Delete);
+
+        await CreateHandler(OtherId, organizationViewer: true).HandleAsync(context);
+
+        Assert.False(context.HasSucceeded);
+    }
+
+    [Fact]
+    public async Task ColleagueWithoutOrganizationAccessReadingAFile_Fails()
+    {
+        var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Read);
+
+        await CreateHandler(OtherId).HandleAsync(context);
+
+        Assert.False(context.HasSucceeded);
+    }
+
+    [Fact]
+    public async Task OwnerDeletingOwnFile_Succeeds()
+    {
+        var context = CreateContext(OwnerId, OwnedFile(), permission: FilePermissions.Delete);
+
+        await CreateHandler().HandleAsync(context);
+
+        Assert.True(context.HasSucceeded);
+    }
+
     private static File OwnedFile()
     {
         return new File
@@ -138,9 +179,9 @@ public class ReturnAuthorizationHandlerTests
         protected override string GetUserId(AuthorizationHandlerContext context) => _userId;
     }
 
-    private static ReturnAuthorizationHandler CreateHandler(string userId = OwnerId)
+    private static ReturnAuthorizationHandler CreateHandler(string userId = OwnerId, bool organizationViewer = false)
     {
-        var orderReturn = new Return { Id = ReturnId, CustomerId = OwnerId };
+        var orderReturn = new Return { Id = ReturnId, CustomerId = OwnerId, OrganizationId = "org-1" };
 
         var returnService = new Mock<IReturnService>();
         returnService
@@ -153,16 +194,25 @@ public class ReturnAuthorizationHandlerTests
             .Setup(x => x.IsOwnedBy(It.IsAny<Return>(), It.IsAny<string>()))
             .ReturnsAsync((Return x, string customerId) => x.CustomerId == customerId);
 
-        return new TestHandler(ScopeFactoryFor(returnService.Object, flowService.Object), userId);
+        var organizationAccessService = new Mock<IReturnOrganizationAccessService>();
+        organizationAccessService
+            .Setup(x => x.CanViewAsync(It.IsAny<ClaimsPrincipal>(), "org-1"))
+            .ReturnsAsync(organizationViewer);
+
+        return new TestHandler(ScopeFactoryFor(returnService.Object, flowService.Object, organizationAccessService.Object), userId);
     }
 
     // The handler is a singleton and resolves the return services per check, so the test has to
     // hand it a scope rather than the services themselves.
-    private static IServiceScopeFactory ScopeFactoryFor(IReturnService returnService, IReturnFlowService flowService)
+    private static IServiceScopeFactory ScopeFactoryFor(
+        IReturnService returnService,
+        IReturnFlowService flowService,
+        IReturnOrganizationAccessService organizationAccessService)
     {
         var provider = new ServiceCollection()
             .AddSingleton(returnService)
             .AddSingleton(flowService)
+            .AddSingleton(organizationAccessService)
             .BuildServiceProvider();
 
         return provider.GetRequiredService<IServiceScopeFactory>();
@@ -172,7 +222,8 @@ public class ReturnAuthorizationHandlerTests
         string userId,
         object resource,
         string role = null,
-        bool authenticated = true)
+        bool authenticated = true,
+        string permission = null)
     {
         var claims = new List<Claim> { new("name", userId), new(ClaimTypes.NameIdentifier, userId) };
 
@@ -188,6 +239,6 @@ public class ReturnAuthorizationHandlerTests
 
         var user = new ClaimsPrincipal(identity);
 
-        return new AuthorizationHandlerContext([new ReturnAuthorizationRequirement()], user, resource);
+        return new AuthorizationHandlerContext([new ReturnAuthorizationRequirement { Permission = permission }], user, resource);
     }
 }

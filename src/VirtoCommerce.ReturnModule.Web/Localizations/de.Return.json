@@ -62,7 +62,9 @@
     "return:create": "Rückgabedaten erstellen",
     "return:read": "Rückgabedaten anzeigen",
     "return:update": "Rückgabedaten aktualisieren",
-    "return:delete": "Rückgabedaten löschen"
+    "return:delete": "Rückgabedaten löschen",
+    "xapi:my_organization:return:view": "Rücksendungen der Organisation anzeigen",
+    "xapi:my_organization:return:submit": "Rücksendungen der Organisation einreichen"
   },
   "settings": {
     "Return": {
@@ -109,6 +111,10 @@
       "SendPushNotifications": {
         "title": "Push-Benachrichtigungen zu Rücksendungen",
         "description": "Bei denselben Ereignissen zusätzlich eine In-App-Push-Nachricht senden. Erfordert das Modul Push Messages."
+      },
+      "NotifyOrganizationEmail": {
+        "title": "Rücksende-E-Mails an die Organisation kopieren",
+        "description": "Jede Rücksende-E-Mail, die der Käufer erhält, zusätzlich an die E-Mail-Adresse seiner Organisation senden."
       }
     },
     "Return.Status": {

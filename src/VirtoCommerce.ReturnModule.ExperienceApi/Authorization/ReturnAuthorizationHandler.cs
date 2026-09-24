@@ -8,11 +8,16 @@ using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
+using FileExperienceApiModuleConstants = VirtoCommerce.FileExperienceApi.Core.ModuleConstants;
 
 namespace VirtoCommerce.ReturnModule.ExperienceApi.Authorization;
 
 public class ReturnAuthorizationRequirement : IAuthorizationRequirement
 {
+    /// <summary>
+    /// What the caller wants to do with the file, as the file module names it.
+    /// </summary>
+    public string Permission { get; set; }
 }
 
 public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizationRequirement>
@@ -30,7 +35,7 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
 
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, ReturnAuthorizationRequirement requirement)
     {
-        if (await IsAllowedAsync(context))
+        if (await IsAllowedAsync(context, requirement))
         {
             context.Succeed(requirement);
         }
@@ -40,7 +45,7 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
         }
     }
 
-    protected virtual async Task<bool> IsAllowedAsync(AuthorizationHandlerContext context)
+    protected virtual async Task<bool> IsAllowedAsync(AuthorizationHandlerContext context, ReturnAuthorizationRequirement requirement)
     {
         if (context.User.IsInRole(PlatformConstants.Security.SystemRoles.Administrator))
         {
@@ -78,7 +83,25 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
 
         var orderReturn = await returnService.GetNoCloneAsync(file.OwnerEntityId, ReturnResponseGroup.None.ToString());
 
-        return orderReturn != null && await flowService.IsOwnedBy(orderReturn, GetUserId(context));
+        if (orderReturn == null)
+        {
+            return false;
+        }
+
+        if (await flowService.IsOwnedBy(orderReturn, GetUserId(context)))
+        {
+            return true;
+        }
+
+        // A colleague who may read the return may open its photos too, but not delete them.
+        if (!requirement.Permission.EqualsIgnoreCase(FileExperienceApiModuleConstants.Security.Permissions.Read))
+        {
+            return false;
+        }
+
+        var organizationAccessService = scope.ServiceProvider.GetRequiredService<IReturnOrganizationAccessService>();
+
+        return await organizationAccessService.CanViewAsync(context.User, orderReturn.OrganizationId);
     }
 
     protected virtual string GetUserId(AuthorizationHandlerContext context)

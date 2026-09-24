@@ -68,6 +68,16 @@ namespace VirtoCommerce.ReturnModule.Data.Services
                 query = query.Where(x => x.CustomerId == criteria.CustomerId);
             }
 
+            if (!string.IsNullOrEmpty(criteria.OrganizationId))
+            {
+                query = query.Where(x => x.OrganizationId == criteria.OrganizationId);
+            }
+
+            if (!string.IsNullOrEmpty(criteria.DraftsOfCustomerId))
+            {
+                query = query.Where(x => x.Status != ReturnStatus.Draft || x.CustomerId == criteria.DraftsOfCustomerId);
+            }
+
             if (!string.IsNullOrEmpty(criteria.StoreId))
             {
                 query = query.Where(x => x.StoreId == criteria.StoreId);

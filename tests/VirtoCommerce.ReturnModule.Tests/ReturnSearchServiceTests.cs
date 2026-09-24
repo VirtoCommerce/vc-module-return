@@ -123,6 +123,39 @@ public class ReturnSearchServiceTests
     }
 
     [Fact]
+    public void Organization_FiltersByIt()
+    {
+        var found = Search(new ReturnSearchCriteria { OrganizationId = "org-2" });
+
+        Assert.Equal("r2", Assert.Single(found).Id);
+    }
+
+    [Fact]
+    public void Organization_NoneOfItsReturns_ReturnsNothing()
+    {
+        var found = Search(new ReturnSearchCriteria { OrganizationId = "org-without-returns" });
+
+        Assert.Empty(found);
+    }
+
+    [Fact]
+    public void DraftsOfCustomer_HidesAColleaguesDraft()
+    {
+        var found = Search(new ReturnSearchCriteria { DraftsOfCustomerId = "buyer-2" });
+
+        Assert.DoesNotContain(found, x => x.Id == "r2");
+        Assert.Equal(3, found.Count);
+    }
+
+    [Fact]
+    public void DraftsOfCustomer_KeepsTheCustomersOwnDraft()
+    {
+        var found = Search(new ReturnSearchCriteria { DraftsOfCustomerId = "buyer-1" });
+
+        Assert.Equal(4, found.Count);
+    }
+
+    [Fact]
     public void Sort_NotRequested_FallsBackToNewestFirst()
     {
         var sortInfos = CreateService().Sort(new ReturnSearchCriteria());
@@ -168,7 +201,7 @@ public class ReturnSearchServiceTests
             MakeReturn("r1", ReturnStatus.Requested, _created,
                 number: "RET-42", orderNumber: "SO-2026-04417", customerReference: "PO-7788",
                 sku: "ARS-P3265LV", name: "Access control panel"),
-            MakeReturn("r2", ReturnStatus.Draft, _created.AddDays(-1)),
+            MakeReturn("r2", ReturnStatus.Draft, _created.AddDays(-1), organizationId: "org-2"),
             MakeReturn("r3", ReturnStatus.Cancelled, _created.AddDays(1)),
             MakeReturn("r4", "Canceled", _created.AddDays(2)),
         }.BuildMock();
@@ -187,7 +220,8 @@ public class ReturnSearchServiceTests
         string orderNumber = "SO-000",
         string customerReference = "REF-000",
         string sku = "SKU-000",
-        string name = "Item")
+        string name = "Item",
+        string organizationId = "org-1")
     {
         return new ReturnEntity
         {
@@ -198,6 +232,7 @@ public class ReturnSearchServiceTests
             OrderNumber = orderNumber,
             CustomerReference = customerReference,
             CustomerId = "buyer-1",
+            OrganizationId = organizationId,
             StoreId = "B2B-store",
             LineItems = [new ReturnLineItemEntity { Sku = sku, Name = name }],
         };

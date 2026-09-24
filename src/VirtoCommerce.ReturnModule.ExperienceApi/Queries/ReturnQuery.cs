@@ -12,6 +12,11 @@ public class ReturnQuery : Query<Return>
 
     public string CustomerId { get; set; }
 
+    /// <summary>
+    /// The organization whose returns the caller may read besides their own; empty when none.
+    /// </summary>
+    public string OrganizationId { get; set; }
+
     public override IEnumerable<QueryArgument> GetArguments()
     {
         yield return Argument<NonNullGraphType<StringGraphType>>(nameof(Id));

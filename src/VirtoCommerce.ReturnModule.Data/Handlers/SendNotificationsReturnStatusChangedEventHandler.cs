@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -80,6 +80,7 @@ public class SendNotificationsReturnStatusChangedEventHandler : IEventHandler<Re
             StoreId = orderReturn.StoreId,
             CustomerId = orderReturn.CustomerId,
             NotificationTypeName = notificationTypeName,
+            NotifyOrganization = rules.NotifyOrganizationEmail && !string.IsNullOrEmpty(orderReturn.OrganizationId),
         };
 
         EnqueueSending(argument);
@@ -108,41 +109,82 @@ public class SendNotificationsReturnStatusChangedEventHandler : IEventHandler<Re
                 continue;
             }
 
-            var notification = await _notificationSearchService.GetNotificationAsync(
-                jobArgument.NotificationTypeName,
-                new TenantIdentity(jobArgument.StoreId, nameof(Store)));
-
-            if (notification is not ReturnEmailNotificationBase returnNotification)
-            {
-                _logger.LogWarning(
-                    "Notification {NotificationType} is not registered, return {ReturnNumber} was not announced to the buyer.",
-                    jobArgument.NotificationTypeName, orderReturn.Number);
-
-                continue;
-            }
-
             var store = await _storeService.GetNoCloneAsync(orderReturn.StoreId, StoreResponseGroup.StoreInfo.ToString());
             var customer = await GetCustomerAsync(jobArgument.CustomerId);
+            var customerEmail = await GetRecipientEmailAsync(jobArgument.CustomerId, customer);
 
-            returnNotification.ReturnId = orderReturn.Id;
-            returnNotification.Return = orderReturn;
-            returnNotification.Customer = customer;
-            returnNotification.LanguageCode = orderReturn.LanguageCode.EmptyToNull() ?? store?.DefaultLanguage;
-            returnNotification.From = store?.EmailWithName;
-            returnNotification.To = await GetRecipientEmailAsync(jobArgument.CustomerId, customer);
-            returnNotification.TenantIdentity = new TenantIdentity(orderReturn.Id, nameof(Return));
-
-            if (string.IsNullOrEmpty(returnNotification.To))
+            if (string.IsNullOrEmpty(customerEmail))
             {
                 _logger.LogWarning(
                     "No email address for customer {CustomerId}, return {ReturnNumber} was not announced to the buyer.",
                     jobArgument.CustomerId, orderReturn.Number);
+            }
+            else
+            {
+                await SendAsync(jobArgument, orderReturn, store, customer, customerEmail);
+            }
 
+            if (!jobArgument.NotifyOrganization)
+            {
                 continue;
             }
 
-            await _notificationSender.ScheduleSendNotificationAsync(returnNotification);
+            var organizationEmail = await GetOrganizationEmailAsync(orderReturn.OrganizationId);
+
+            if (string.IsNullOrEmpty(organizationEmail))
+            {
+                _logger.LogWarning(
+                    "No email address for organization {OrganizationId}, return {ReturnNumber} was not copied to it.",
+                    orderReturn.OrganizationId, orderReturn.Number);
+            }
+            // A buyer whose own address is the organization's would get the same email twice.
+            else if (!organizationEmail.EqualsIgnoreCase(customerEmail))
+            {
+                await SendAsync(jobArgument, orderReturn, store, customer, organizationEmail);
+            }
         }
+    }
+
+    /// <summary>
+    /// The organization's copy is the buyer's own email, sent to another address: purchasing wants
+    /// to see exactly what the buyer was told.
+    /// </summary>
+    protected virtual async Task SendAsync(ReturnNotificationJobArgument jobArgument, Return orderReturn, Store store, Member customer, string recipientEmail)
+    {
+        var notification = await _notificationSearchService.GetNotificationAsync(
+            jobArgument.NotificationTypeName,
+            new TenantIdentity(jobArgument.StoreId, nameof(Store)));
+
+        if (notification is not ReturnEmailNotificationBase returnNotification)
+        {
+            _logger.LogWarning(
+                "Notification {NotificationType} is not registered, return {ReturnNumber} was not announced to {Recipient}.",
+                jobArgument.NotificationTypeName, orderReturn.Number, recipientEmail);
+
+            return;
+        }
+
+        returnNotification.ReturnId = orderReturn.Id;
+        returnNotification.Return = orderReturn;
+        returnNotification.Customer = customer;
+        returnNotification.LanguageCode = orderReturn.LanguageCode.EmptyToNull() ?? store?.DefaultLanguage;
+        returnNotification.From = store?.EmailWithName;
+        returnNotification.To = recipientEmail;
+        returnNotification.TenantIdentity = new TenantIdentity(orderReturn.Id, nameof(Return));
+
+        await _notificationSender.ScheduleSendNotificationAsync(returnNotification);
+    }
+
+    protected virtual async Task<string> GetOrganizationEmailAsync(string organizationId)
+    {
+        if (string.IsNullOrEmpty(organizationId))
+        {
+            return null;
+        }
+
+        var organization = await _memberService.GetByIdAsync(organizationId);
+
+        return organization?.Emails?.FirstOrDefault(x => !string.IsNullOrEmpty(x));
     }
 
     protected virtual string GetNotificationTypeName(string status)
@@ -200,4 +242,10 @@ public class ReturnNotificationJobArgument
     public string CustomerId { get; set; }
 
     public string NotificationTypeName { get; set; }
+
+    /// <summary>
+    /// Decided when the status changed, as whether to notify at all is, so that the store setting
+    /// in force at that moment is the one that counts.
+    /// </summary>
+    public bool NotifyOrganization { get; set; }
 }

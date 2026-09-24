@@ -8,6 +8,7 @@ using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
+using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Schemas;
 
 namespace VirtoCommerce.ReturnModule.ExperienceApi.Schemas;
@@ -44,6 +45,10 @@ public class ReturnType : ExtendableGraphType<Return>
         Field(x => x.CreatedDate, nullable: false);
         Field(x => x.OrderId, nullable: true);
         Field(x => x.OrderNumber, nullable: true);
+        Field(x => x.CustomerId, nullable: true).Description("User who raised the return; the only one who may change it.");
+        Field(x => x.CustomerName, nullable: true).Description("Who raised the return, as the order names them.");
+        Field(x => x.OrganizationId, nullable: true);
+        Field(x => x.OrganizationName, nullable: true);
         Field(x => x.CustomerReference, nullable: true).Description("Buyer's own purchase order reference.");
         Field(x => x.CustomerComment, nullable: true);
         Field(x => x.RejectReason, nullable: true);
@@ -62,8 +67,23 @@ public class ReturnType : ExtendableGraphType<Return>
 
         Field<NonNullGraphType<ListGraphType<NonNullGraphType<ReturnActionType>>>>("availableActions")
             .Description("Every known action, each flagged with whether it would be accepted now.")
-            .Resolve(context => (IEnumerable<ReturnFlowAction>)context.RequestServices
-                .GetRequiredService<IReturnFlowService>()
-                .GetAvailableActions(context.Source));
+            .ResolveAsync(async context =>
+            {
+                var flowService = context.RequestServices.GetRequiredService<IReturnFlowService>();
+                var actions = flowService.GetAvailableActions(context.Source);
+
+                // A colleague reading the return through the organization scope would be refused by
+                // every mutation, so offering them the buttons would only lead to an error.
+                if (!await flowService.IsOwnedBy(context.Source, context.GetCurrentUserId()))
+                {
+                    foreach (var action in actions)
+                    {
+                        action.IsAvailable = false;
+                        action.UnavailableReason = ReturnFlowError.ReturnNotFound;
+                    }
+                }
+
+                return (IEnumerable<ReturnFlowAction>)actions;
+            });
     }
 }

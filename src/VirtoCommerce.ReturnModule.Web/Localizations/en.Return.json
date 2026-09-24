@@ -62,7 +62,9 @@
     "return:create": "Create return data",
     "return:read": "View return data",
     "return:update": "Update return data",
-    "return:delete": "Delete return data"
+    "return:delete": "Delete return data",
+    "xapi:my_organization:return:view": "View organization returns",
+    "xapi:my_organization:return:submit": "Submit organization returns"
   },
   "settings": {
     "Return": {
@@ -109,6 +111,10 @@
       "SendPushNotifications": {
         "title": "Return push notifications",
         "description": "Also send an in-app push message on the same events. Requires the Push Messages module."
+      },
+      "NotifyOrganizationEmail": {
+        "title": "Copy return emails to the organization",
+        "description": "Also send every return email the buyer gets to the email address of the buyer's organization."
       }
     },
     "Return.Status": {

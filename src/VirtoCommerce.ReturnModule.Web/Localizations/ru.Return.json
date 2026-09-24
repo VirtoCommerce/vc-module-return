@@ -62,7 +62,9 @@
     "return:create": "Создать данные возврата",
     "return:read": "Просмотреть данные возврата",
     "return:update": "Обновить данные возврата",
-    "return:delete": "Удалить данные возврата"
+    "return:delete": "Удалить данные возврата",
+    "xapi:my_organization:return:view": "Просмотр возвратов организации",
+    "xapi:my_organization:return:submit": "Оформление возвратов организации"
   },
   "settings": {
     "Return": {
@@ -109,6 +111,10 @@
       "SendPushNotifications": {
         "title": "Push-уведомления о возвратах",
         "description": "По тем же событиям также отправлять push-сообщение в приложении. Требуется модуль Push Messages."
+      },
+      "NotifyOrganizationEmail": {
+        "title": "Копия писем о возвратах организации",
+        "description": "Отправлять каждое письмо о возврате, которое получает покупатель, также на email его организации."
       }
     },
     "Return.Status": {

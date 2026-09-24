@@ -12,6 +12,14 @@ namespace VirtoCommerce.ReturnModule.Core.Models.Search
 
         public string CustomerId { get; set; }
 
+        public string OrganizationId { get; set; }
+
+        /// <summary>
+        /// When set, drafts are only found if this customer raised them: a draft is the buyer's own
+        /// work in progress, not yet something the organization is waiting on.
+        /// </summary>
+        public string DraftsOfCustomerId { get; set; }
+
         public string StoreId { get; set; }
 
         public IList<string> Statuses { get; set; }
