@@ -54,6 +54,7 @@
                            min="{{ blade.editMode ? 1 : 0 }}"
                            max="{{ data.availableQuantity }}"
                            ng-change="updateSelectionList()"
+                           ng-disabled="data.itemState === 'Approved' || data.itemState === 'Rejected'"
                            oninput="this.value = this.value < this.min ? Math.abs(Math.max(this.min, this.value)) : Math.min(this.max, this.value)"
                            num-type="integer"
                            required

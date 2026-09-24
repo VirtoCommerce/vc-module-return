@@ -74,15 +74,19 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
                 : await _returnService.GetByIdAsync(orderReturn.Id, ReturnResponseGroup.None.ToString());
 
             var errors = ValidateStatusChange(storedReturn, orderReturn)
-                .Concat(await ValidateReturn(orderReturn))
+                .Concat(ValidateLineChanges(storedReturn, orderReturn))
                 .ToList();
+
+            if (errors.Count == 0)
+            {
+                KeepDecisions(orderReturn, storedReturn);
+                errors.AddRange(await ValidateReturn(orderReturn));
+            }
 
             if (errors.Count > 0)
             {
                 return BadRequest(errors);
             }
-
-            KeepDecisions(orderReturn, storedReturn);
 
             await _returnService.SaveChangesAsync(new[] { orderReturn });
 
@@ -176,7 +180,37 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             }
         }
 
-        // The decision is recorded by authorizing the return; an edit keeps whatever was decided.
+        private static readonly ISet<string> _decidedItemStates = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ReturnItemState.Approved,
+            ReturnItemState.Rejected,
+        };
+
+        private static bool IsDecided(ReturnLineItem lineItem)
+        {
+            return _decidedItemStates.Contains(lineItem.ItemState ?? string.Empty);
+        }
+
+        // A decided return is the set of lines the decision was made on: a line added afterwards would
+        // hold stock nobody approved, and a line dropped would take its decision with it.
+        private static IEnumerable<string> ValidateLineChanges(Return storedReturn, Return orderReturn)
+        {
+            if (storedReturn == null || !storedReturn.LineItems.Any(IsDecided))
+            {
+                yield break;
+            }
+
+            var storedIds = storedReturn.LineItems.Select(x => x.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var newIds = orderReturn.LineItems.Select(x => x.Id ?? string.Empty).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            if (!storedIds.SetEquals(newIds))
+            {
+                yield return $"Return '{storedReturn.Number}' has been approved or declined, so its lines cannot be added or removed.";
+            }
+        }
+
+        // The decision is recorded by authorizing the return; an edit keeps whatever was decided,
+        // including the requested quantity the approved one was measured against.
         private static void KeepDecisions(Return orderReturn, Return storedReturn)
         {
             orderReturn.RejectReason = storedReturn?.RejectReason;
@@ -188,6 +222,11 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
                 lineItem.ApprovedQuantity = storedLineItem?.ApprovedQuantity ?? 0;
                 lineItem.RejectReason = storedLineItem?.RejectReason;
                 lineItem.ItemState = storedLineItem?.ItemState;
+
+                if (storedLineItem != null && IsDecided(storedLineItem))
+                {
+                    lineItem.Quantity = storedLineItem.Quantity;
+                }
             }
         }
     }

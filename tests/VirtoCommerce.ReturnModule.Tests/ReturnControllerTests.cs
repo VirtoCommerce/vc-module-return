@@ -65,6 +65,48 @@ public class ReturnControllerTests
     }
 
     [Fact]
+    public async Task UpdateReturn_DecidedLine_KeepsTheQuantityItWasDecidedOn()
+    {
+        _storedReturn = NewReturn(ReturnStatus.Approved, approvedQuantity: 2, itemState: ReturnItemState.Approved);
+
+        var edited = NewReturn(ReturnStatus.Approved, approvedQuantity: 2, itemState: ReturnItemState.Approved);
+        edited.LineItems.Single().Quantity = 1;
+
+        await _controller.UpdateReturn(edited);
+
+        var lineItem = Assert.Single(Assert.Single(_saved).LineItems);
+        Assert.Equal(2, lineItem.Quantity);
+        Assert.Equal(2, lineItem.ApprovedQuantity);
+    }
+
+    [Fact]
+    public async Task UpdateReturn_UndecidedLine_QuantityCanStillBeCorrected()
+    {
+        _storedReturn = NewReturn(ReturnStatus.Requested, itemState: ReturnItemState.Requested);
+
+        var edited = NewReturn(ReturnStatus.Requested, itemState: ReturnItemState.Requested);
+        edited.LineItems.Single().Quantity = 1;
+
+        await _controller.UpdateReturn(edited);
+
+        Assert.Equal(1, Assert.Single(Assert.Single(_saved).LineItems).Quantity);
+    }
+
+    [Fact]
+    public async Task UpdateReturn_LineAddedToADecidedReturn_IsRefused()
+    {
+        _storedReturn = NewReturn(ReturnStatus.Approved, approvedQuantity: 2, itemState: ReturnItemState.Approved);
+
+        var edited = NewReturn(ReturnStatus.Approved, approvedQuantity: 2, itemState: ReturnItemState.Approved);
+        edited.LineItems.Add(new ReturnLineItem { OrderLineItemId = OrderLineItemId, Quantity = 1 });
+
+        var result = await _controller.UpdateReturn(edited);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Empty(_saved);
+    }
+
+    [Fact]
     public async Task UpdateReturn_NewLine_StartsUndecided()
     {
         var created = NewReturn("New", approvedQuantity: 2, itemState: ReturnItemState.Approved);
