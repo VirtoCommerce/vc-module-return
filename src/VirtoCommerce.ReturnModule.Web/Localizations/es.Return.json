@@ -36,8 +36,11 @@
           "quantity": "Cantidad",
           "price": "Precio",
           "sku": "SKU",
-            "approved-quantity": "Aprobado",
-            "reject-reason": "Motivo del rechazo"
+          "approved-quantity": "Aprobado",
+          "reject-reason": "Motivo del rechazo"
+        },
+        "commands": {
+          "authorize": "Aprobar / rechazar"
         }
       },
       "return-details": {
@@ -50,8 +53,8 @@
           "createdBy": "Creado por",
           "customer": "Cliente",
           "resolution": "Resolución",
-            "rejectReason": "Motivo del rechazo",
-            "customerReference": "Referencia del comprador",
+          "rejectReason": "Motivo del rechazo",
+          "customerReference": "Referencia del comprador",
           "status": "Estado"
         }
       }
@@ -62,7 +65,8 @@
     "return:create": "Crear datos de devolución",
     "return:read": "Ver datos de devolución",
     "return:update": "Actualizar datos de devolución",
-    "return:delete": "Eliminar datos de devolución"
+    "return:delete": "Eliminar datos de devolución",
+    "return:authorize": "Aprobar y rechazar devoluciones"
   },
   "settings": {
     "Return": {
@@ -104,7 +108,7 @@
       },
       "SendNotifications": {
         "title": "Notificaciones por correo de devoluciones",
-        "description": "Enviar un correo al comprador cuando una devolución se registra, se aprueba, se aprueba parcialmente o se rechaza."
+        "description": "Enviar un correo al comprador cuando una devolución se registra, se aprueba, se aprueba parcialmente, se rechaza o se cancela."
       },
       "SendPushNotifications": {
         "title": "Notificaciones push de devoluciones",

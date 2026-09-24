@@ -9,6 +9,9 @@ using VirtoCommerce.CustomerModule.Core.Model;
 using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
+using VirtoCommerce.OrdersModule.Core.Model;
+using VirtoCommerce.OrdersModule.Core.Services;
+using OrderAddress = VirtoCommerce.OrdersModule.Core.Model.Address;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Events;
@@ -16,6 +19,7 @@ using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Notifications;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.Data.Handlers;
+using VirtoCommerce.ReturnModule.Data.Services;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
 using Xunit;
@@ -25,11 +29,14 @@ namespace VirtoCommerce.ReturnModule.Tests;
 public class ReturnNotificationHandlerTests
 {
     private const string StoreId = "B2B-store";
-    private const string CustomerId = "contact-1";
+    // A storefront return carries the buyer's user id, and the contact is behind it.
+    private const string CustomerId = "user-1";
+    private const string ContactId = "contact-1";
     private const string ReturnId = "return-1";
 
     private readonly Mock<INotificationSearchService> _notificationSearchService = new();
     private readonly Mock<INotificationSender> _notificationSender = new();
+    private readonly Mock<ICustomerOrderService> _orderService = new();
     private readonly Mock<IReturnService> _returnService = new();
     private readonly Mock<IReturnSettingsService> _settingsService = new();
     private readonly Mock<IStoreService> _storeService = new();
@@ -42,6 +49,9 @@ public class ReturnNotificationHandlerTests
     private readonly Store _store = new() { Id = StoreId, Email = "returns@aras.example", DefaultLanguage = "nl-NL" };
 
     private Return _orderReturn = NewReturn();
+    private CustomerOrder _order = new() { Id = "order-1", Addresses = [] };
+    // File-loaded templates carry no language and match any.
+    private string _templateLanguageCode;
 
     public ReturnNotificationHandlerTests()
     {
@@ -55,9 +65,17 @@ public class ReturnNotificationHandlerTests
             .Setup(x => x.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
             .ReturnsAsync(() => [_orderReturn]);
 
+        _orderService
+            .Setup(x => x.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
+            .ReturnsAsync(() => [_order]);
+
+        _userManager
+            .Setup(x => x.FindByIdAsync(CustomerId))
+            .ReturnsAsync(new ApplicationUser { Id = CustomerId, MemberId = ContactId, Email = "login@aras.example" });
+
         _memberService
-            .Setup(x => x.GetByIdAsync(CustomerId, It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(() => new Contact { Id = CustomerId, Name = "Jan de Vries", Emails = ["jan@aras.example"] });
+            .Setup(x => x.GetByIdAsync(ContactId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Contact { Id = ContactId, Name = "Jan de Vries", Emails = ["jan@aras.example"] });
 
         _notificationSearchService
             .Setup(x => x.SearchNotificationsAsync(It.IsAny<NotificationSearchCriteria>()))
@@ -145,15 +163,95 @@ public class ReturnNotificationHandlerTests
     }
 
     [Fact]
-    public async Task ContactWithoutEmail_SendsNothingRatherThanThrowing()
+    public async Task ContactWithoutEmail_FallsBackToTheLoginEmail()
     {
         _memberService
-            .Setup(x => x.GetByIdAsync(CustomerId, It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(() => new Contact { Id = CustomerId, Name = "Jan de Vries", Emails = [] });
+            .Setup(x => x.GetByIdAsync(ContactId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Contact { Id = ContactId, Name = "Jan de Vries", Emails = [] });
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Equal("login@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
+    }
+
+    [Fact]
+    public async Task OrderAddressEmail_IsPreferred_AsForTheOrdersOwnEmails()
+    {
+        _order.Addresses = [new OrderAddress(), new OrderAddress { Email = "purchasing@aras.example" }];
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Equal("purchasing@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
+    }
+
+    [Fact]
+    public async Task OrderWithoutAddressEmail_FallsBackToTheContact()
+    {
+        _order.Addresses = [new OrderAddress()];
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Equal("jan@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
+    }
+
+    [Fact]
+    public async Task NoEmailAnywhere_SendsNothingRatherThanThrowing()
+    {
+        _userManager
+            .Setup(x => x.FindByIdAsync(CustomerId))
+            .ReturnsAsync(new ApplicationUser { Id = CustomerId, MemberId = ContactId });
+        _memberService
+            .Setup(x => x.GetByIdAsync(ContactId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Contact { Id = ContactId, Name = "Jan de Vries", Emails = [] });
 
         await HandleAndSend(ReturnStatus.Requested);
 
         Assert.Empty(_sent);
+    }
+
+    [Fact]
+    public async Task ReturnWithoutCustomer_QueuesNothing()
+    {
+        _orderReturn = NewReturn(customerId: null);
+
+        var handler = await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Empty(handler.Enqueued);
+        Assert.Empty(_sent);
+    }
+
+    [Fact]
+    public async Task NoTemplateForTheLanguage_SendsNothingRatherThanAnEmptyEmail()
+    {
+        _templateLanguageCode = "fr-FR";
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Empty(_sent);
+    }
+
+    [Fact]
+    public async Task ReturnMovedOnBeforeTheJobRan_SendsNothing()
+    {
+        var handler = NewHandler();
+        _orderReturn.Status = ReturnStatus.Requested;
+
+        await handler.Handle(new ReturnStatusChangedEvent(_orderReturn, ReturnStatus.Draft, ReturnStatus.Requested));
+        _orderReturn.Status = ReturnStatus.Approved;
+        await handler.SendNotificationsAsync([.. handler.Enqueued]);
+
+        Assert.Empty(_sent);
+    }
+
+    [Fact]
+    public async Task RecipientIsTakenFromTheReturnAsItIsWhenTheJobRuns()
+    {
+        var handler = NewHandler();
+
+        await handler.Handle(new ReturnStatusChangedEvent(NewReturn(customerId: "someone-else"), ReturnStatus.Draft, ReturnStatus.Requested));
+        await handler.SendNotificationsAsync([.. handler.Enqueued]);
+
+        Assert.Equal("jan@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
     }
 
     [Fact]
@@ -192,28 +290,38 @@ public class ReturnNotificationHandlerTests
         return new TestableHandler(
             _notificationSearchService.Object,
             _notificationSender.Object,
+            _orderService.Object,
             _returnService.Object,
             _settingsService.Object,
             _storeService.Object,
-            _memberService.Object,
-            () => _userManager.Object,
+            new ReturnBuyerResolver(_memberService.Object, () => _userManager.Object),
             NullLogger<SendNotificationsReturnStatusChangedEventHandler>.Instance);
     }
 
-    private static Return NewReturn(string languageCode = "de-DE")
+    private static Return NewReturn(string languageCode = "de-DE", string customerId = CustomerId)
     {
         return new Return
         {
             Id = ReturnId,
             Number = "RET260922-00001",
             StoreId = StoreId,
-            CustomerId = CustomerId,
+            OrderId = "order-1",
+            CustomerId = customerId,
             LanguageCode = languageCode,
             Status = ReturnStatus.Requested,
         };
     }
 
-    private static Notification NewNotification(string type)
+    private Notification NewNotification(string type)
+    {
+        var result = NewNotificationOfType(type);
+
+        result.Templates.Add(new EmailNotificationTemplate { LanguageCode = _templateLanguageCode, Subject = "Return {{ return.number }}" });
+
+        return result;
+    }
+
+    private static Notification NewNotificationOfType(string type)
     {
         return type switch
         {
@@ -233,13 +341,13 @@ public class ReturnNotificationHandlerTests
         public TestableHandler(
             INotificationSearchService notificationSearchService,
             INotificationSender notificationSender,
+            ICustomerOrderService orderService,
             IReturnService returnService,
             IReturnSettingsService settingsService,
             IStoreService storeService,
-            IMemberService memberService,
-            Func<UserManager<ApplicationUser>> userManagerFactory,
+            IReturnBuyerResolver buyerResolver,
             ILogger<SendNotificationsReturnStatusChangedEventHandler> logger)
-            : base(notificationSearchService, notificationSender, returnService, settingsService, storeService, memberService, userManagerFactory, logger)
+            : base(notificationSearchService, notificationSender, orderService, returnService, settingsService, storeService, buyerResolver, logger)
         {
         }
 

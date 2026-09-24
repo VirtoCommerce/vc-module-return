@@ -34,7 +34,7 @@ public class ReturnStatusChangedEventPublisher : IEventHandler<ReturnChangedEven
                     await Publish(changedEntry.NewEntry, fromStatus: null);
                     break;
 
-                case EntryState.Modified when !IsSameStatus(changedEntry.OldEntry?.Status, changedEntry.NewEntry?.Status):
+                case EntryState.Modified when IsReportable(changedEntry.OldEntry?.Status, changedEntry.NewEntry?.Status):
                     await Publish(changedEntry.NewEntry, changedEntry.OldEntry?.Status);
                     break;
             }
@@ -53,6 +53,20 @@ public class ReturnStatusChangedEventPublisher : IEventHandler<ReturnChangedEven
     protected virtual bool IsReportable(string status)
     {
         return !string.IsNullOrEmpty(status) && !status.EqualsIgnoreCase(ReturnStatus.Draft);
+    }
+
+    /// <summary>
+    /// A draft the buyer never submitted was never announced, so the only move out of it worth
+    /// telling them about is the submit; abandoning it is not a cancellation of anything they know of.
+    /// </summary>
+    protected virtual bool IsReportable(string oldStatus, string newStatus)
+    {
+        if (IsSameStatus(oldStatus, newStatus) || !IsReportable(newStatus))
+        {
+            return false;
+        }
+
+        return !oldStatus.EqualsIgnoreCase(ReturnStatus.Draft) || newStatus.EqualsIgnoreCase(ReturnStatus.Requested);
     }
 
     /// <summary>

@@ -36,8 +36,11 @@
           "quantity": "数量",
           "price": "価格",
           "sku": "SKU",
-            "approved-quantity": "承認数量",
-            "reject-reason": "却下理由"
+          "approved-quantity": "承認数量",
+          "reject-reason": "却下理由"
+        },
+        "commands": {
+          "authorize": "承認 / 却下"
         }
       },
       "return-details": {
@@ -50,8 +53,8 @@
           "createdBy": "作成者",
           "customer": "顧客",
           "resolution": "解決策",
-            "rejectReason": "却下の理由",
-            "customerReference": "購入者の参照番号",
+          "rejectReason": "却下の理由",
+          "customerReference": "購入者の参照番号",
           "status": "状況"
         }
       }
@@ -62,7 +65,8 @@
     "return:create": "返品データを作成",
     "return:read": "返品データを表示",
     "return:update": "返品データを更新",
-    "return:delete": "返品データを削除"
+    "return:delete": "返品データを削除",
+    "return:authorize": "返品を承認・却下する"
   },
   "settings": {
     "Return": {
@@ -104,7 +108,7 @@
       },
       "SendNotifications": {
         "title": "返品のメール通知",
-        "description": "返品が登録、承認、一部承認、または却下されたときに購入者へメールを送信します。"
+        "description": "返品が登録、承認、一部承認、却下、またはキャンセルされたときに購入者へメールを送信します。"
       },
       "SendPushNotifications": {
         "title": "返品のプッシュ通知",

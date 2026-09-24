@@ -36,8 +36,11 @@
           "quantity": "Количество",
           "price": "Цена",
           "sku": "Артикул",
-            "approved-quantity": "Одобрено",
-            "reject-reason": "Причина отказа"
+          "approved-quantity": "Одобрено",
+          "reject-reason": "Причина отказа"
+        },
+        "commands": {
+          "authorize": "Одобрить / отклонить"
         }
       },
       "return-details": {
@@ -50,8 +53,8 @@
           "createdBy": "Создано",
           "customer": "Клиент",
           "resolution": "Решение",
-            "rejectReason": "Причина отказа",
-            "customerReference": "Референс покупателя",
+          "rejectReason": "Причина отказа",
+          "customerReference": "Референс покупателя",
           "status": "Статус"
         }
       }
@@ -62,7 +65,8 @@
     "return:create": "Создать данные возврата",
     "return:read": "Просмотреть данные возврата",
     "return:update": "Обновить данные возврата",
-    "return:delete": "Удалить данные возврата"
+    "return:delete": "Удалить данные возврата",
+    "return:authorize": "Одобрять и отклонять возвраты"
   },
   "settings": {
     "Return": {
@@ -104,7 +108,7 @@
       },
       "SendNotifications": {
         "title": "Email-уведомления о возвратах",
-        "description": "Отправлять покупателю письмо, когда возврат зарегистрирован, одобрен, одобрен частично или отклонён."
+        "description": "Отправлять покупателю письмо, когда возврат зарегистрирован, одобрен, одобрен частично, отклонён или отменён."
       },
       "SendPushNotifications": {
         "title": "Push-уведомления о возвратах",

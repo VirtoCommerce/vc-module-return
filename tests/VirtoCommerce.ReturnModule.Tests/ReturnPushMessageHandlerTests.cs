@@ -1,12 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using VirtoCommerce.CustomerModule.Core.Model;
+using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.PushMessages.Core.Models;
+using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.PushMessages.Core.Services;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Events;
@@ -14,6 +18,7 @@ using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Notifications;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.Data.Handlers;
+using VirtoCommerce.ReturnModule.Data.Services;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
 using Xunit;
@@ -23,7 +28,9 @@ namespace VirtoCommerce.ReturnModule.Tests;
 public class ReturnPushMessageHandlerTests
 {
     private const string StoreId = "B2B-store";
-    private const string CustomerId = "contact-1";
+    // A storefront return carries the buyer's user id; PushMessages addresses the contact behind it.
+    private const string CustomerId = "user-1";
+    private const string ContactId = "contact-1";
     private const string ReturnId = "return-1";
     private const string ReturnNumber = "RET260922-00001";
 
@@ -33,6 +40,9 @@ public class ReturnPushMessageHandlerTests
     private readonly Mock<IReturnService> _returnService = new();
     private readonly Mock<IReturnSettingsService> _settingsService = new();
     private readonly Mock<IStoreService> _storeService = new();
+    private readonly Mock<IMemberService> _memberService = new();
+    private readonly Mock<UserManager<ApplicationUser>> _userManager =
+        new(Mock.Of<IUserStore<ApplicationUser>>(), null, null, null, null, null, null, null, null);
 
     private readonly List<PushMessage> _saved = [];
     private readonly ReturnStoreRules _rules = new() { SendPushNotifications = true };
@@ -52,6 +62,14 @@ public class ReturnPushMessageHandlerTests
         _returnService
             .Setup(x => x.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
             .ReturnsAsync(() => [_orderReturn]);
+
+        _userManager
+            .Setup(x => x.FindByIdAsync(CustomerId))
+            .ReturnsAsync(new ApplicationUser { Id = CustomerId, MemberId = ContactId });
+
+        _memberService
+            .Setup(x => x.GetByIdAsync(ContactId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Contact { Id = ContactId, Name = "Jan de Vries" });
 
         _notificationSearchService
             .Setup(x => x.SearchNotificationsAsync(It.IsAny<NotificationSearchCriteria>()))
@@ -82,7 +100,42 @@ public class ReturnPushMessageHandlerTests
         Assert.Equal(ReturnNumber, pushMessage.Topic);
         Assert.Equal($"Return {ReturnNumber} received", pushMessage.ShortMessage);
         Assert.Equal(PushMessageStatus.Sent, pushMessage.Status);
-        Assert.Equal([CustomerId], pushMessage.MemberIds);
+        Assert.Equal([ContactId], pushMessage.MemberIds);
+    }
+
+    [Fact]
+    public async Task CustomerIdIsAMemberId_AddressesThatMember()
+    {
+        _orderReturn = NewReturn(customerId: ContactId);
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Equal([ContactId], Assert.Single(_saved).MemberIds);
+    }
+
+    [Fact]
+    public async Task LoginWithoutContact_CreatesNothing()
+    {
+        _userManager
+            .Setup(x => x.FindByIdAsync(CustomerId))
+            .ReturnsAsync(new ApplicationUser { Id = CustomerId, Email = "login@aras.example" });
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Empty(_saved);
+    }
+
+    [Fact]
+    public async Task ReturnMovedOnBeforeTheJobRan_CreatesNothing()
+    {
+        var handler = NewHandler();
+        _orderReturn.Status = ReturnStatus.Requested;
+
+        await handler.Handle(new ReturnStatusChangedEvent(_orderReturn, ReturnStatus.Draft, ReturnStatus.Requested));
+        _orderReturn.Status = ReturnStatus.Cancelled;
+        await handler.SendPushMessagesAsync([.. handler.Enqueued]);
+
+        Assert.Empty(_saved);
     }
 
     [Theory]
@@ -178,6 +231,7 @@ public class ReturnPushMessageHandlerTests
             _returnService.Object,
             _settingsService.Object,
             _storeService.Object,
+            new ReturnBuyerResolver(_memberService.Object, () => _userManager.Object),
             NullLogger<SendPushMessagesReturnStatusChangedEventHandler>.Instance);
     }
 
@@ -216,8 +270,9 @@ public class ReturnPushMessageHandlerTests
             IReturnService returnService,
             IReturnSettingsService settingsService,
             IStoreService storeService,
+            IReturnBuyerResolver buyerResolver,
             ILogger<SendPushMessagesReturnStatusChangedEventHandler> logger)
-            : base(notificationSearchService, templateRenderer, pushMessageService, returnService, settingsService, storeService, logger)
+            : base(notificationSearchService, templateRenderer, pushMessageService, returnService, settingsService, storeService, buyerResolver, logger)
         {
         }
 

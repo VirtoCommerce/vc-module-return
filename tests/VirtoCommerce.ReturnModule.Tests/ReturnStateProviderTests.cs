@@ -15,6 +15,7 @@ public class ReturnStateProviderTests
     [InlineData(ReturnAction.Submit, ReturnStatus.Draft)]
     [InlineData(ReturnAction.Cancel, ReturnStatus.Draft)]
     [InlineData(ReturnAction.Cancel, ReturnStatus.Requested)]
+    [InlineData(ReturnAction.Authorize, ReturnStatus.Requested)]
     public void IsAllowed_TransitionInTable_ReturnsTrue(string action, string status)
     {
         Assert.True(_provider.IsAllowed(action, status));
@@ -26,6 +27,8 @@ public class ReturnStateProviderTests
     [InlineData(ReturnAction.Cancel, ReturnStatus.Cancelled)]
     [InlineData(ReturnAction.Cancel, ReturnStatus.Approved)]
     [InlineData(ReturnAction.Cancel, ReturnStatus.Rejected)]
+    [InlineData(ReturnAction.Authorize, ReturnStatus.Draft)]
+    [InlineData(ReturnAction.Authorize, ReturnStatus.Approved)]
     public void IsAllowed_TransitionNotInTable_ReturnsFalse(string action, string status)
     {
         Assert.False(_provider.IsAllowed(action, status));
@@ -82,6 +85,14 @@ public class ReturnStateProviderTests
         Assert.Equal(
             new[] { ReturnAction.Edit, ReturnAction.Submit, ReturnAction.Cancel },
             actions.Select(x => x.Name));
+    }
+
+    [Fact]
+    public void GetActions_NeverOffersTheAgentsDecisionToTheBuyer()
+    {
+        var actions = _provider.GetActions(new Return { Status = ReturnStatus.Requested });
+
+        Assert.DoesNotContain(actions, x => x.Name == ReturnAction.Authorize);
     }
 
     [Fact]

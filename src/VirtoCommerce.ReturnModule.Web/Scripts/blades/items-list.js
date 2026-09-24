@@ -10,7 +10,8 @@ angular.module('virtoCommerce.returnModule')
             }
 
             var blade = $scope.blade;
-            blade.updatePermission = 'order:update';
+            blade.updatePermission = 'return:update';
+            blade.authorizePermission = 'return:authorize';
             blade.isVisiblePrices = authService.checkPermission('order:read_prices');
 
             var bladeNavigationService = bladeUtils.bladeNavigationService;
@@ -29,6 +30,16 @@ angular.module('virtoCommerce.returnModule')
                                 item.name = orderItem.name;
                                 item.sku = orderItem.sku;
                             });
+
+                            // Only a requested return is waiting for a decision. Until one is made,
+                            // every line is offered as approved in full, so declining is deliberate.
+                            blade.canAuthorize = result.status === 'Requested' && authService.checkPermission(blade.authorizePermission);
+
+                            if (blade.canAuthorize) {
+                                result.lineItems.forEach(item => {
+                                    item.approvedQuantity = item.quantity;
+                                });
+                            }
 
                             blade.currentEntity = result;
                             blade.originalEntity = angular.copy(blade.currentEntity);
@@ -82,7 +93,7 @@ angular.module('virtoCommerce.returnModule')
                                 bladeNavigationService.closeBlade(blade);
                             });
                     },
-                    canExecuteMethod: () => !objCompareService.equal(blade.originalEntity, blade.currentEntity),
+                    canExecuteMethod: () => !objCompareService.equal(withoutDecision(blade.originalEntity), withoutDecision(blade.currentEntity)),
                     permission: blade.updatePermission
                 }
                 :
@@ -126,6 +137,52 @@ angular.module('virtoCommerce.returnModule')
                 };
 
             blade.toolbarCommands.push(button);
+
+            if (blade.editMode) {
+                blade.toolbarCommands.push({
+                    name: 'return.blades.items-list.commands.authorize',
+                    icon: 'fas fa-check',
+                    executeMethod: () => {
+                        blade.isLoading = true;
+
+                        returns.authorize({ id: blade.currentEntity.id }, {
+                            rejectReason: blade.currentEntity.rejectReason,
+                            items: blade.currentEntity.lineItems.map(item => ({
+                                lineItemId: item.id,
+                                approvedQuantity: item.approvedQuantity || 0,
+                                rejectReason: item.rejectReason
+                            }))
+                        }, () => {
+                            if (blade.parentBlade && blade.parentBlade.refresh) {
+                                blade.parentBlade.refresh();
+                            }
+
+                            refreshReturnList();
+                            blade.refresh();
+                        }, () => {
+                            blade.isLoading = false;
+                        });
+                    },
+                    canExecuteMethod: () => blade.canAuthorize && blade.currentEntity.lineItems.every(item =>
+                        item.approvedQuantity >= 0 && item.approvedQuantity <= item.quantity),
+                    permission: blade.authorizePermission
+                });
+            }
+
+            // The decision is recorded by authorizing; saving never writes it.
+            function withoutDecision(orderReturn) {
+                var result = angular.copy(orderReturn);
+
+                if (result && result.lineItems) {
+                    delete result.rejectReason;
+                    result.lineItems.forEach(item => {
+                        delete item.approvedQuantity;
+                        delete item.rejectReason;
+                    });
+                }
+
+                return result;
+            }
 
             $scope.checkAll = (selected) => {
                 angular.forEach($scope.lineItems, (item) => {

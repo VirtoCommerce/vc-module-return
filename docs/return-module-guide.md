@@ -222,8 +222,62 @@ Submit runs the same checks and additionally requires a reason on every line, so
 draft as it stands, whoever wrote it — a draft written through `PUT /api/return` is held to the same
 rules as one built in the storefront.
 
+## Notifications
+
+The buyer is told when their return is registered, approved, partly approved, declined or cancelled.
+Each of these has its own email notification — `ReturnRegisteredEmailNotification`,
+`ReturnApprovedEmailNotification`, `ReturnPartiallyApprovedEmailNotification`,
+`ReturnRejectedEmailNotification` and `ReturnCancelledEmailNotification` — whose templates can be edited
+and translated in the admin like any other notification. Nothing is sent for a draft, or for a draft
+that is abandoned before it is submitted.
+
+Two store settings control this:
+
+* `Return.SendNotifications` — email the buyer.
+* `Return.SendPushNotifications` — also create an in-app push message. The text is the subject of the
+  matching email template. This needs the optional Push Messages module; without it the setting has no
+  effect.
+
+**Both are on by default.** A store that already runs the module starts telling its buyers as soon as
+this version is installed, without anyone switching anything on. Turn them off per store before
+upgrading if that is not wanted.
+
+Sending happens in a Hangfire background job, so a mail server that is slow or down never fails the
+save. Emails go through the Notifications module and need an email sender (SMTP or SendGrid) configured
+on the platform. It goes where the order's own emails went: the email on the order's addresses first,
+then the buyer's contact, then their login. The email is written in the language the return was raised in, falling back to the
+store's default language; a language with no template gets nothing rather than an empty email, and the
+job logs a warning.
+
+## Approving and declining
+
+A submitted return (`Requested`) waits for an agent's decision. Open the return, then its line items,
+enter how much of each line is approved and, for anything not approved, why; an optional reason for
+the whole return goes underneath. **Approve / decline** records the decision in one step, through
+`POST /api/return/{id}/authorize`:
+
+```json
+{
+  "rejectReason": "Two units were used",
+  "items": [
+    { "lineItemId": "…", "approvedQuantity": 3, "rejectReason": "Used" },
+    { "lineItemId": "…", "approvedQuantity": 2 }
+  ]
+}
+```
+
+Every line needs a decision, from 0 up to the requested quantity. The status follows from the numbers:
+`Approved` when every line is approved in full, `Rejected` when nothing is, `PartiallyApproved`
+otherwise. Each line is marked as decided, so the return goes on holding only the approved units —
+what was not approved can be requested again straight away.
+
+The decision is written only this way. `PUT /api/return` keeps the approved quantities and decline
+reasons already stored, and refuses to move a return into or out of `Draft`, `Requested`,
+`PartiallyApproved` or `Rejected` — those are set by submitting, cancelling and authorizing.
+
 # Permissions
 
-The Return module provides a standard set of permissions: access, create, read, delete, and update.
+The Return module provides a standard set of permissions: access, create, read, delete, and update,
+plus `return:authorize` to approve and decline returns. Editing a return does not include deciding on it.
 
 ![Settings template](media/14-permissions.png)

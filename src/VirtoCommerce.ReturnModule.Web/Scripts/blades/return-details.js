@@ -84,7 +84,9 @@ angular.module('virtoCommerce.returnModule')
                     valueType: "LongText"
                 },
                 {
+                    // Recorded when the return is approved or declined, from the line items blade.
                     name: 'rejectReason',
+                    isReadOnly: true,
                     isRequired: false,
                     title: "return.blades.return-details.labels.rejectReason",
                     valueType: "LongText"

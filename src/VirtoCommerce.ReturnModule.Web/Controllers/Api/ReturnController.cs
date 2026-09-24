@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,11 +17,13 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
     {
         private readonly IReturnSearchService _returnSearchService;
         private readonly IReturnService _returnService;
+        private readonly IReturnFlowService _returnFlowService;
 
-        public ReturnController(IReturnSearchService returnSearchService, IReturnService returnService)
+        public ReturnController(IReturnSearchService returnSearchService, IReturnService returnService, IReturnFlowService returnFlowService)
         {
             _returnSearchService = returnSearchService;
             _returnService = returnService;
+            _returnFlowService = returnFlowService;
         }
 
         /// <summary>
@@ -66,16 +69,48 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         [Authorize(ModuleConstants.Security.Permissions.Update)]
         public async Task<ActionResult> UpdateReturn([FromBody] Return orderReturn)
         {
-            var errors = await ValidateReturn(orderReturn);
+            var storedReturn = string.IsNullOrEmpty(orderReturn.Id)
+                ? null
+                : await _returnService.GetByIdAsync(orderReturn.Id, ReturnResponseGroup.None.ToString());
 
-            if (errors.Any())
+            var errors = ValidateStatusChange(storedReturn, orderReturn)
+                .Concat(await ValidateReturn(orderReturn))
+                .ToList();
+
+            if (errors.Count > 0)
             {
                 return BadRequest(errors);
             }
 
+            KeepDecisions(orderReturn, storedReturn);
+
             await _returnService.SaveChangesAsync(new[] { orderReturn });
 
             return Ok(new { orderReturn.Id });
+        }
+
+        /// <summary>
+        /// Approve, partly approve or decline a requested return, line by line
+        /// </summary>
+        [HttpPost]
+        [Route("{id}/authorize")]
+        [Authorize(ModuleConstants.Security.Permissions.Authorize)]
+        public async Task<ActionResult<Return>> AuthorizeReturn(string id, [FromBody] ReturnAuthorizationRequest request)
+        {
+            request.ReturnId = id;
+
+            try
+            {
+                return Ok(await _returnFlowService.Authorize(request));
+            }
+            catch (ReturnFlowException ex) when (ex.Code == ReturnFlowError.ReturnNotFound)
+            {
+                return NotFound();
+            }
+            catch (ReturnFlowException ex)
+            {
+                return BadRequest(new { ex.Code, ex.Message });
+            }
         }
 
         /// <summary>
@@ -116,7 +151,44 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             return orderReturn.LineItems
                 .Where(item => item.Quantity < 1 ||
                                item.Quantity > availableQuantities[item.OrderLineItemId])
-                .Select(x => $"LineItem {x.OrderLineItemId} has incorrect quantity");
+                .Select(x => $"LineItem {x.OrderLineItemId} has incorrect quantity")
+                .ToList();
+        }
+
+        // Written by the return flow only: the buyer submits and cancels, the agent authorizes. A
+        // status set here would skip the checks those make, and the decision the status stands for.
+        private static readonly ISet<string> _flowStatuses = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ReturnStatus.Draft,
+            ReturnStatus.Requested,
+            ReturnStatus.PartiallyApproved,
+            ReturnStatus.Rejected,
+        };
+
+        private static IEnumerable<string> ValidateStatusChange(Return storedReturn, Return orderReturn)
+        {
+            var oldStatus = storedReturn?.Status ?? string.Empty;
+            var newStatus = orderReturn.Status ?? string.Empty;
+
+            if (!oldStatus.EqualsIgnoreCase(newStatus) && (_flowStatuses.Contains(oldStatus) || _flowStatuses.Contains(newStatus)))
+            {
+                yield return $"Status '{oldStatus}' cannot be changed to '{newStatus}' here: it is set by submitting, cancelling or authorizing the return.";
+            }
+        }
+
+        // The decision is recorded by authorizing the return; an edit keeps whatever was decided.
+        private static void KeepDecisions(Return orderReturn, Return storedReturn)
+        {
+            orderReturn.RejectReason = storedReturn?.RejectReason;
+
+            foreach (var lineItem in orderReturn.LineItems)
+            {
+                var storedLineItem = storedReturn?.LineItems.FirstOrDefault(x => x.Id.EqualsIgnoreCase(lineItem.Id));
+
+                lineItem.ApprovedQuantity = storedLineItem?.ApprovedQuantity ?? 0;
+                lineItem.RejectReason = storedLineItem?.RejectReason;
+                lineItem.ItemState = storedLineItem?.ItemState;
+            }
         }
     }
 }

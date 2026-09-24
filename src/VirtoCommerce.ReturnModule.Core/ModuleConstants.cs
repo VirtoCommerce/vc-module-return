@@ -17,7 +17,11 @@ namespace VirtoCommerce.ReturnModule.Core
                 public const string Update = "return:update";
                 public const string Delete = "return:delete";
 
-                public static string[] AllPermissions { get; } = { Read, Create, Access, Update, Delete };
+                // Approving and declining is a decision about money and stock, not an edit, so it
+                // is granted on its own.
+                public const string Authorize = "return:authorize";
+
+                public static string[] AllPermissions { get; } = { Read, Create, Access, Update, Delete, Authorize };
             }
         }
 

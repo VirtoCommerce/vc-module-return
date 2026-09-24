@@ -104,6 +104,19 @@ public class ReturnRequestValidatorTests
         Assert.False(result.IsValid);
     }
 
+    [Theory]
+    [InlineData("de-DE", true)]
+    [InlineData("en-US-x-a-very-long-subtag", false)]
+    public async Task LanguageCode_IsBoundedByItsColumn(string languageCode, bool isValid)
+    {
+        var context = CreateContext(new CreateReturnItemRequest { ReasonCode = "NoLongerNeeded" });
+        context.LanguageCode = languageCode;
+
+        var result = await new ReturnRequestValidator().ValidateAsync(context, TestContext.Current.CancellationToken);
+
+        Assert.Equal(isValid, result.IsValid);
+    }
+
     private static ReturnRequestValidationContext CreateContext(CreateReturnItemRequest item)
     {
         return new ReturnRequestValidationContext

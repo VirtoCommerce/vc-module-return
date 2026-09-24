@@ -1,21 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Hangfire;
 using Microsoft.Extensions.Logging;
-using VirtoCommerce.NotificationsModule.Core.Extensions;
 using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.Events;
 using VirtoCommerce.PushMessages.Core.Models;
 using VirtoCommerce.PushMessages.Core.Services;
-using VirtoCommerce.ReturnModule.Core.Events;
 using VirtoCommerce.ReturnModule.Core.Models;
-using VirtoCommerce.ReturnModule.Core.Notifications;
 using VirtoCommerce.ReturnModule.Core.Services;
-using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
 
 namespace VirtoCommerce.ReturnModule.Data.Handlers;
@@ -36,15 +30,10 @@ namespace VirtoCommerce.ReturnModule.Data.Handlers;
 /// template entity inside the Notifications module's schema, which is not ours to extend.
 /// </para>
 /// </summary>
-public class SendPushMessagesReturnStatusChangedEventHandler : IEventHandler<ReturnStatusChangedEvent>
+public class SendPushMessagesReturnStatusChangedEventHandler : ReturnStatusNotificationHandlerBase
 {
-    private readonly INotificationSearchService _notificationSearchService;
     private readonly INotificationTemplateRenderer _templateRenderer;
     private readonly IPushMessageService _pushMessageService;
-    private readonly IReturnService _returnService;
-    private readonly IReturnSettingsService _settingsService;
-    private readonly IStoreService _storeService;
-    private readonly ILogger<SendPushMessagesReturnStatusChangedEventHandler> _logger;
 
     public SendPushMessagesReturnStatusChangedEventHandler(
         INotificationSearchService notificationSearchService,
@@ -53,75 +42,42 @@ public class SendPushMessagesReturnStatusChangedEventHandler : IEventHandler<Ret
         IReturnService returnService,
         IReturnSettingsService settingsService,
         IStoreService storeService,
+        IReturnBuyerResolver buyerResolver,
         ILogger<SendPushMessagesReturnStatusChangedEventHandler> logger)
+        : base(notificationSearchService, returnService, settingsService, storeService, buyerResolver, logger)
     {
-        _notificationSearchService = notificationSearchService;
         _templateRenderer = templateRenderer;
         _pushMessageService = pushMessageService;
-        _returnService = returnService;
-        _settingsService = settingsService;
-        _storeService = storeService;
-        _logger = logger;
     }
 
-    public virtual async Task Handle(ReturnStatusChangedEvent message)
+    protected override bool IsEnabled(ReturnStoreRules rules)
     {
-        var orderReturn = message.Return;
-
-        var notificationTypeName = GetNotificationTypeName(message.ToStatus);
-
-        if (notificationTypeName == null)
-        {
-            return;
-        }
-
-        var rules = await _settingsService.GetRulesAsync(orderReturn.StoreId);
-
-        if (!rules.SendPushNotifications)
-        {
-            return;
-        }
-
-        if (string.IsNullOrEmpty(orderReturn.CustomerId))
-        {
-            _logger.LogWarning(
-                "Return {ReturnNumber} has no customer, no push message was created.",
-                orderReturn.Number);
-
-            return;
-        }
-
-        EnqueueSending(new ReturnNotificationJobArgument
-        {
-            ReturnId = orderReturn.Id,
-            StoreId = orderReturn.StoreId,
-            CustomerId = orderReturn.CustomerId,
-            NotificationTypeName = notificationTypeName,
-        });
+        return rules.SendPushNotifications;
     }
 
-    protected virtual void EnqueueSending(ReturnNotificationJobArgument argument)
+    protected override void EnqueueSending(ReturnNotificationJobArgument argument)
     {
         BackgroundJob.Enqueue<SendPushMessagesReturnStatusChangedEventHandler>(x => x.SendPushMessagesAsync(new[] { argument }));
     }
 
     public virtual async Task SendPushMessagesAsync(ReturnNotificationJobArgument[] jobArguments)
     {
-        var returnsById = (await _returnService.GetAsync(
-                jobArguments.Select(x => x.ReturnId).Distinct().ToList(),
-                ReturnResponseGroup.None.ToString()))
-            .ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
-
         var pushMessages = new List<PushMessage>();
 
-        foreach (var jobArgument in jobArguments)
+        foreach (var prepared in await PrepareAsync(jobArguments))
         {
-            if (!returnsById.TryGetValue(jobArgument.ReturnId, out var orderReturn))
+            // PushMessages addresses members, and Return.CustomerId is usually a user id: a login
+            // with no contact behind it has no one to receive the message.
+            if (prepared.Buyer.Member == null)
             {
+                Logger.LogWarning(
+                    "Customer {CustomerId} has no contact, no push message was created for return {ReturnNumber}.",
+                    prepared.Return.CustomerId, prepared.Return.Number);
+
                 continue;
             }
 
-            var shortMessage = await RenderShortMessageAsync(jobArgument, orderReturn);
+            var shortMessage = await RenderShortMessageAsync(prepared);
 
             if (string.IsNullOrEmpty(shortMessage))
             {
@@ -130,11 +86,11 @@ public class SendPushMessagesReturnStatusChangedEventHandler : IEventHandler<Ret
 
             var pushMessage = AbstractTypeFactory<PushMessage>.TryCreateInstance();
 
-            pushMessage.Topic = orderReturn.Number;
+            pushMessage.Topic = prepared.Return.Number;
             pushMessage.ShortMessage = shortMessage;
             pushMessage.StartDate = DateTime.UtcNow;
             pushMessage.Status = PushMessageStatus.Sent;
-            pushMessage.MemberIds = [jobArgument.CustomerId];
+            pushMessage.MemberIds = [prepared.Buyer.Member.Id];
 
             pushMessages.Add(pushMessage);
         }
@@ -145,49 +101,13 @@ public class SendPushMessagesReturnStatusChangedEventHandler : IEventHandler<Ret
         }
     }
 
-    protected virtual async Task<string> RenderShortMessageAsync(ReturnNotificationJobArgument jobArgument, Return orderReturn)
+    protected virtual Task<string> RenderShortMessageAsync(PreparedReturnNotification prepared)
     {
-        var notification = await _notificationSearchService.GetNotificationAsync(
-            jobArgument.NotificationTypeName,
-            new TenantIdentity(jobArgument.StoreId, nameof(Store)));
-
-        if (notification is not ReturnEmailNotificationBase returnNotification)
+        return _templateRenderer.RenderAsync(new NotificationRenderContext
         {
-            _logger.LogWarning(
-                "Notification {NotificationType} is not registered, no push message was created for return {ReturnNumber}.",
-                jobArgument.NotificationTypeName, orderReturn.Number);
-
-            return null;
-        }
-
-        var store = await _storeService.GetNoCloneAsync(orderReturn.StoreId, StoreResponseGroup.StoreInfo.ToString());
-        var languageCode = orderReturn.LanguageCode.EmptyToNull() ?? store?.DefaultLanguage;
-
-        returnNotification.ReturnId = orderReturn.Id;
-        returnNotification.Return = orderReturn;
-        returnNotification.LanguageCode = languageCode;
-
-        if (returnNotification.Templates.FindTemplateForLanguage(languageCode) is not EmailNotificationTemplate template)
-        {
-            _logger.LogWarning(
-                "Notification {NotificationType} has no template for {LanguageCode}, no push message was created for return {ReturnNumber}.",
-                jobArgument.NotificationTypeName, languageCode, orderReturn.Number);
-
-            return null;
-        }
-
-        return await _templateRenderer.RenderAsync(new NotificationRenderContext
-        {
-            Template = template.Subject,
-            Model = returnNotification,
-            Language = template.LanguageCode,
+            Template = prepared.Template.Subject,
+            Model = prepared.Notification,
+            Language = prepared.Template.LanguageCode,
         });
     }
-
-    protected virtual string GetNotificationTypeName(string status)
-    {
-        return NotificationTypeNamesByStatus.TryGetValue(status ?? string.Empty, out var result) ? result : null;
-    }
-
-    protected virtual IReadOnlyDictionary<string, string> NotificationTypeNamesByStatus { get; } = ReturnNotificationTypes.ByStatus;
 }

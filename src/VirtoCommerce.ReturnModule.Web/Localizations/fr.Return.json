@@ -36,8 +36,11 @@
           "quantity": "Quantité",
           "price": "Prix",
           "sku": "Référence",
-            "approved-quantity": "Approuvé",
-            "reject-reason": "Motif du refus"
+          "approved-quantity": "Approuvé",
+          "reject-reason": "Motif du refus"
+        },
+        "commands": {
+          "authorize": "Approuver / refuser"
         }
       },
       "return-details": {
@@ -50,8 +53,8 @@
           "createdBy": "Créé par",
           "customer": "Client",
           "resolution": "Résolution",
-            "rejectReason": "Motif du refus",
-            "customerReference": "Référence de l'acheteur",
+          "rejectReason": "Motif du refus",
+          "customerReference": "Référence de l'acheteur",
           "status": "Statut"
         }
       }
@@ -62,7 +65,8 @@
     "return:create": "Créer des données de retour",
     "return:read": "Afficher les données de retour",
     "return:update": "Mettre à jour les données de retour",
-    "return:delete": "Supprimer les données de retour"
+    "return:delete": "Supprimer les données de retour",
+    "return:authorize": "Approuver et refuser les retours"
   },
   "settings": {
     "Return": {
@@ -104,7 +108,7 @@
       },
       "SendNotifications": {
         "title": "Notifications par e-mail des retours",
-        "description": "Envoyer un e-mail à l'acheteur lorsqu'un retour est enregistré, approuvé, partiellement approuvé ou refusé."
+        "description": "Envoyer un e-mail à l'acheteur lorsqu'un retour est enregistré, approuvé, partiellement approuvé, refusé ou annulé."
       },
       "SendPushNotifications": {
         "title": "Notifications push des retours",

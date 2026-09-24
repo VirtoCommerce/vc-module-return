@@ -1,203 +1,85 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Hangfire;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using VirtoCommerce.CustomerModule.Core.Model;
-using VirtoCommerce.CustomerModule.Core.Services;
-using VirtoCommerce.NotificationsModule.Core.Extensions;
-using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
+using VirtoCommerce.OrdersModule.Core.Model;
+using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.Events;
-using VirtoCommerce.Platform.Core.Security;
-using VirtoCommerce.ReturnModule.Core;
-using VirtoCommerce.ReturnModule.Core.Events;
 using VirtoCommerce.ReturnModule.Core.Models;
-using VirtoCommerce.ReturnModule.Core.Notifications;
 using VirtoCommerce.ReturnModule.Core.Services;
-using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
 
 namespace VirtoCommerce.ReturnModule.Data.Handlers;
 
-public class SendNotificationsReturnStatusChangedEventHandler : IEventHandler<ReturnStatusChangedEvent>
+public class SendNotificationsReturnStatusChangedEventHandler : ReturnStatusNotificationHandlerBase
 {
-    private readonly INotificationSearchService _notificationSearchService;
     private readonly INotificationSender _notificationSender;
-    private readonly IReturnService _returnService;
-    private readonly IReturnSettingsService _settingsService;
-    private readonly IStoreService _storeService;
-    private readonly IMemberService _memberService;
-    private readonly Func<UserManager<ApplicationUser>> _userManagerFactory;
-    private readonly ILogger<SendNotificationsReturnStatusChangedEventHandler> _logger;
+    private readonly ICustomerOrderService _orderService;
 
     public SendNotificationsReturnStatusChangedEventHandler(
         INotificationSearchService notificationSearchService,
         INotificationSender notificationSender,
+        ICustomerOrderService orderService,
         IReturnService returnService,
         IReturnSettingsService settingsService,
         IStoreService storeService,
-        IMemberService memberService,
-        Func<UserManager<ApplicationUser>> userManagerFactory,
+        IReturnBuyerResolver buyerResolver,
         ILogger<SendNotificationsReturnStatusChangedEventHandler> logger)
+        : base(notificationSearchService, returnService, settingsService, storeService, buyerResolver, logger)
     {
-        _notificationSearchService = notificationSearchService;
         _notificationSender = notificationSender;
-        _returnService = returnService;
-        _settingsService = settingsService;
-        _storeService = storeService;
-        _memberService = memberService;
-        _userManagerFactory = userManagerFactory;
-        _logger = logger;
+        _orderService = orderService;
     }
 
-    public virtual async Task Handle(ReturnStatusChangedEvent message)
+    protected override bool IsEnabled(ReturnStoreRules rules)
     {
-        var orderReturn = message.Return;
-
-        var notificationTypeName = GetNotificationTypeName(message.ToStatus);
-
-        // Every other transition - a draft being created, a cancellation, a status this iteration
-        // does not model - is silent by design rather than by omission.
-        if (notificationTypeName == null)
-        {
-            return;
-        }
-
-        var rules = await _settingsService.GetRulesAsync(orderReturn.StoreId);
-
-        if (!rules.SendNotifications)
-        {
-            return;
-        }
-
-        var argument = new ReturnNotificationJobArgument
-        {
-            ReturnId = orderReturn.Id,
-            StoreId = orderReturn.StoreId,
-            CustomerId = orderReturn.CustomerId,
-            NotificationTypeName = notificationTypeName,
-        };
-
-        EnqueueSending(argument);
+        return rules.SendNotifications;
     }
 
-    /// <summary>
-    /// Out of the save path: an SMTP server that is slow or down must not fail the save that a
-    /// buyer or an agent is waiting on.
-    /// </summary>
-    protected virtual void EnqueueSending(ReturnNotificationJobArgument argument)
+    protected override void EnqueueSending(ReturnNotificationJobArgument argument)
     {
         BackgroundJob.Enqueue<SendNotificationsReturnStatusChangedEventHandler>(x => x.SendNotificationsAsync(new[] { argument }));
     }
 
     public virtual async Task SendNotificationsAsync(ReturnNotificationJobArgument[] jobArguments)
     {
-        var returnsById = (await _returnService.GetAsync(
-                jobArguments.Select(x => x.ReturnId).Distinct().ToList(),
-                ReturnResponseGroup.None.ToString()))
-            .ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
-
-        foreach (var jobArgument in jobArguments)
+        foreach (var prepared in await PrepareAsync(jobArguments))
         {
-            if (!returnsById.TryGetValue(jobArgument.ReturnId, out var orderReturn))
+            var email = await GetRecipientEmailAsync(prepared);
+
+            if (string.IsNullOrEmpty(email))
             {
-                continue;
-            }
-
-            var notification = await _notificationSearchService.GetNotificationAsync(
-                jobArgument.NotificationTypeName,
-                new TenantIdentity(jobArgument.StoreId, nameof(Store)));
-
-            if (notification is not ReturnEmailNotificationBase returnNotification)
-            {
-                _logger.LogWarning(
-                    "Notification {NotificationType} is not registered, return {ReturnNumber} was not announced to the buyer.",
-                    jobArgument.NotificationTypeName, orderReturn.Number);
-
-                continue;
-            }
-
-            var store = await _storeService.GetNoCloneAsync(orderReturn.StoreId, StoreResponseGroup.StoreInfo.ToString());
-            var customer = await GetCustomerAsync(jobArgument.CustomerId);
-
-            returnNotification.ReturnId = orderReturn.Id;
-            returnNotification.Return = orderReturn;
-            returnNotification.Customer = customer;
-            returnNotification.LanguageCode = orderReturn.LanguageCode.EmptyToNull() ?? store?.DefaultLanguage;
-            returnNotification.From = store?.EmailWithName;
-            returnNotification.To = await GetRecipientEmailAsync(jobArgument.CustomerId, customer);
-            returnNotification.TenantIdentity = new TenantIdentity(orderReturn.Id, nameof(Return));
-
-            if (string.IsNullOrEmpty(returnNotification.To))
-            {
-                _logger.LogWarning(
+                Logger.LogWarning(
                     "No email address for customer {CustomerId}, return {ReturnNumber} was not announced to the buyer.",
-                    jobArgument.CustomerId, orderReturn.Number);
+                    prepared.Return.CustomerId, prepared.Return.Number);
 
                 continue;
             }
 
-            await _notificationSender.ScheduleSendNotificationAsync(returnNotification);
+            var notification = prepared.Notification;
+
+            notification.From = prepared.Store?.EmailWithName;
+            notification.To = email;
+            notification.TenantIdentity = new TenantIdentity(prepared.Return.Id, nameof(Return));
+
+            await _notificationSender.ScheduleSendNotificationAsync(notification);
         }
     }
 
-    protected virtual string GetNotificationTypeName(string status)
+    /// <summary>
+    /// The address the order's own emails went to, as the Orders module picks it: the one the buyer
+    /// entered on the order first, then the buyer's contact or login. A return is about that order,
+    /// so it should not land in a different mailbox.
+    /// </summary>
+    protected virtual async Task<string> GetRecipientEmailAsync(PreparedReturnNotification prepared)
     {
-        return NotificationTypeNamesByStatus.TryGetValue(status ?? string.Empty, out var result) ? result : null;
+        var order = string.IsNullOrEmpty(prepared.Return.OrderId)
+            ? null
+            : await _orderService.GetNoCloneAsync(prepared.Return.OrderId, CustomerOrderResponseGroup.WithAddresses.ToString());
+
+        var orderEmail = order?.Addresses?.Select(x => x.Email).FirstOrDefault(x => !string.IsNullOrEmpty(x));
+
+        return orderEmail ?? prepared.Buyer.Email;
     }
-
-    protected virtual IReadOnlyDictionary<string, string> NotificationTypeNamesByStatus { get; } = ReturnNotificationTypes.ByStatus;
-
-    protected virtual async Task<string> GetRecipientEmailAsync(string customerId, Member customer)
-    {
-        var email = customer?.Emails?.FirstOrDefault(x => !string.IsNullOrEmpty(x));
-
-        if (!string.IsNullOrEmpty(email))
-        {
-            return email;
-        }
-
-        using var userManager = _userManagerFactory();
-        var user = await userManager.FindByIdAsync(customerId);
-
-        return user?.Email;
-    }
-
-    protected virtual async Task<Member> GetCustomerAsync(string customerId)
-    {
-        if (string.IsNullOrEmpty(customerId))
-        {
-            return null;
-        }
-
-        var result = await _memberService.GetByIdAsync(customerId);
-
-        if (result == null)
-        {
-            using var userManager = _userManagerFactory();
-            var user = await userManager.FindByIdAsync(customerId);
-
-            if (user?.MemberId != null)
-            {
-                result = await _memberService.GetByIdAsync(user.MemberId);
-            }
-        }
-
-        return result;
-    }
-}
-
-public class ReturnNotificationJobArgument
-{
-    public string ReturnId { get; set; }
-
-    public string StoreId { get; set; }
-
-    public string CustomerId { get; set; }
-
-    public string NotificationTypeName { get; set; }
 }

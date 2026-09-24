@@ -36,8 +36,11 @@
           "quantity": "数量",
           "price": "价格",
           "sku": "SKU",
-            "approved-quantity": "已批准数量",
-            "reject-reason": "拒绝原因"
+          "approved-quantity": "已批准数量",
+          "reject-reason": "拒绝原因"
+        },
+        "commands": {
+          "authorize": "批准 / 拒绝"
         }
       },
       "return-details": {
@@ -50,8 +53,8 @@
           "createdBy": "创建人",
           "customer": "客户",
           "resolution": "解决方案",
-            "rejectReason": "拒绝原因",
-            "customerReference": "买家参考号",
+          "rejectReason": "拒绝原因",
+          "customerReference": "买家参考号",
           "status": "状态"
         }
       }
@@ -62,7 +65,8 @@
     "return:create": "创建退货数据",
     "return:read": "查看退货数据",
     "return:update": "更新退货数据",
-    "return:delete": "删除退货数据"
+    "return:delete": "删除退货数据",
+    "return:authorize": "批准和拒绝退货"
   },
   "settings": {
     "Return": {
@@ -104,7 +108,7 @@
       },
       "SendNotifications": {
         "title": "退货邮件通知",
-        "description": "当退货被登记、批准、部分批准或拒绝时，向买家发送邮件。"
+        "description": "当退货被登记、批准、部分批准、拒绝或取消时，向买家发送邮件。"
       },
       "SendPushNotifications": {
         "title": "退货推送通知",

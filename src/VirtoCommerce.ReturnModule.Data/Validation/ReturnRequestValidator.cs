@@ -12,6 +12,7 @@ public class ReturnRequestValidator : AbstractValidator<ReturnRequestValidationC
     {
         RuleFor(x => x.CustomerReference).MaximumLength(Length128);
         RuleFor(x => x.CustomerComment).MaximumLength(Length2048);
+        RuleFor(x => x.LanguageCode).MaximumLength(LanguageCodeLength);
 
         RuleForEach(x => x.Items).SetValidator(x => new ReturnRequestItemValidator(x.Reasons, x.ReasonsRequiringComment, x.RequireReason));
     }
