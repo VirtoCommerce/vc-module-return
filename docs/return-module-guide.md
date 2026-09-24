@@ -222,15 +222,105 @@ Submit runs the same checks and additionally requires a reason on every line, so
 draft as it stands, whoever wrote it — a draft written through `PUT /api/return` is held to the same
 rules as one built in the storefront.
 
-## Organization copies
+## Notifications
 
-With `Return.NotifyOrganizationEmail` on, every email the buyer gets about a return also goes to the
-first email address of the organization the return was raised for. The copy is the buyer's own email,
-not a separate template. Push messages stay with the buyer.
+The buyer is told when their return is registered, approved, partly approved, declined or cancelled.
+Each of these has its own email notification — `ReturnRegisteredEmailNotification`,
+`ReturnApprovedEmailNotification`, `ReturnPartiallyApprovedEmailNotification`,
+`ReturnRejectedEmailNotification` and `ReturnCancelledEmailNotification` — whose templates can be edited
+and translated in the admin like any other notification. Nothing is sent for a draft, or for a draft
+that is abandoned before it is submitted.
+
+Two store settings control this:
+
+* `Return.SendNotifications` — email the buyer.
+* `Return.SendPushNotifications` — also create an in-app push message. The text is the subject of the
+  matching email template. This needs the optional Push Messages module; without it the setting has no
+  effect.
+
+**Both are on by default.** A store that already runs the module starts telling its buyers as soon as
+this version is installed, without anyone switching anything on. The settings do not exist before the
+upgrade, so they cannot be switched off in the store beforehand. To start with them off, override
+their defaults in the platform configuration before upgrading — for every store:
+
+```json
+{
+  "VirtoCommerce": {
+    "Settings": {
+      "Override": {
+        "DefaultValue": {
+          "Global": {
+            "Return.SendNotifications": false,
+            "Return.SendPushNotifications": false
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+or for one store under `DefaultValue:Tenants:Store:{storeId}`. The alternative is to switch them off in
+the store right after upgrading, before any return changes status.
+
+Sending happens in a Hangfire background job, so a mail server that is slow or down never fails the
+save. Emails go through the Notifications module and need an email sender (SMTP or SendGrid) configured
+on the platform. It goes where the order's own emails went: the email on the order's addresses first,
+then the buyer's contact, then their login. The email is written in the language the return was raised
+in, falling back to the store's default language; a language without a template of its own gets the
+default one, which ships with the module.
+
+A notification switched off in the admin sends neither the email nor the push message.
+
+### Organization copies
+
+A third store setting, `Return.NotifyOrganizationEmail`, is off by default. With it on, every email the
+buyer gets about a return also goes to the first email address of the organization the return was
+raised for. The copy is the buyer's own email, not a separate template, so purchasing sees exactly what
+the buyer was told. No copy is sent when that address is the one the buyer's email went to. Push
+messages stay with the buyer.
+
+## Approving and declining
+
+A submitted return (`Requested`) waits for an agent's decision, and so does one created in the admin
+(`New`). Open the return, then its line items,
+enter how much of each line is approved and, for anything not approved, why; an optional reason for
+the whole return goes underneath. **Approve / decline** records the decision in one step, through
+`POST /api/return/{id}/authorize`:
+
+```json
+{
+  "rejectReason": "Two units were used",
+  "items": [
+    { "lineItemId": "…", "approvedQuantity": 3, "rejectReason": "Used" },
+    { "lineItemId": "…", "approvedQuantity": 2 }
+  ]
+}
+```
+
+Every line needs a decision, from 0 up to the requested quantity. The status follows from the numbers:
+`Approved` when every line is approved in full, `Rejected` when nothing is, `PartiallyApproved`
+otherwise. Each line is marked as decided, so the return goes on holding only the approved units —
+what was not approved can be requested again straight away, on the storefront and in the admin alike.
+
+The decision is written only this way. An edit through `PUT /api/return` keeps the approved quantities
+and decline reasons already stored, and once a line is decided also its requested quantity; lines
+cannot be added to or removed from a decided return. The status an edit may set is limited too:
+
+* never `Draft`, `Requested`, `Approved`, `PartiallyApproved` or `Rejected` — only submitting and
+  authorizing set those;
+* never away from `Draft` or `Requested`, which are the buyer's, or from `Rejected` or `Cancelled`,
+  which are closed;
+* once a return is decided, only on to `AwaitingDelivery`, `Received`, `Processing` or `Completed` —
+  a decision cannot be cancelled or undone by an edit;
+* otherwise any status in the `Return.Status` dictionary, so a `New` return can still be cancelled.
+
+The status list in the return's details does not offer the statuses only the flow sets.
 
 # Permissions
 
-The Return module provides a standard set of permissions: access, create, read, delete, and update.
+The Return module provides a standard set of permissions: access, create, read, delete, and update,
+plus `return:authorize` to approve and decline returns. Editing a return does not include deciding on it.
 
 ![Settings template](media/14-permissions.png)
 

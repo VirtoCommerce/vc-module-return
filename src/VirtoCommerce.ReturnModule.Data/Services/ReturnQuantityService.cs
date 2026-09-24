@@ -71,8 +71,9 @@ public class ReturnQuantityService : IReturnQuantityService
             return 0;
         }
 
-        // "Approved" is also a legacy Return.Status value, and nothing writes ApprovedQuantity until
-        // the agent side lands, so an admin-approved return would otherwise report zero held.
+        // Authorizing a return decides every line, and from then on only the approved units are held.
+        // "Approved" is also a legacy Return.Status value set without a decision, so an undecided line
+        // keeps holding everything it requested rather than reporting zero.
         return ApprovedStatuses.Contains(status) && IsDecided(lineItem)
             ? lineItem.ApprovedQuantity
             : lineItem.Quantity;

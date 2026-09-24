@@ -10,6 +10,8 @@ using VirtoCommerce.CustomerModule.Core.Model;
 using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
+using VirtoCommerce.OrdersModule.Core.Model;
+using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Events;
@@ -17,21 +19,26 @@ using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Notifications;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.Data.Handlers;
+using VirtoCommerce.ReturnModule.Data.Services;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
 using Xunit;
+using OrderAddress = VirtoCommerce.OrdersModule.Core.Model.Address;
 
 namespace VirtoCommerce.ReturnModule.Tests;
 
 public class ReturnNotificationHandlerTests
 {
     private const string StoreId = "B2B-store";
-    private const string CustomerId = "contact-1";
+    // A storefront return carries the buyer's user id, and the contact is behind it.
+    private const string CustomerId = "user-1";
+    private const string ContactId = "contact-1";
     private const string ReturnId = "return-1";
     private const string OrganizationId = "org-1";
 
     private readonly Mock<INotificationSearchService> _notificationSearchService = new();
     private readonly Mock<INotificationSender> _notificationSender = new();
+    private readonly Mock<ICustomerOrderService> _orderService = new();
     private readonly Mock<IReturnService> _returnService = new();
     private readonly Mock<IReturnSettingsService> _settingsService = new();
     private readonly Mock<IStoreService> _storeService = new();
@@ -44,6 +51,10 @@ public class ReturnNotificationHandlerTests
     private readonly Store _store = new() { Id = StoreId, Email = "returns@aras.example", DefaultLanguage = "nl-NL" };
 
     private Return _orderReturn = NewReturn();
+    private CustomerOrder _order = new() { Id = "order-1", Addresses = [] };
+    // File-loaded templates carry no language and match any.
+    private string _templateLanguageCode;
+    private bool _notificationIsActive = true;
 
     public ReturnNotificationHandlerTests()
     {
@@ -57,9 +68,17 @@ public class ReturnNotificationHandlerTests
             .Setup(x => x.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
             .ReturnsAsync(() => [_orderReturn]);
 
+        _orderService
+            .Setup(x => x.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
+            .ReturnsAsync(() => [_order]);
+
+        _userManager
+            .Setup(x => x.FindByIdAsync(CustomerId))
+            .ReturnsAsync(new ApplicationUser { Id = CustomerId, MemberId = ContactId, Email = "login@aras.example" });
+
         _memberService
-            .Setup(x => x.GetByIdAsync(CustomerId, It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(() => new Contact { Id = CustomerId, Name = "Jan de Vries", Emails = ["jan@aras.example"] });
+            .Setup(x => x.GetByIdAsync(ContactId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Contact { Id = ContactId, Name = "Jan de Vries", Emails = ["jan@aras.example"] });
 
         _memberService
             .Setup(x => x.GetByIdAsync(OrganizationId, It.IsAny<string>(), It.IsAny<string>()))
@@ -151,15 +170,149 @@ public class ReturnNotificationHandlerTests
     }
 
     [Fact]
-    public async Task ContactWithoutEmail_SendsNothingRatherThanThrowing()
+    public async Task ContactWithoutEmail_FallsBackToTheLoginEmail()
     {
         _memberService
-            .Setup(x => x.GetByIdAsync(CustomerId, It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(() => new Contact { Id = CustomerId, Name = "Jan de Vries", Emails = [] });
+            .Setup(x => x.GetByIdAsync(ContactId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Contact { Id = ContactId, Name = "Jan de Vries", Emails = [] });
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Equal("login@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
+    }
+
+    [Fact]
+    public async Task OrderAddressEmail_IsPreferred_AsForTheOrdersOwnEmails()
+    {
+        _order.Addresses = [new OrderAddress(), new OrderAddress { Email = "purchasing@aras.example" }];
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Equal("purchasing@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
+    }
+
+    [Fact]
+    public async Task OrderWithoutAddressEmail_FallsBackToTheContact()
+    {
+        _order.Addresses = [new OrderAddress()];
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Equal("jan@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
+    }
+
+    [Fact]
+    public async Task NoEmailAnywhere_SendsNothingRatherThanThrowing()
+    {
+        _userManager
+            .Setup(x => x.FindByIdAsync(CustomerId))
+            .ReturnsAsync(new ApplicationUser { Id = CustomerId, MemberId = ContactId });
+        _memberService
+            .Setup(x => x.GetByIdAsync(ContactId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Contact { Id = ContactId, Name = "Jan de Vries", Emails = [] });
 
         await HandleAndSend(ReturnStatus.Requested);
 
         Assert.Empty(_sent);
+    }
+
+    [Fact]
+    public async Task ReturnWithoutCustomer_QueuesNothing()
+    {
+        _orderReturn = NewReturn(customerId: null);
+
+        var handler = await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Empty(handler.Enqueued);
+        Assert.Empty(_sent);
+    }
+
+    [Fact]
+    public async Task NoTemplateForTheLanguage_SendsNothingRatherThanAnEmptyEmail()
+    {
+        _templateLanguageCode = "fr-FR";
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Empty(_sent);
+    }
+
+    [Fact]
+    public async Task ReturnMovedOnBeforeTheJobRan_SendsNothing()
+    {
+        var handler = NewHandler();
+        _orderReturn.Status = ReturnStatus.Requested;
+
+        await handler.Handle(new ReturnStatusChangedEvent(_orderReturn, ReturnStatus.Draft, ReturnStatus.Requested));
+        _orderReturn.Status = ReturnStatus.Approved;
+        await handler.SendNotificationsAsync([.. handler.Enqueued]);
+
+        Assert.Empty(_sent);
+    }
+
+    [Fact]
+    public async Task ReturnMovedToAStatusThatAnnouncesNothing_StillSends()
+    {
+        // Approved, then completed before the job ran: nothing else will tell the buyer.
+        var handler = NewHandler();
+        _orderReturn.Status = ReturnStatus.Approved;
+
+        await handler.Handle(new ReturnStatusChangedEvent(_orderReturn, ReturnStatus.Requested, ReturnStatus.Approved));
+        _orderReturn.Status = ReturnStatus.Completed;
+        await handler.SendNotificationsAsync([.. handler.Enqueued]);
+
+        Assert.Equal(nameof(ReturnApprovedEmailNotification), Assert.Single(_sent).Type);
+    }
+
+    [Fact]
+    public async Task NotificationSwitchedOff_SendsNothing()
+    {
+        _notificationIsActive = false;
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Empty(_sent);
+    }
+
+    [Fact]
+    public async Task ReturnDeletedBeforeTheJobRan_SendsNothingRatherThanThrowing()
+    {
+        var handler = NewHandler();
+
+        await handler.Handle(new ReturnStatusChangedEvent(_orderReturn, ReturnStatus.Draft, ReturnStatus.Requested));
+        _returnService
+            .Setup(x => x.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
+            .ReturnsAsync([]);
+        await handler.SendNotificationsAsync([.. handler.Enqueued]);
+
+        Assert.Empty(_sent);
+    }
+
+    [Fact]
+    public async Task BuyerNotFound_StillReachesTheOrdersAddress()
+    {
+        _userManager.Setup(x => x.FindByIdAsync(CustomerId)).ReturnsAsync((ApplicationUser)null);
+        _memberService
+            .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync((Member)null);
+        _order.Addresses = [new OrderAddress { Email = "purchasing@aras.example" }];
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        var notification = Assert.IsAssignableFrom<ReturnEmailNotificationBase>(Assert.Single(_sent));
+        Assert.Equal("purchasing@aras.example", notification.To);
+        Assert.Null(notification.Customer);
+    }
+
+    [Fact]
+    public async Task RecipientIsTakenFromTheReturnAsItIsWhenTheJobRuns()
+    {
+        var handler = NewHandler();
+
+        await handler.Handle(new ReturnStatusChangedEvent(NewReturn(customerId: "someone-else"), ReturnStatus.Draft, ReturnStatus.Requested));
+        await handler.SendNotificationsAsync([.. handler.Enqueued]);
+
+        Assert.Equal("jan@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
     }
 
     [Fact]
@@ -182,8 +335,11 @@ public class ReturnNotificationHandlerTests
 
         await HandleAndSend(ReturnStatus.Approved);
 
+        // Two notifications, not the buyer's one readdressed: a sender that holds on to the notification
+        // instead of rendering it at once would otherwise send both copies to purchasing.
         Assert.Equal(["jan@aras.example", "purchasing@aras.example"], _sent.Select(x => ((EmailNotification)x).To));
         Assert.All(_sent, x => Assert.Equal(nameof(ReturnApprovedEmailNotification), x.Type));
+        Assert.All(_sent, x => Assert.Equal(ReturnId, ((ReturnEmailNotificationBase)x).ReturnId));
     }
 
     [Fact]
@@ -201,9 +357,8 @@ public class ReturnNotificationHandlerTests
     {
         _rules.NotifyOrganizationEmail = true;
 
-        var handler = await HandleAndSend(ReturnStatus.Approved);
+        await HandleAndSend(ReturnStatus.Approved);
 
-        Assert.False(Assert.Single(handler.Enqueued).NotifyOrganization);
         Assert.Equal("jan@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
     }
 
@@ -224,15 +379,50 @@ public class ReturnNotificationHandlerTests
     [Fact]
     public async Task BuyerWithoutEmail_StillCopiesTheOrganization()
     {
+        // Nowhere to reach the buyer - not the order, the contact or the login - yet purchasing still
+        // gets its copy: the buyer's missing address is no reason to keep the organization uninformed.
         _rules.NotifyOrganizationEmail = true;
         _orderReturn.OrganizationId = OrganizationId;
+        _userManager
+            .Setup(x => x.FindByIdAsync(CustomerId))
+            .ReturnsAsync(new ApplicationUser { Id = CustomerId, MemberId = ContactId });
         _memberService
-            .Setup(x => x.GetByIdAsync(CustomerId, It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(() => new Contact { Id = CustomerId, Name = "Jan de Vries", Emails = [] });
+            .Setup(x => x.GetByIdAsync(ContactId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Contact { Id = ContactId, Name = "Jan de Vries", Emails = [] });
 
         await HandleAndSend(ReturnStatus.Approved);
 
         Assert.Equal("purchasing@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
+    }
+
+    [Fact]
+    public async Task OrganizationAddressIsTheOrdersAddress_SendsItOnce()
+    {
+        // The buyer's email goes to the address on the order first, and that is often the
+        // organization's own mailbox; the copy is compared with where the buyer's email really went.
+        _rules.NotifyOrganizationEmail = true;
+        _orderReturn.OrganizationId = OrganizationId;
+        _order.Addresses = [new OrderAddress { Email = "Purchasing@aras.example" }];
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        Assert.Equal("Purchasing@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
+    }
+
+    [Fact]
+    public async Task OrganizationCopy_FollowsTheSettingWhenTheJobRuns()
+    {
+        // The job argument carries only what identifies the job, so the copy is decided when the job
+        // runs - like the buyer's own address - not when the status changed.
+        _orderReturn.OrganizationId = OrganizationId;
+        _orderReturn.Status = ReturnStatus.Approved;
+        var handler = NewHandler();
+
+        await handler.Handle(new ReturnStatusChangedEvent(_orderReturn, ReturnStatus.Requested, ReturnStatus.Approved));
+        _rules.NotifyOrganizationEmail = true;
+        await handler.SendNotificationsAsync([.. handler.Enqueued]);
+
+        Assert.Equal(["jan@aras.example", "purchasing@aras.example"], _sent.Select(x => ((EmailNotification)x).To));
     }
 
     [Fact]
@@ -273,28 +463,40 @@ public class ReturnNotificationHandlerTests
         return new TestableHandler(
             _notificationSearchService.Object,
             _notificationSender.Object,
+            _orderService.Object,
             _returnService.Object,
             _settingsService.Object,
             _storeService.Object,
+            new ReturnBuyerResolver(_memberService.Object, () => _userManager.Object),
             _memberService.Object,
-            () => _userManager.Object,
             NullLogger<SendNotificationsReturnStatusChangedEventHandler>.Instance);
     }
 
-    private static Return NewReturn(string languageCode = "de-DE")
+    private static Return NewReturn(string languageCode = "de-DE", string customerId = CustomerId)
     {
         return new Return
         {
             Id = ReturnId,
             Number = "RET260922-00001",
             StoreId = StoreId,
-            CustomerId = CustomerId,
+            OrderId = "order-1",
+            CustomerId = customerId,
             LanguageCode = languageCode,
             Status = ReturnStatus.Requested,
         };
     }
 
-    private static Notification NewNotification(string type)
+    private Notification NewNotification(string type)
+    {
+        var result = NewNotificationOfType(type);
+
+        result.IsActive = _notificationIsActive;
+        result.Templates.Add(new EmailNotificationTemplate { LanguageCode = _templateLanguageCode, Subject = "Return {{ return.number }}" });
+
+        return result;
+    }
+
+    private static Notification NewNotificationOfType(string type)
     {
         return type switch
         {
@@ -314,13 +516,14 @@ public class ReturnNotificationHandlerTests
         public TestableHandler(
             INotificationSearchService notificationSearchService,
             INotificationSender notificationSender,
+            ICustomerOrderService orderService,
             IReturnService returnService,
             IReturnSettingsService settingsService,
             IStoreService storeService,
+            IReturnBuyerResolver buyerResolver,
             IMemberService memberService,
-            Func<UserManager<ApplicationUser>> userManagerFactory,
             ILogger<SendNotificationsReturnStatusChangedEventHandler> logger)
-            : base(notificationSearchService, notificationSender, returnService, settingsService, storeService, memberService, userManagerFactory, logger)
+            : base(notificationSearchService, notificationSender, orderService, returnService, settingsService, storeService, buyerResolver, memberService, logger)
         {
         }
 

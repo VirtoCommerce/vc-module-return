@@ -5,7 +5,7 @@
         <td style="padding:28px 28px 8px 28px">
           <h1 style="font-size:20px;line-height:26px;margin:0 0 16px 0">Your return has been declined</h1>
           <p style="margin:0 0 12px 0">Hello{% if customer.name %} {{ customer.name }}{% endif %},</p>
-          <p style="margin:0 0 16px 0">Your return request has been reviewed and none of the requested quantities were approved.</p>
+          <p style="margin:0 0 16px 0">Your return request has been reviewed and declined.</p>
           <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 20px 0">
             <tbody>
               <tr>
@@ -33,7 +33,6 @@
               <tr>
                 <th align="left" style="padding:8px 8px 8px 0;border-bottom:1px solid #dcdcdc;font-size:12px;text-transform:uppercase;color:#6b6b6b">Item</th>
                 <th align="right" style="padding:8px;border-bottom:1px solid #dcdcdc;font-size:12px;text-transform:uppercase;color:#6b6b6b">Requested</th>
-                <th align="right" style="padding:8px 0 8px 8px;border-bottom:1px solid #dcdcdc;font-size:12px;text-transform:uppercase;color:#6b6b6b">Approved</th>
               </tr>
             </thead>
             <tbody>
@@ -45,7 +44,6 @@
                   {% if line_item.reject_reason %}<br /><span style="color:#b00020;font-size:12px">Declined: {{ line_item.reject_reason }}</span>{% endif %}
                 </td>
                 <td align="right" style="padding:10px 8px;border-bottom:1px solid #f0f0f0;vertical-align:top;white-space:nowrap">{{ line_item.quantity }}{% if line_item.measure_unit %} {{ line_item.measure_unit }}{% endif %}</td>
-                <td align="right" style="padding:10px 0 10px 8px;border-bottom:1px solid #f0f0f0;vertical-align:top;white-space:nowrap">{{ line_item.approved_quantity }}{% if line_item.measure_unit %} {{ line_item.measure_unit }}{% endif %}</td>
               </tr>
               {% endfor %}
             </tbody>

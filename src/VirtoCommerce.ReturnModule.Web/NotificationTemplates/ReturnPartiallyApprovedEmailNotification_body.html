@@ -54,6 +54,7 @@
       </tr>
       <tr>
         <td style="padding:20px 28px 28px 28px">
+          {% if return.reject_reason %}<p style="margin:0 0 12px 0;color:#b00020">{{ return.reject_reason }}</p>{% endif %}
           <p style="margin:0 0 8px 0">Only the approved quantities should be sent back. Quantities that were not approved are available to request again.</p>
         </td>
       </tr>

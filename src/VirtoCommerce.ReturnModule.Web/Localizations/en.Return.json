@@ -36,8 +36,11 @@
           "quantity": "Quantity",
           "price": "Price",
           "sku": "SKU",
-            "approved-quantity": "Approved",
-            "reject-reason": "Decline reason"
+          "approved-quantity": "Approved",
+          "reject-reason": "Decline reason"
+        },
+        "commands": {
+          "authorize": "Approve / decline"
         }
       },
       "return-details": {
@@ -50,8 +53,8 @@
           "createdBy": "Created by",
           "customer": "Customer",
           "resolution": "Resolution",
-            "rejectReason": "Reason for decline",
-            "customerReference": "Buyer's reference",
+          "rejectReason": "Reason for decline",
+          "customerReference": "Buyer's reference",
           "status": "Status"
         }
       }
@@ -63,6 +66,7 @@
     "return:read": "View return data",
     "return:update": "Update return data",
     "return:delete": "Delete return data",
+    "return:authorize": "Approve and decline returns",
     "xapi:my_organization:return:view": "View organization returns",
     "xapi:my_organization:return:submit": "Submit organization returns"
   },
@@ -106,7 +110,7 @@
       },
       "SendNotifications": {
         "title": "Return email notifications",
-        "description": "Email the buyer when a return is registered, approved, partly approved or declined."
+        "description": "Email the buyer when a return is registered, approved, partly approved, declined or cancelled."
       },
       "SendPushNotifications": {
         "title": "Return push notifications",

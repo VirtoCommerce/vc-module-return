@@ -58,6 +58,28 @@ public class ReturnStatusChangedEventPublisherTests
         Assert.Equal(ReturnStatus.Requested, @event.ToStatus);
     }
 
+    [Theory]
+    [InlineData(ReturnStatus.Cancelled)]
+    [InlineData("Canceled")]
+    [InlineData(ReturnStatus.Approved)]
+    public async Task Handle_DraftAbandonedOrMovedWithoutSubmit_PublishesNothing(string newStatus)
+    {
+        // The buyer was never told about the draft, so there is nothing to take back.
+        await Handle(Modified(ReturnStatus.Draft, newStatus));
+
+        Assert.Empty(_published);
+    }
+
+    [Theory]
+    [InlineData(ReturnStatus.Requested)]
+    [InlineData("New")]
+    public async Task Handle_MovedBackToDraft_PublishesNothing(string oldStatus)
+    {
+        await Handle(Modified(oldStatus, ReturnStatus.Draft));
+
+        Assert.Empty(_published);
+    }
+
     [Fact]
     public async Task Handle_LegacyCancelledSpelling_IsNotAStatusChange()
     {

@@ -36,8 +36,11 @@
           "quantity": "Ilość",
           "price": "Cena",
           "sku": "SKU",
-            "approved-quantity": "Zatwierdzono",
-            "reject-reason": "Powód odrzucenia"
+          "approved-quantity": "Zatwierdzono",
+          "reject-reason": "Powód odrzucenia"
+        },
+        "commands": {
+          "authorize": "Zatwierdź / odrzuć"
         }
       },
       "return-details": {
@@ -50,8 +53,8 @@
           "createdBy": "Utworzono przez",
           "customer": "Klient",
           "resolution": "Rozwiązanie",
-            "rejectReason": "Powód odrzucenia",
-            "customerReference": "Numer referencyjny kupującego",
+          "rejectReason": "Powód odrzucenia",
+          "customerReference": "Numer referencyjny kupującego",
           "status": "Status"
         }
       }
@@ -63,6 +66,7 @@
     "return:read": "Wyświetl dane zwrotu",
     "return:update": "Zaktualizuj dane zwrotu",
     "return:delete": "Usuń dane zwrotu",
+    "return:authorize": "Zatwierdzanie i odrzucanie zwrotów",
     "xapi:my_organization:return:view": "Wyświetlanie zwrotów organizacji",
     "xapi:my_organization:return:submit": "Zgłaszanie zwrotów organizacji"
   },
@@ -106,7 +110,7 @@
       },
       "SendNotifications": {
         "title": "Powiadomienia e-mail o zwrotach",
-        "description": "Wyślij kupującemu wiadomość e-mail, gdy zwrot zostanie zarejestrowany, zatwierdzony, częściowo zatwierdzony lub odrzucony."
+        "description": "Wyślij kupującemu wiadomość e-mail, gdy zwrot zostanie zarejestrowany, zatwierdzony, częściowo zatwierdzony, odrzucony lub anulowany."
       },
       "SendPushNotifications": {
         "title": "Powiadomienia push o zwrotach",

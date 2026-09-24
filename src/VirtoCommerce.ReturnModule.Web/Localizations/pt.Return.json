@@ -36,8 +36,11 @@
           "quantity": "Quantidade",
           "price": "Preço",
           "sku": "SKU",
-            "approved-quantity": "Aprovado",
-            "reject-reason": "Motivo da recusa"
+          "approved-quantity": "Aprovado",
+          "reject-reason": "Motivo da recusa"
+        },
+        "commands": {
+          "authorize": "Aprovar / recusar"
         }
       },
       "return-details": {
@@ -50,8 +53,8 @@
           "createdBy": "Criado por",
           "customer": "Cliente",
           "resolution": "Resolução",
-            "rejectReason": "Motivo da recusa",
-            "customerReference": "Referência do comprador",
+          "rejectReason": "Motivo da recusa",
+          "customerReference": "Referência do comprador",
           "status": "Status"
         }
       }
@@ -63,6 +66,7 @@
     "return:read": "Visualizar dados de devolução",
     "return:update": "Atualizar dados de devolução",
     "return:delete": "Excluir dados de devolução",
+    "return:authorize": "Aprovar e recusar devoluções",
     "xapi:my_organization:return:view": "Ver devoluções da organização",
     "xapi:my_organization:return:submit": "Enviar devoluções da organização"
   },
@@ -106,7 +110,7 @@
       },
       "SendNotifications": {
         "title": "Notificações por e-mail de devoluções",
-        "description": "Enviar um e-mail ao comprador quando uma devolução for registada, aprovada, parcialmente aprovada ou recusada."
+        "description": "Enviar um e-mail ao comprador quando uma devolução for registada, aprovada, parcialmente aprovada, recusada ou cancelada."
       },
       "SendPushNotifications": {
         "title": "Notificações push de devoluções",

@@ -36,8 +36,11 @@
           "quantity": "Määrä",
           "price": "Hinta",
           "sku": "Tuotekoodi",
-            "approved-quantity": "Hyväksytty",
-            "reject-reason": "Hylkäyksen syy"
+          "approved-quantity": "Hyväksytty",
+          "reject-reason": "Hylkäyksen syy"
+        },
+        "commands": {
+          "authorize": "Hyväksy / hylkää"
         }
       },
       "return-details": {
@@ -50,8 +53,8 @@
           "createdBy": "Luonut",
           "customer": "Asiakas",
           "resolution": "Ratkaisu",
-            "rejectReason": "Hylkäyksen syy",
-            "customerReference": "Ostajan viite",
+          "rejectReason": "Hylkäyksen syy",
+          "customerReference": "Ostajan viite",
           "status": "Tila"
         }
       }
@@ -63,6 +66,7 @@
     "return:read": "Näytä palautustietoja",
     "return:update": "Päivitä palautustietoja",
     "return:delete": "Poista palautustietoja",
+    "return:authorize": "Hyväksyä ja hylätä palautuksia",
     "xapi:my_organization:return:view": "Näytä organisaation palautukset",
     "xapi:my_organization:return:submit": "Lähetä organisaation palautuksia"
   },
@@ -106,7 +110,7 @@
       },
       "SendNotifications": {
         "title": "Palautusten sähköposti-ilmoitukset",
-        "description": "Lähetä ostajalle sähköposti, kun palautus rekisteröidään, hyväksytään, hyväksytään osittain tai hylätään."
+        "description": "Lähetä ostajalle sähköposti, kun palautus rekisteröidään, hyväksytään, hyväksytään osittain, hylätään tai perutaan."
       },
       "SendPushNotifications": {
         "title": "Palautusten push-ilmoitukset",

@@ -7,6 +7,7 @@ using FluentValidation;
 using VirtoCommerce.OrdersModule.Core.Model;
 using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Data.Infrastructure;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
@@ -67,7 +68,7 @@ public class ReturnFlowService : IReturnFlowService
         }
 
         ValidateNoDuplicateLines(request.Items);
-        await ValidateRequestAsync(order.StoreId, request.CustomerReference, request.CustomerComment, request.Items);
+        await ValidateRequestAsync(order.StoreId, request.CustomerReference, request.CustomerComment, request.Items, languageCode: context.LanguageCode);
 
         var orderLineItems = (order.Items ?? []).ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
 
@@ -274,6 +275,127 @@ public class ReturnFlowService : IReturnFlowService
         return orderReturn;
     }
 
+    public virtual async Task<Return> Authorize(ReturnAuthorizationRequest request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var orderReturn = await _returnService.GetByIdAsync(request.ReturnId, ReturnResponseGroup.None.ToString())
+            ?? throw new ReturnFlowException(ReturnFlowError.ReturnNotFound, $"Return '{request.ReturnId}' was not found.");
+
+        if (!_stateProvider.IsAllowed(ReturnAction.Authorize, orderReturn.Status))
+        {
+            throw new ReturnFlowException(
+                ReturnFlowError.WrongStatus,
+                $"Return '{orderReturn.Number}' is '{orderReturn.Status}' and cannot be approved or declined.");
+        }
+
+        if (orderReturn.LineItems.IsNullOrEmpty())
+        {
+            throw new ReturnFlowException(ReturnFlowError.NoItems, "A return needs at least one line.");
+        }
+
+        var decisionsByLineId = ValidateDecisions(orderReturn, request);
+
+        foreach (var lineItem in orderReturn.LineItems)
+        {
+            var decision = decisionsByLineId[lineItem.Id];
+
+            lineItem.ApprovedQuantity = decision.ApprovedQuantity;
+            lineItem.RejectReason = decision.ApprovedQuantity < lineItem.Quantity ? decision.RejectReason.EmptyToNull() : null;
+
+            // What the quantity service reads to release the unapproved units: a decided line holds
+            // its approved quantity, an undecided one everything requested.
+            lineItem.ItemState = decision.ApprovedQuantity > 0 ? ReturnItemState.Approved : ReturnItemState.Rejected;
+        }
+
+        orderReturn.Status = GetAuthorizedStatus(orderReturn);
+        orderReturn.RejectReason = orderReturn.Status.EqualsIgnoreCase(ReturnStatus.Approved) ? null : request.RejectReason.EmptyToNull();
+
+        await _returnService.SaveChangesAsync([orderReturn]);
+
+        return orderReturn;
+    }
+
+    /// <summary>
+    /// Every line decided once, within what was requested - the status and the buyer's email are
+    /// derived from these numbers, so they have to be complete.
+    /// </summary>
+    protected virtual IDictionary<string, ReturnLineDecision> ValidateDecisions(Return orderReturn, ReturnAuthorizationRequest request)
+    {
+        var decisions = request.Items ?? [];
+        var result = new Dictionary<string, ReturnLineDecision>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var decision in decisions)
+        {
+            if (decision == null)
+            {
+                throw new ReturnFlowException(ReturnFlowError.InvalidRequest, "A line decision is empty.");
+            }
+
+            var lineItem = orderReturn.LineItems.FirstOrDefault(x => x.Id.EqualsIgnoreCase(decision.LineItemId))
+                ?? throw new ReturnFlowException(
+                        ReturnFlowError.LineItemNotFound,
+                        $"Return '{orderReturn.Number}' has no line '{decision.LineItemId}'.")
+                    .WithValue(ReturnFlowErrorValue.LineItemId, decision.LineItemId);
+
+            if (!result.TryAdd(lineItem.Id, decision))
+            {
+                throw new ReturnFlowException(ReturnFlowError.DuplicateLine, $"Line '{lineItem.Id}' is decided more than once.")
+                    .WithValue(ReturnFlowErrorValue.LineItemId, lineItem.Id);
+            }
+
+            if (decision.ApprovedQuantity < 0 || decision.ApprovedQuantity > lineItem.Quantity)
+            {
+                throw new ReturnFlowException(
+                        ReturnFlowError.InvalidQuantity,
+                        $"Line '{lineItem.Id}' requests {lineItem.Quantity}, so {decision.ApprovedQuantity} cannot be approved.")
+                    .WithValue(ReturnFlowErrorValue.LineItemId, lineItem.Id)
+                    .WithValue(ReturnFlowErrorValue.RequestedQuantity, lineItem.Quantity);
+            }
+
+            if (decision.RejectReason?.Length > LineRejectReasonMaxLength)
+            {
+                throw new ReturnFlowException(
+                        ReturnFlowError.InvalidRequest,
+                        $"The decline reason of line '{lineItem.Id}' is longer than {LineRejectReasonMaxLength} characters.")
+                    .WithValue(ReturnFlowErrorValue.LineItemId, lineItem.Id);
+            }
+        }
+
+        var undecided = orderReturn.LineItems.FirstOrDefault(x => !result.ContainsKey(x.Id));
+
+        if (undecided != null)
+        {
+            throw new ReturnFlowException(ReturnFlowError.InvalidRequest, $"Line '{undecided.Id}' has no decision.")
+                .WithValue(ReturnFlowErrorValue.LineItemId, undecided.Id);
+        }
+
+        if (request.RejectReason?.Length > RejectReasonMaxLength)
+        {
+            throw new ReturnFlowException(
+                ReturnFlowError.InvalidRequest,
+                $"The decline reason is longer than {RejectReasonMaxLength} characters.");
+        }
+
+        return result;
+    }
+
+    protected virtual string GetAuthorizedStatus(Return orderReturn)
+    {
+        if (orderReturn.LineItems.All(x => x.ApprovedQuantity == x.Quantity))
+        {
+            return ReturnStatus.Approved;
+        }
+
+        return orderReturn.LineItems.All(x => x.ApprovedQuantity == 0)
+            ? ReturnStatus.Rejected
+            : ReturnStatus.PartiallyApproved;
+    }
+
+    protected virtual int RejectReasonMaxLength => DbContextBase.Length2048;
+
+    protected virtual int LineRejectReasonMaxLength => DbContextBase.Length1024;
+
     public virtual IList<ReturnFlowAction> GetAvailableActions(Return orderReturn)
     {
         return _stateProvider.GetActions(orderReturn);
@@ -312,13 +434,14 @@ public class ReturnFlowService : IReturnFlowService
         }
     }
 
-    protected virtual async Task ValidateRequestAsync(string storeId, string customerReference, string customerComment, IList<CreateReturnItemRequest> items, bool requireReason = false)
+    protected virtual async Task ValidateRequestAsync(string storeId, string customerReference, string customerComment, IList<CreateReturnItemRequest> items, bool requireReason = false, string languageCode = null)
     {
         var rules = await _settingsService.GetRulesAsync(storeId);
 
         var validationContext = AbstractTypeFactory<ReturnRequestValidationContext>.TryCreateInstance();
         validationContext.CustomerReference = customerReference;
         validationContext.CustomerComment = customerComment;
+        validationContext.LanguageCode = languageCode;
         validationContext.Items = items ?? [];
         validationContext.Reasons = rules.Reasons;
         validationContext.ReasonsRequiringComment = rules.ReasonsRequiringComment;

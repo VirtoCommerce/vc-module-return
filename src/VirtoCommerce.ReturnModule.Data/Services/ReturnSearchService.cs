@@ -127,12 +127,9 @@ namespace VirtoCommerce.ReturnModule.Data.Services
         {
             var result = new List<string>(statuses);
 
-            foreach (var group in StatusSynonyms)
+            foreach (var group in StatusSynonyms.Where(g => result.Any(x => g.Contains(x, StringComparer.OrdinalIgnoreCase))))
             {
-                if (result.Any(x => group.Contains(x, StringComparer.OrdinalIgnoreCase)))
-                {
-                    result.AddRange(group.Except(result, StringComparer.OrdinalIgnoreCase));
-                }
+                result.AddRange(group.Except(result, StringComparer.OrdinalIgnoreCase));
             }
 
             return result;

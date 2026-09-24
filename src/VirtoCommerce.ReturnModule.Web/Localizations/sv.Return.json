@@ -36,8 +36,11 @@
           "quantity": "Antal",
           "price": "Pris",
           "sku": "Artikelnummer",
-            "approved-quantity": "Godkänt",
-            "reject-reason": "Orsak till avslag"
+          "approved-quantity": "Godkänt",
+          "reject-reason": "Orsak till avslag"
+        },
+        "commands": {
+          "authorize": "Godkänn / avslå"
         }
       },
       "return-details": {
@@ -50,8 +53,8 @@
           "createdBy": "Skapad av",
           "customer": "Kund",
           "resolution": "Lösning",
-            "rejectReason": "Orsak till avslag",
-            "customerReference": "Köparens referens",
+          "rejectReason": "Orsak till avslag",
+          "customerReference": "Köparens referens",
           "status": "Status"
         }
       }
@@ -63,6 +66,7 @@
     "return:read": "Visa returdata",
     "return:update": "Uppdatera returdata",
     "return:delete": "Radera returdata",
+    "return:authorize": "Godkänna och avslå returer",
     "xapi:my_organization:return:view": "Visa organisationens returer",
     "xapi:my_organization:return:submit": "Skicka in organisationens returer"
   },
@@ -106,7 +110,7 @@
       },
       "SendNotifications": {
         "title": "E-postaviseringar om returer",
-        "description": "Skicka e-post till köparen när en retur registreras, godkänns, delvis godkänns eller avslås."
+        "description": "Skicka e-post till köparen när en retur registreras, godkänns, delvis godkänns, avslås eller avbryts."
       },
       "SendPushNotifications": {
         "title": "Push-aviseringar om returer",

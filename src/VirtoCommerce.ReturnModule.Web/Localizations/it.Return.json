@@ -36,8 +36,11 @@
           "quantity": "Quantità",
           "price": "Prezzo",
           "sku": "SKU",
-            "approved-quantity": "Approvato",
-            "reject-reason": "Motivo del rifiuto"
+          "approved-quantity": "Approvato",
+          "reject-reason": "Motivo del rifiuto"
+        },
+        "commands": {
+          "authorize": "Approva / rifiuta"
         }
       },
       "return-details": {
@@ -50,8 +53,8 @@
           "createdBy": "Creato da",
           "customer": "Cliente",
           "resolution": "Risoluzione",
-            "rejectReason": "Motivo del rifiuto",
-            "customerReference": "Riferimento dell'acquirente",
+          "rejectReason": "Motivo del rifiuto",
+          "customerReference": "Riferimento dell'acquirente",
           "status": "Stato"
         }
       }
@@ -63,6 +66,7 @@
     "return:read": "Visualizza dati di reso",
     "return:update": "Aggiorna dati di reso",
     "return:delete": "Elimina dati di reso",
+    "return:authorize": "Approvare e rifiutare i resi",
     "xapi:my_organization:return:view": "Visualizza i resi dell'organizzazione",
     "xapi:my_organization:return:submit": "Invia i resi dell'organizzazione"
   },
@@ -106,7 +110,7 @@
       },
       "SendNotifications": {
         "title": "Notifiche e-mail sui resi",
-        "description": "Invia un'e-mail all'acquirente quando un reso viene registrato, approvato, approvato parzialmente o rifiutato."
+        "description": "Invia un'e-mail all'acquirente quando un reso viene registrato, approvato, approvato parzialmente, rifiutato o annullato."
       },
       "SendPushNotifications": {
         "title": "Notifiche push sui resi",

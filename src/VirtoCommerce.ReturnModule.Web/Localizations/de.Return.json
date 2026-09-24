@@ -36,8 +36,11 @@
           "quantity": "Menge",
           "price": "Preis",
           "sku": "Artikelnummer",
-            "approved-quantity": "Genehmigt",
-            "reject-reason": "Ablehnungsgrund"
+          "approved-quantity": "Genehmigt",
+          "reject-reason": "Ablehnungsgrund"
+        },
+        "commands": {
+          "authorize": "Genehmigen / ablehnen"
         }
       },
       "return-details": {
@@ -50,8 +53,8 @@
           "createdBy": "Erstellt von",
           "customer": "Kunde",
           "resolution": "Lösung",
-            "rejectReason": "Grund der Ablehnung",
-            "customerReference": "Referenz des Käufers",
+          "rejectReason": "Grund der Ablehnung",
+          "customerReference": "Referenz des Käufers",
           "status": "Status"
         }
       }
@@ -63,6 +66,7 @@
     "return:read": "Rückgabedaten anzeigen",
     "return:update": "Rückgabedaten aktualisieren",
     "return:delete": "Rückgabedaten löschen",
+    "return:authorize": "Rücksendungen genehmigen und ablehnen",
     "xapi:my_organization:return:view": "Rücksendungen der Organisation anzeigen",
     "xapi:my_organization:return:submit": "Rücksendungen der Organisation einreichen"
   },
@@ -106,7 +110,7 @@
       },
       "SendNotifications": {
         "title": "E-Mail-Benachrichtigungen zu Rücksendungen",
-        "description": "Den Käufer per E-Mail benachrichtigen, wenn eine Rücksendung registriert, genehmigt, teilweise genehmigt oder abgelehnt wird."
+        "description": "Den Käufer per E-Mail benachrichtigen, wenn eine Rücksendung registriert, genehmigt, teilweise genehmigt, abgelehnt oder storniert wird."
       },
       "SendPushNotifications": {
         "title": "Push-Benachrichtigungen zu Rücksendungen",
