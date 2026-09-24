@@ -11,7 +11,6 @@ using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.OrdersModule.Core.Model;
 using VirtoCommerce.OrdersModule.Core.Services;
-using OrderAddress = VirtoCommerce.OrdersModule.Core.Model.Address;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Events;
@@ -23,6 +22,7 @@ using VirtoCommerce.ReturnModule.Data.Services;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
 using Xunit;
+using OrderAddress = VirtoCommerce.OrdersModule.Core.Model.Address;
 
 namespace VirtoCommerce.ReturnModule.Tests;
 
@@ -52,6 +52,7 @@ public class ReturnNotificationHandlerTests
     private CustomerOrder _order = new() { Id = "order-1", Addresses = [] };
     // File-loaded templates carry no language and match any.
     private string _templateLanguageCode;
+    private bool _notificationIsActive = true;
 
     public ReturnNotificationHandlerTests()
     {
@@ -244,6 +245,60 @@ public class ReturnNotificationHandlerTests
     }
 
     [Fact]
+    public async Task ReturnMovedToAStatusThatAnnouncesNothing_StillSends()
+    {
+        // Approved, then completed before the job ran: nothing else will tell the buyer.
+        var handler = NewHandler();
+        _orderReturn.Status = ReturnStatus.Approved;
+
+        await handler.Handle(new ReturnStatusChangedEvent(_orderReturn, ReturnStatus.Requested, ReturnStatus.Approved));
+        _orderReturn.Status = ReturnStatus.Completed;
+        await handler.SendNotificationsAsync([.. handler.Enqueued]);
+
+        Assert.Equal(nameof(ReturnApprovedEmailNotification), Assert.Single(_sent).Type);
+    }
+
+    [Fact]
+    public async Task NotificationSwitchedOff_SendsNothing()
+    {
+        _notificationIsActive = false;
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Empty(_sent);
+    }
+
+    [Fact]
+    public async Task ReturnDeletedBeforeTheJobRan_SendsNothingRatherThanThrowing()
+    {
+        var handler = NewHandler();
+
+        await handler.Handle(new ReturnStatusChangedEvent(_orderReturn, ReturnStatus.Draft, ReturnStatus.Requested));
+        _returnService
+            .Setup(x => x.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
+            .ReturnsAsync([]);
+        await handler.SendNotificationsAsync([.. handler.Enqueued]);
+
+        Assert.Empty(_sent);
+    }
+
+    [Fact]
+    public async Task BuyerNotFound_StillReachesTheOrdersAddress()
+    {
+        _userManager.Setup(x => x.FindByIdAsync(CustomerId)).ReturnsAsync((ApplicationUser)null);
+        _memberService
+            .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync((Member)null);
+        _order.Addresses = [new OrderAddress { Email = "purchasing@aras.example" }];
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        var notification = Assert.IsAssignableFrom<ReturnEmailNotificationBase>(Assert.Single(_sent));
+        Assert.Equal("purchasing@aras.example", notification.To);
+        Assert.Null(notification.Customer);
+    }
+
+    [Fact]
     public async Task RecipientIsTakenFromTheReturnAsItIsWhenTheJobRuns()
     {
         var handler = NewHandler();
@@ -316,6 +371,7 @@ public class ReturnNotificationHandlerTests
     {
         var result = NewNotificationOfType(type);
 
+        result.IsActive = _notificationIsActive;
         result.Templates.Add(new EmailNotificationTemplate { LanguageCode = _templateLanguageCode, Subject = "Return {{ return.number }}" });
 
         return result;

@@ -9,8 +9,8 @@ using VirtoCommerce.CustomerModule.Core.Model;
 using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
-using VirtoCommerce.PushMessages.Core.Models;
 using VirtoCommerce.Platform.Core.Security;
+using VirtoCommerce.PushMessages.Core.Models;
 using VirtoCommerce.PushMessages.Core.Services;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Events;
@@ -50,6 +50,8 @@ public class ReturnPushMessageHandlerTests
 
     private Return _orderReturn = NewReturn();
     private string _templateLanguageCode = "de-DE";
+    private string _subject = "Return {{ return.number }} received";
+    private bool _notificationIsActive = true;
 
     public ReturnPushMessageHandlerTests()
     {
@@ -101,6 +103,39 @@ public class ReturnPushMessageHandlerTests
         Assert.Equal($"Return {ReturnNumber} received", pushMessage.ShortMessage);
         Assert.Equal(PushMessageStatus.Sent, pushMessage.Status);
         Assert.Equal([ContactId], pushMessage.MemberIds);
+    }
+
+    [Fact]
+    public async Task SubjectFileNewline_IsNotKeptInTheMessage()
+    {
+        _subject = "Return {{ return.number }} received" + Environment.NewLine;
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Equal($"Return {ReturnNumber} received", Assert.Single(_saved).ShortMessage);
+    }
+
+    [Fact]
+    public async Task NotificationSwitchedOff_CreatesNothing_AsForTheEmail()
+    {
+        _notificationIsActive = false;
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Empty(_saved);
+    }
+
+    [Fact]
+    public async Task BuyerNotFound_CreatesNothing()
+    {
+        _userManager.Setup(x => x.FindByIdAsync(CustomerId)).ReturnsAsync((ApplicationUser)null);
+        _memberService
+            .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync((Member)null);
+
+        await HandleAndSend(ReturnStatus.Requested);
+
+        Assert.Empty(_saved);
     }
 
     [Fact]
@@ -250,12 +285,12 @@ public class ReturnPushMessageHandlerTests
 
     private Notification NewNotification()
     {
-        var result = new ReturnRegisteredEmailNotification();
+        var result = new ReturnRegisteredEmailNotification { IsActive = _notificationIsActive };
 
         result.Templates.Add(new EmailNotificationTemplate
         {
             LanguageCode = _templateLanguageCode,
-            Subject = "Return {{ return.number }} received",
+            Subject = _subject,
         });
 
         return result;

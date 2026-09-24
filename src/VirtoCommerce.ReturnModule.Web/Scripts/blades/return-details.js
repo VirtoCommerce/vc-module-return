@@ -5,16 +5,17 @@ angular.module('virtoCommerce.returnModule')
             var blade = $scope.blade;
 
             $scope.saveChanges = () => {
-                angular.copy(blade.currentEntity, blade.originalEntity);
-
                 returns.update(blade.currentEntity,
                     (data) => {
+                        angular.copy(blade.currentEntity, blade.originalEntity);
                         if (blade.listRefresh) {
                             blade.listRefresh();
                         }
                     });
             };
             
+            var statusSettingValues;
+
             settings.getValues({ id: 'Return.Status' }, translateBladeStatuses);
 
             blade.refresh = () => {
@@ -22,6 +23,10 @@ angular.module('virtoCommerce.returnModule')
                     (data) => {
                         blade.currentEntity = data;
                         blade.originalEntity = angular.copy(blade.currentEntity);
+
+                        if (statusSettingValues) {
+                            translateBladeStatuses(statusSettingValues);
+                        }
 
                         $translate('return.blades.return-details.title', { number: data.number }).then((translationResult) => {
                             blade.title = translationResult;
@@ -150,7 +155,11 @@ angular.module('virtoCommerce.returnModule')
             };
 
             function translateBladeStatuses(data) {
-                blade.statuses = statusTranslationService.translateStatuses(data, 'return');
+                statusSettingValues = data;
+                // Set by submitting, cancelling or authorizing, never picked here - unless it is the current one.
+                var flowStatuses = ['Draft', 'Requested', 'Approved', 'PartiallyApproved', 'Rejected'];
+                blade.statuses = statusTranslationService.translateStatuses(data, 'return')
+                    .filter(x => flowStatuses.indexOf(x.key) < 0 || (blade.currentEntity && x.key === blade.currentEntity.status));
             }
 
             function canSave() {

@@ -80,6 +80,6 @@ public class SendNotificationsReturnStatusChangedEventHandler : ReturnStatusNoti
 
         var orderEmail = order?.Addresses?.Select(x => x.Email).FirstOrDefault(x => !string.IsNullOrEmpty(x));
 
-        return orderEmail ?? prepared.Buyer.Email;
+        return orderEmail ?? prepared.Buyer?.Email;
     }
 }

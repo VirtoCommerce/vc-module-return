@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VirtoCommerce.OrdersModule.Core.Model;
+using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
@@ -18,12 +20,24 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         private readonly IReturnSearchService _returnSearchService;
         private readonly IReturnService _returnService;
         private readonly IReturnFlowService _returnFlowService;
+        private readonly IReturnStateProvider _stateProvider;
+        private readonly IReturnQuantityService _quantityService;
+        private readonly ICustomerOrderService _orderService;
 
-        public ReturnController(IReturnSearchService returnSearchService, IReturnService returnService, IReturnFlowService returnFlowService)
+        public ReturnController(
+            IReturnSearchService returnSearchService,
+            IReturnService returnService,
+            IReturnFlowService returnFlowService,
+            IReturnStateProvider stateProvider,
+            IReturnQuantityService quantityService,
+            ICustomerOrderService orderService)
         {
             _returnSearchService = returnSearchService;
             _returnService = returnService;
             _returnFlowService = returnFlowService;
+            _stateProvider = stateProvider;
+            _quantityService = quantityService;
+            _orderService = orderService;
         }
 
         /// <summary>
@@ -48,12 +62,16 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         {
             var result = await _returnService.GetByIdAsync(id);
 
-            var availableQuantities = await _returnService.GetItemsAvailableQuantities(result.Order, id);
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            var availableQuantities = await GetAvailableQuantitiesAsync(result.Order, id);
 
             foreach (var lineItem in result.LineItems)
             {
-                lineItem.AvailableQuantity =
-                    availableQuantities.FirstOrDefault(x => x.Key == lineItem.OrderLineItemId).Value;
+                lineItem.AvailableQuantity = availableQuantities.GetValueOrDefault(lineItem.OrderLineItemId ?? string.Empty);
             }
 
             return Ok(result);
@@ -69,6 +87,11 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         [Authorize(ModuleConstants.Security.Permissions.Update)]
         public async Task<ActionResult> UpdateReturn([FromBody] Return orderReturn)
         {
+            if (orderReturn == null)
+            {
+                return BadRequest();
+            }
+
             var storedReturn = string.IsNullOrEmpty(orderReturn.Id)
                 ? null
                 : await _returnService.GetByIdAsync(orderReturn.Id, ReturnResponseGroup.None.ToString());
@@ -94,13 +117,18 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         }
 
         /// <summary>
-        /// Approve, partly approve or decline a requested return, line by line
+        /// Approve, partly approve or decline a return, line by line
         /// </summary>
         [HttpPost]
         [Route("{id}/authorize")]
         [Authorize(ModuleConstants.Security.Permissions.Authorize)]
         public async Task<ActionResult<Return>> AuthorizeReturn(string id, [FromBody] ReturnAuthorizationRequest request)
         {
+            if (request == null)
+            {
+                return BadRequest();
+            }
+
             request.ReturnId = id;
 
             try
@@ -141,42 +169,45 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         [Authorize(ModuleConstants.Security.Permissions.Read)]
         public async Task<ActionResult<Dictionary<string, int>>> GetAvailableQuantities(string orderId)
         {
-            var result = await _returnService.GetItemsAvailableQuantities(orderId);
+            var order = await _orderService.GetByIdAsync(orderId);
 
-            return Ok(result);
+            return Ok(await GetAvailableQuantitiesAsync(order, excludeReturnId: null));
         }
 
         private async Task<IEnumerable<string>> ValidateReturn(Return orderReturn)
         {
-            var availableQuantities = orderReturn.Order == null
-                ? await _returnService.GetItemsAvailableQuantities(orderReturn.OrderId)
-                : await _returnService.GetItemsAvailableQuantities(orderReturn.Order, orderReturn.Id);
+            var order = orderReturn.Order ?? await _orderService.GetByIdAsync(orderReturn.OrderId);
+            var availableQuantities = await GetAvailableQuantitiesAsync(order, orderReturn.Id);
 
             return orderReturn.LineItems
                 .Where(item => item.Quantity < 1 ||
-                               item.Quantity > availableQuantities[item.OrderLineItemId])
+                               item.Quantity > availableQuantities.GetValueOrDefault(item.OrderLineItemId ?? string.Empty))
                 .Select(x => $"LineItem {x.OrderLineItemId} has incorrect quantity")
                 .ToList();
         }
 
-        // Written by the return flow only: the buyer submits and cancels, the agent authorizes. A
-        // status set here would skip the checks those make, and the decision the status stands for.
-        private static readonly ISet<string> _flowStatuses = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        // What the storefront offers too: the ordered quantity less what other returns hold, so a line
+        // approved in part frees the rest here as well.
+        private async Task<Dictionary<string, int>> GetAvailableQuantitiesAsync(CustomerOrder order, string excludeReturnId)
         {
-            ReturnStatus.Draft,
-            ReturnStatus.Requested,
-            ReturnStatus.PartiallyApproved,
-            ReturnStatus.Rejected,
-        };
-
-        private static IEnumerable<string> ValidateStatusChange(Return storedReturn, Return orderReturn)
-        {
-            var oldStatus = storedReturn?.Status ?? string.Empty;
-            var newStatus = orderReturn.Status ?? string.Empty;
-
-            if (!oldStatus.EqualsIgnoreCase(newStatus) && (_flowStatuses.Contains(oldStatus) || _flowStatuses.Contains(newStatus)))
+            if (order == null)
             {
-                yield return $"Status '{oldStatus}' cannot be changed to '{newStatus}' here: it is set by submitting, cancelling or authorizing the return.";
+                return new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            var heldQuantities = await _quantityService.GetHeldQuantities(order.Id, excludeReturnId);
+
+            return order.Items.ToDictionary(
+                x => x.Id,
+                x => Math.Max(0, x.Quantity - (heldQuantities.TryGetValue(x.Id, out var held) ? held : 0)),
+                StringComparer.OrdinalIgnoreCase);
+        }
+
+        private IEnumerable<string> ValidateStatusChange(Return storedReturn, Return orderReturn)
+        {
+            if (!_stateProvider.CanSetStatus(storedReturn, orderReturn.Status))
+            {
+                yield return $"Status '{storedReturn?.Status}' cannot be changed to '{orderReturn.Status}' by an edit: it is set by submitting, cancelling or authorizing the return.";
             }
         }
 

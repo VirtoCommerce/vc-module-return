@@ -1,11 +1,14 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using VirtoCommerce.Platform.Core.Bus;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Events;
+using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Events;
 using VirtoCommerce.ReturnModule.Core.Models;
@@ -17,8 +20,10 @@ namespace VirtoCommerce.ReturnModule.Tests;
 
 /// <summary>
 /// The bus keeps its own handler list and never looks in the container, so a handler that is
-/// registered in DI but not subscribed is silently never called. This drives a saved return through
-/// a real bus, wired the way the module wires it.
+/// registered in DI but not subscribed is silently never called. This takes the registrations from
+/// Module.Initialize itself and the subscriptions from Module.RegisterEventHandlers, and drives a saved
+/// return through a real bus. That PostInitialize calls RegisterEventHandlers is not covered here: it
+/// needs the whole platform to run.
 /// </summary>
 public class ReturnNotificationWiringTests
 {
@@ -36,6 +41,29 @@ public class ReturnNotificationWiringTests
         Assert.Equal(ReturnStatus.Approved, Assert.Single(_pushed).ToStatus);
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Initialize_RegistersTheHandlersItSubscribes(bool withPushMessages)
+    {
+        var services = Initialize(withPushMessages);
+
+        Assert.Contains(services, x => x.ServiceType == typeof(ReturnStatusChangedEventPublisher));
+        Assert.Contains(services, x => x.ServiceType == typeof(SendNotificationsReturnStatusChangedEventHandler));
+        Assert.Equal(withPushMessages, services.Any(x => x.ServiceType == typeof(SendPushMessagesReturnStatusChangedEventHandler)));
+    }
+
+    [Fact]
+    public void Initialize_PushMessagesInstalledButFailed_LeavesPushOut()
+    {
+        var pushMessages = new ManifestModuleInfo { IsInstalled = true };
+        pushMessages.Errors.Add("Incompatible with this platform version");
+
+        var services = Initialize(pushMessages);
+
+        Assert.DoesNotContain(services, x => x.ServiceType == typeof(SendPushMessagesReturnStatusChangedEventHandler));
+    }
+
     [Fact]
     public async Task PushMessagesAbsent_EmailStillSentAndPushHandlerNeverRegistered()
     {
@@ -48,18 +76,45 @@ public class ReturnNotificationWiringTests
         Assert.Null(provider.GetService<SendPushMessagesReturnStatusChangedEventHandler>());
     }
 
+    private static IServiceCollection Initialize(bool withPushMessages)
+    {
+        return Initialize(withPushMessages ? new ManifestModuleInfo { IsInstalled = true } : null);
+    }
+
+    private static IServiceCollection Initialize(ManifestModuleInfo pushMessages)
+    {
+        var moduleService = new Mock<IModuleService>();
+        moduleService.Setup(x => x.GetModule("VirtoCommerce.PushMessages")).Returns(pushMessages);
+
+        var module = new WebModule
+        {
+            ModuleInfo = new ManifestModuleInfo(),
+            Configuration = new ConfigurationBuilder().Build(),
+            ModuleService = moduleService.Object,
+        };
+
+        var services = new ServiceCollection();
+        module.Initialize(services);
+
+        return services;
+    }
+
     private ServiceProvider Wire(bool withPushMessages)
     {
-        var services = new ServiceCollection();
+        IServiceCollection services = new ServiceCollection();
 
         services.AddLogging();
         services.AddSingleton<InProcessBus>();
         services.AddSingleton<IEventHandlerRegistrar>(x => x.GetRequiredService<InProcessBus>());
         services.AddSingleton<IEventPublisher>(x => x.GetRequiredService<InProcessBus>());
 
-        WebModule.AddEventHandlers(services, withPushMessages);
+        // What Initialize registered for the handlers, with the channels themselves swapped for
+        // recorders: they are covered elsewhere, and here only reaching them matters.
+        foreach (var descriptor in Initialize(withPushMessages).Where(x => typeof(IEventHandler<ReturnStatusChangedEvent>).IsAssignableFrom(x.ServiceType) || x.ServiceType == typeof(ReturnStatusChangedEventPublisher)))
+        {
+            services.Add(descriptor);
+        }
 
-        // The channels themselves are covered elsewhere; here only reaching them matters.
         services.AddTransient(_ => NewHandler<SendNotificationsReturnStatusChangedEventHandler>(_emailed, 8));
 
         if (withPushMessages)

@@ -31,9 +31,10 @@ angular.module('virtoCommerce.returnModule')
                                 item.sku = orderItem.sku;
                             });
 
-                            // Only a requested return is waiting for a decision. Until one is made,
-                            // every line is offered as approved in full, so declining is deliberate.
-                            blade.canAuthorize = result.status === 'Requested' && authService.checkPermission(blade.authorizePermission);
+                            // A requested return, or one raised here as New, is waiting for a decision.
+                            // Until one is made, every line is offered as approved in full, so
+                            // declining is deliberate.
+                            blade.canAuthorize = ['Requested', 'New'].indexOf(result.status) >= 0 && authService.checkPermission(blade.authorizePermission);
 
                             if (blade.canAuthorize) {
                                 result.lineItems.forEach(item => {
@@ -149,7 +150,7 @@ angular.module('virtoCommerce.returnModule')
                             rejectReason: blade.currentEntity.rejectReason,
                             items: blade.currentEntity.lineItems.map(item => ({
                                 lineItemId: item.id,
-                                approvedQuantity: item.approvedQuantity || 0,
+                                approvedQuantity: item.approvedQuantity,
                                 rejectReason: item.rejectReason
                             }))
                         }, () => {
@@ -163,8 +164,9 @@ angular.module('virtoCommerce.returnModule')
                             blade.isLoading = false;
                         });
                     },
+                    // An emptied field is null, not a decision to decline; a fraction is not a quantity.
                     canExecuteMethod: () => blade.canAuthorize && blade.currentEntity.lineItems.every(item =>
-                        item.approvedQuantity >= 0 && item.approvedQuantity <= item.quantity),
+                        Number.isInteger(item.approvedQuantity) && item.approvedQuantity >= 0 && item.approvedQuantity <= item.quantity),
                     permission: blade.authorizePermission
                 });
             }

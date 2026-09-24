@@ -287,6 +287,11 @@ public class ReturnFlowService : IReturnFlowService
                 $"Return '{orderReturn.Number}' is '{orderReturn.Status}' and cannot be approved or declined.");
         }
 
+        if (orderReturn.LineItems.IsNullOrEmpty())
+        {
+            throw new ReturnFlowException(ReturnFlowError.NoItems, "A return needs at least one line.");
+        }
+
         var decisionsByLineId = ValidateDecisions(orderReturn, request);
 
         foreach (var lineItem in orderReturn.LineItems)
@@ -320,6 +325,11 @@ public class ReturnFlowService : IReturnFlowService
 
         foreach (var decision in decisions)
         {
+            if (decision == null)
+            {
+                throw new ReturnFlowException(ReturnFlowError.InvalidRequest, "A line decision is empty.");
+            }
+
             var lineItem = orderReturn.LineItems.FirstOrDefault(x => x.Id.EqualsIgnoreCase(decision.LineItemId))
                 ?? throw new ReturnFlowException(
                         ReturnFlowError.LineItemNotFound,

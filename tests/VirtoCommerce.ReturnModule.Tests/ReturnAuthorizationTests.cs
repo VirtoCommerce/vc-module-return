@@ -74,11 +74,66 @@ public class ReturnAuthorizationTests
         Assert.Equal(ReturnItemState.Rejected, result.LineItems.Single(x => x.Id == "line-2").ItemState);
     }
 
+    [Fact]
+    public async Task EveryLineApprovedInPart_IsPartiallyApprovedNotApproved()
+    {
+        var result = await Authorize(("line-1", 1, null), ("line-2", 1, null));
+
+        Assert.Equal(ReturnStatus.PartiallyApproved, result.Status);
+    }
+
+    [Fact]
+    public async Task ReturnRaisedInTheAdmin_CanBeDecidedToo()
+    {
+        _orderReturn = NewReturn(ReturnStatus.New);
+
+        var result = await Authorize(("line-1", 0, "Used"), ("line-2", 2, null));
+
+        Assert.Equal(ReturnStatus.PartiallyApproved, result.Status);
+    }
+
+    [Fact]
+    public async Task ReturnWithoutLines_IsRefused()
+    {
+        _orderReturn.LineItems.Clear();
+
+        await AssertRefused(ReturnFlowError.NoItems);
+    }
+
+    [Fact]
+    public async Task EmptyDecision_IsRefused()
+    {
+        var exception = await Assert.ThrowsAsync<ReturnFlowException>(() => _service.Authorize(
+            new ReturnAuthorizationRequest { ReturnId = ReturnId, Items = [null] },
+            TestContext.Current.CancellationToken));
+
+        Assert.Equal(ReturnFlowError.InvalidRequest, exception.Code);
+    }
+
+    [Fact]
+    public async Task OverlongReturnReason_IsRefused()
+    {
+        var exception = await Assert.ThrowsAsync<ReturnFlowException>(() => _service.Authorize(
+            new ReturnAuthorizationRequest
+            {
+                ReturnId = ReturnId,
+                RejectReason = new string('x', 2049),
+                Items =
+                [
+                    new ReturnLineDecision { LineItemId = "line-1", ApprovedQuantity = 0 },
+                    new ReturnLineDecision { LineItemId = "line-2", ApprovedQuantity = 0 },
+                ],
+            },
+            TestContext.Current.CancellationToken));
+
+        Assert.Equal(ReturnFlowError.InvalidRequest, exception.Code);
+        Assert.Empty(_saved);
+    }
+
     [Theory]
     [InlineData(ReturnStatus.Draft)]
     [InlineData(ReturnStatus.Approved)]
     [InlineData(ReturnStatus.Cancelled)]
-    [InlineData("New")]
     public async Task ReturnNotWaitingForADecision_IsRefused(string status)
     {
         _orderReturn = NewReturn(status);

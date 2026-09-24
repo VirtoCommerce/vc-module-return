@@ -239,19 +239,43 @@ Two store settings control this:
   effect.
 
 **Both are on by default.** A store that already runs the module starts telling its buyers as soon as
-this version is installed, without anyone switching anything on. Turn them off per store before
-upgrading if that is not wanted.
+this version is installed, without anyone switching anything on. The settings do not exist before the
+upgrade, so they cannot be switched off in the store beforehand. To start with them off, override
+their defaults in the platform configuration before upgrading — for every store:
+
+```json
+{
+  "VirtoCommerce": {
+    "Settings": {
+      "Override": {
+        "DefaultValue": {
+          "Global": {
+            "Return.SendNotifications": false,
+            "Return.SendPushNotifications": false
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+or for one store under `DefaultValue:Tenants:Store:{storeId}`. The alternative is to switch them off in
+the store right after upgrading, before any return changes status.
 
 Sending happens in a Hangfire background job, so a mail server that is slow or down never fails the
 save. Emails go through the Notifications module and need an email sender (SMTP or SendGrid) configured
 on the platform. It goes where the order's own emails went: the email on the order's addresses first,
-then the buyer's contact, then their login. The email is written in the language the return was raised in, falling back to the
-store's default language; a language with no template gets nothing rather than an empty email, and the
-job logs a warning.
+then the buyer's contact, then their login. The email is written in the language the return was raised
+in, falling back to the store's default language; a language without a template of its own gets the
+default one, which ships with the module.
+
+A notification switched off in the admin sends neither the email nor the push message.
 
 ## Approving and declining
 
-A submitted return (`Requested`) waits for an agent's decision. Open the return, then its line items,
+A submitted return (`Requested`) waits for an agent's decision, and so does one created in the admin
+(`New`). Open the return, then its line items,
 enter how much of each line is approved and, for anything not approved, why; an optional reason for
 the whole return goes underneath. **Approve / decline** records the decision in one step, through
 `POST /api/return/{id}/authorize`:
@@ -269,11 +293,21 @@ the whole return goes underneath. **Approve / decline** records the decision in 
 Every line needs a decision, from 0 up to the requested quantity. The status follows from the numbers:
 `Approved` when every line is approved in full, `Rejected` when nothing is, `PartiallyApproved`
 otherwise. Each line is marked as decided, so the return goes on holding only the approved units —
-what was not approved can be requested again straight away.
+what was not approved can be requested again straight away, on the storefront and in the admin alike.
 
-The decision is written only this way. `PUT /api/return` keeps the approved quantities and decline
-reasons already stored, and refuses to move a return into or out of `Draft`, `Requested`,
-`PartiallyApproved` or `Rejected` — those are set by submitting, cancelling and authorizing.
+The decision is written only this way. An edit through `PUT /api/return` keeps the approved quantities
+and decline reasons already stored, and once a line is decided also its requested quantity; lines
+cannot be added to or removed from a decided return. The status an edit may set is limited too:
+
+* never `Draft`, `Requested`, `Approved`, `PartiallyApproved` or `Rejected` — only submitting and
+  authorizing set those;
+* never away from `Draft` or `Requested`, which are the buyer's, or from `Rejected` or `Cancelled`,
+  which are closed;
+* once a return is decided, only on to `AwaitingDelivery`, `Received`, `Processing` or `Completed` —
+  a decision cannot be cancelled or undone by an edit;
+* otherwise any status in the `Return.Status` dictionary, so a `New` return can still be cancelled.
+
+The status list in the return's details does not offer the statuses only the flow sets.
 
 # Permissions
 

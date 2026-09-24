@@ -68,7 +68,7 @@ public class SendPushMessagesReturnStatusChangedEventHandler : ReturnStatusNotif
         {
             // PushMessages addresses members, and Return.CustomerId is usually a user id: a login
             // with no contact behind it has no one to receive the message.
-            if (prepared.Buyer.Member == null)
+            if (prepared.Buyer?.Member == null)
             {
                 Logger.LogWarning(
                     "Customer {CustomerId} has no contact, no push message was created for return {ReturnNumber}.",
@@ -77,10 +77,15 @@ public class SendPushMessagesReturnStatusChangedEventHandler : ReturnStatusNotif
                 continue;
             }
 
-            var shortMessage = await RenderShortMessageAsync(prepared);
+            // The subject files end with a newline, which a push message would keep.
+            var shortMessage = (await RenderShortMessageAsync(prepared))?.Trim();
 
             if (string.IsNullOrEmpty(shortMessage))
             {
+                Logger.LogWarning(
+                    "Notification {NotificationType} rendered an empty subject, no push message was created for return {ReturnNumber}.",
+                    prepared.Notification.Type, prepared.Return.Number);
+
                 continue;
             }
 

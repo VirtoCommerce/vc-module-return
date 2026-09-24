@@ -111,6 +111,10 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
         {
             if (!returnsById.TryGetValue(jobArgument.ReturnId, out var orderReturn))
             {
+                Logger.LogWarning(
+                    "Return {ReturnId} no longer exists, {NotificationType} was not sent.",
+                    jobArgument.ReturnId, jobArgument.NotificationTypeName);
+
                 continue;
             }
 
@@ -127,9 +131,12 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
 
     protected virtual async Task<PreparedReturnNotification> PrepareAsync(ReturnNotificationJobArgument jobArgument, Return orderReturn)
     {
-        // The return moved on before the job ran. The move published its own event, so sending this
-        // one would only put the old news next to a body rendered from the new state.
-        if (!jobArgument.NotificationTypeName.EqualsIgnoreCase(GetNotificationTypeName(orderReturn.Status)))
+        // The return moved on to another announced status before the job ran. That move queued its own
+        // notification, so sending this one would only put old news next to the new. A move to a status
+        // that announces nothing - Completed, say - leaves this one as the last word, so it still goes.
+        var currentTypeName = GetNotificationTypeName(orderReturn.Status);
+
+        if (currentTypeName != null && !jobArgument.NotificationTypeName.EqualsIgnoreCase(currentTypeName))
         {
             Logger.LogInformation(
                 "Return {ReturnNumber} is {Status} now, {NotificationType} is out of date and was not sent.",
@@ -151,11 +158,21 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
             return null;
         }
 
+        // The email sender honours this on its own; checking it here keeps push in step with email.
+        if (returnNotification.IsActive != true)
+        {
+            Logger.LogInformation(
+                "Notification {NotificationType} is switched off, return {ReturnNumber} was not announced to the buyer.",
+                jobArgument.NotificationTypeName, orderReturn.Number);
+
+            return null;
+        }
+
         var store = await _storeService.GetNoCloneAsync(orderReturn.StoreId, StoreResponseGroup.StoreInfo.ToString());
         var languageCode = orderReturn.LanguageCode.EmptyToNull() ?? store?.DefaultLanguage;
 
-        // A template saved in the admin for some languages only matches none of the others, and
-        // rendering without one produces an empty subject and body rather than an error.
+        // The shipped templates carry no language and match every one, so this only fails when they
+        // are missing altogether.
         if (returnNotification.Templates.FindTemplateForLanguage(languageCode) is not EmailNotificationTemplate template)
         {
             Logger.LogWarning(
@@ -165,20 +182,13 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
             return null;
         }
 
+        // May be null: a channel that can reach the buyer without it - email, through the order's
+        // address - decides for itself.
         var buyer = await _buyerResolver.GetBuyerAsync(orderReturn.CustomerId);
-
-        if (buyer == null)
-        {
-            Logger.LogWarning(
-                "Customer {CustomerId} was not found, return {ReturnNumber} was not announced to the buyer.",
-                orderReturn.CustomerId, orderReturn.Number);
-
-            return null;
-        }
 
         returnNotification.ReturnId = orderReturn.Id;
         returnNotification.Return = orderReturn;
-        returnNotification.Customer = buyer.Member;
+        returnNotification.Customer = buyer?.Member;
         returnNotification.LanguageCode = languageCode;
 
         var result = AbstractTypeFactory<PreparedReturnNotification>.TryCreateInstance();

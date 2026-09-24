@@ -4,9 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using VirtoCommerce.OrdersModule.Core.Model;
+using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
+using VirtoCommerce.ReturnModule.Data.Services;
 using VirtoCommerce.ReturnModule.Web.Controllers.Api;
 using Xunit;
 
@@ -20,6 +23,9 @@ public class ReturnControllerTests
 
     private readonly Mock<IReturnService> _returnService = new();
     private readonly Mock<IReturnFlowService> _returnFlowService = new();
+    private readonly Mock<IReturnQuantityService> _quantityService = new();
+    private readonly Mock<ICustomerOrderService> _orderService = new();
+    private readonly Dictionary<string, int> _held = new();
     private readonly List<Return> _saved = [];
     private readonly ReturnController _controller;
 
@@ -27,9 +33,13 @@ public class ReturnControllerTests
 
     public ReturnControllerTests()
     {
-        _returnService
-            .Setup(x => x.GetItemsAvailableQuantities(It.IsAny<string>()))
-            .ReturnsAsync(new Dictionary<string, int> { [OrderLineItemId] = 2 });
+        _orderService
+            .Setup(x => x.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
+            .ReturnsAsync([new CustomerOrder { Id = "order-1", Items = [new LineItem { Id = OrderLineItemId, Quantity = 2 }] }]);
+
+        _quantityService
+            .Setup(x => x.GetHeldQuantities(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => _held);
 
         _returnService
             .Setup(x => x.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
@@ -40,7 +50,13 @@ public class ReturnControllerTests
             .Callback<IList<Return>>(_saved.AddRange)
             .Returns(Task.CompletedTask);
 
-        _controller = new ReturnController(Mock.Of<IReturnSearchService>(), _returnService.Object, _returnFlowService.Object);
+        _controller = new ReturnController(
+            Mock.Of<IReturnSearchService>(),
+            _returnService.Object,
+            _returnFlowService.Object,
+            new ReturnStateProvider(),
+            _quantityService.Object,
+            _orderService.Object);
     }
 
     [Fact]
@@ -119,34 +135,64 @@ public class ReturnControllerTests
         Assert.Null(lineItem.ItemState);
     }
 
-    [Theory]
-    [InlineData(ReturnStatus.Requested, ReturnStatus.Approved)]
-    [InlineData(ReturnStatus.Requested, ReturnStatus.Cancelled)]
-    [InlineData(ReturnStatus.Draft, ReturnStatus.Requested)]
-    [InlineData(ReturnStatus.Approved, ReturnStatus.PartiallyApproved)]
-    [InlineData("New", ReturnStatus.Rejected)]
-    public async Task UpdateReturn_StatusTheFlowOwns_IsRefused(string storedStatus, string newStatus)
+    [Fact]
+    public async Task UpdateReturn_StatusTheStateProviderRefuses_IsNotSaved()
     {
-        _storedReturn = NewReturn(storedStatus);
+        // The rules themselves are the state provider's, tested there; this is that PUT asks it.
+        _storedReturn = NewReturn(ReturnStatus.New);
 
-        var result = await _controller.UpdateReturn(NewReturn(newStatus));
+        var result = await _controller.UpdateReturn(NewReturn(ReturnStatus.Approved));
 
         Assert.IsType<BadRequestObjectResult>(result);
         Assert.Empty(_saved);
     }
 
-    [Theory]
-    [InlineData("New", ReturnStatus.Approved)]
-    [InlineData(ReturnStatus.Approved, ReturnStatus.Completed)]
-    [InlineData(ReturnStatus.Requested, ReturnStatus.Requested)]
-    public async Task UpdateReturn_StatusOutsideTheFlow_IsSaved(string storedStatus, string newStatus)
+    [Fact]
+    public async Task UpdateReturn_StatusTheStateProviderAllows_IsSaved()
     {
-        _storedReturn = NewReturn(storedStatus);
+        _storedReturn = NewReturn(ReturnStatus.Approved, approvedQuantity: 2, itemState: ReturnItemState.Approved);
 
-        var result = await _controller.UpdateReturn(NewReturn(newStatus));
+        var result = await _controller.UpdateReturn(NewReturn(ReturnStatus.Completed, approvedQuantity: 2, itemState: ReturnItemState.Approved));
 
         Assert.IsType<OkObjectResult>(result);
-        Assert.Equal(newStatus, Assert.Single(_saved).Status);
+        Assert.Equal(ReturnStatus.Completed, Assert.Single(_saved).Status);
+    }
+
+    [Fact]
+    public async Task UpdateReturn_NoBody_IsABadRequest()
+    {
+        Assert.IsType<BadRequestResult>(await _controller.UpdateReturn(null));
+    }
+
+    [Fact]
+    public async Task UpdateReturn_QuantityOtherReturnsHold_IsNotAvailable()
+    {
+        _storedReturn = NewReturn(ReturnStatus.New);
+        _held[OrderLineItemId] = 1;
+
+        var result = await _controller.UpdateReturn(NewReturn(ReturnStatus.New));
+
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdateReturn_QuantityAPartialApprovalReleased_IsAvailableAgain()
+    {
+        // Another return asked for both units and got one approved: the quantity service holds 1.
+        _storedReturn = NewReturn(ReturnStatus.New);
+        _held[OrderLineItemId] = 1;
+
+        var edited = NewReturn(ReturnStatus.New);
+        edited.LineItems.Single().Quantity = 1;
+
+        Assert.IsType<OkObjectResult>(await _controller.UpdateReturn(edited));
+        _quantityService.Verify(x => x.GetHeldQuantities("order-1", ReturnId));
+    }
+
+    [Fact]
+    public async Task AuthorizeReturn_NoBody_IsABadRequest()
+    {
+        Assert.IsType<BadRequestResult>((await _controller.AuthorizeReturn(ReturnId, null)).Result);
     }
 
     [Fact]

@@ -14,6 +14,9 @@ public class PreparedReturnNotification
 
     public Store Store { get; set; }
 
+    /// <summary>
+    /// Null when neither a contact nor a login was found for the return's customer.
+    /// </summary>
     public ReturnBuyer Buyer { get; set; }
 
     /// <summary>
