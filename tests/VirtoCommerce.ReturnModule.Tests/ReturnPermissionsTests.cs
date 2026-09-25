@@ -18,6 +18,7 @@ public class ReturnPermissionsTests
     [Theory]
     [InlineData(nameof(ReturnController.SearchReturns), Permissions.Read)]
     [InlineData(nameof(ReturnController.GetReturnById), Permissions.Read)]
+    [InlineData(nameof(ReturnController.GetAvailableStatuses), Permissions.Read)]
     [InlineData(nameof(ReturnController.UpdateReturn), Permissions.Update)]
     [InlineData(nameof(ReturnController.AuthorizeReturn), Permissions.Authorize)]
     [InlineData(nameof(ReturnController.DeleteReturn), Permissions.Delete)]
@@ -44,6 +45,7 @@ public class ReturnPermissionsTests
                 nameof(ReturnController.AuthorizeReturn),
                 nameof(ReturnController.DeleteReturn),
                 nameof(ReturnController.GetAvailableQuantities),
+                nameof(ReturnController.GetAvailableStatuses),
                 nameof(ReturnController.GetReturnById),
                 nameof(ReturnController.SearchReturns),
                 nameof(ReturnController.UpdateReturn),

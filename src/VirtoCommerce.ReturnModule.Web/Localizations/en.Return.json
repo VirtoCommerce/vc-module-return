@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Return list",
         "placeholders": {
-          "select-filter": "Select a filter"
+          "select-filter": "Select a filter",
+          "statuses": "All statuses"
         },
         "labels": {
           "return-number": "Return number",
@@ -37,7 +38,8 @@
           "price": "Price",
           "sku": "SKU",
           "approved-quantity": "Approved",
-          "reject-reason": "Decline reason"
+          "reject-reason": "Decline reason",
+          "serial-number": "Serial number"
         },
         "commands": {
           "authorize": "Approve / decline"

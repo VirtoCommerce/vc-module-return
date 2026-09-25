@@ -5,7 +5,8 @@
       "return-list": {
         "title": "退货列表",
         "placeholders": {
-          "select-filter": "选择筛选条件"
+          "select-filter": "选择筛选条件",
+          "statuses": "所有状态"
         },
         "labels": {
           "return-number": "退货编号",
@@ -37,7 +38,8 @@
           "price": "价格",
           "sku": "SKU",
           "approved-quantity": "已批准数量",
-          "reject-reason": "拒绝原因"
+          "reject-reason": "拒绝原因",
+          "serial-number": "序列号"
         },
         "commands": {
           "authorize": "批准 / 拒绝"

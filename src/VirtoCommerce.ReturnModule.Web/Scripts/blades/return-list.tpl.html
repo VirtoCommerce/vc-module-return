@@ -1,15 +1,15 @@
 <div class="blade-static">
-  <div class="form-group">
-    <div style="display: flex;align-items: center;">
-      <div class="form-input" style="flex-grow: 1;">
-        <div class="form-input __search">
-          <input placeholder="{{ 'platform.placeholders.search-keyword' | translate }}" ng-model="blade.searchKeyword" ng-keyup="$event.which === 13 && blade.refresh()" />
-          <button class="btn __other" type="button" style="position: relative;right: 45px;">
-            <i class="btn-ico fa fa-remove" title="Clear" ng-click="clearKeyword()"></i>
-          </button>
-        </div>
-      </div>
+  <div class="form-group searchrow">
+    <div class="form-input column-half">
+      <input placeholder="{{ 'platform.placeholders.search-keyword' | translate }}" ng-model="blade.searchKeyword" ng-keyup="$event.which === 13 && criteriaChanged()" />
+      <button class="btn" type="button" title="Clear" ng-click="clearKeyword()"></button>
     </div>
+    <ui-select ng-model="blade.statusFilter" ng-change="criteriaChanged()" class="column-half">
+      <ui-select-match allow-clear="true" placeholder="{{ 'return.blades.return-list.placeholders.statuses' | translate }}">{{ $select.selected.value }}</ui-select-match>
+      <ui-select-choices repeat="x.key as x in blade.statuses | filter: { value: $select.search }">
+        <span ng-bind-html="x.value | highlight: $select.search"></span>
+      </ui-select-choices>
+    </ui-select>
   </div>
 </div>
 <div class="blade-static __bottom" ng-if="pageSettings.itemsPerPageCount < pageSettings.totalItems" ng-include="'pagerTemplate.html'"></div>

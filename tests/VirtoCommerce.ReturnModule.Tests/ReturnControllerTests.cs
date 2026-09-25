@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -6,9 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using VirtoCommerce.OrdersModule.Core.Model;
 using VirtoCommerce.OrdersModule.Core.Services;
+using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
+using VirtoCommerce.ReturnModule.Data.Repositories;
 using VirtoCommerce.ReturnModule.Data.Services;
 using VirtoCommerce.ReturnModule.Web.Controllers.Api;
 using Xunit;
@@ -23,8 +27,14 @@ public class ReturnControllerTests
 
     private readonly Mock<IReturnService> _returnService = new();
     private readonly Mock<IReturnFlowService> _returnFlowService = new();
-    private readonly Mock<IReturnQuantityService> _quantityService = new();
+    // The real rule for what a line holds; only what the other returns hold is stood in for.
+    private readonly Mock<ReturnQuantityService> _quantityService = new((Func<IReturnRepository>)(() => null), Mock.Of<IReturnService>())
+    {
+        CallBase = true,
+    };
+
     private readonly Mock<ICustomerOrderService> _orderService = new();
+    private readonly Mock<ILocalizableSettingService> _localizableSettingService = new();
     private readonly Dictionary<string, int> _held = new();
     private readonly List<Return> _saved = [];
     private readonly ReturnController _controller;
@@ -50,13 +60,20 @@ public class ReturnControllerTests
             .Callback<IList<Return>>(_saved.AddRange)
             .Returns(Task.CompletedTask);
 
+        _localizableSettingService
+            .Setup(x => x.GetValuesAsync(ModuleConstants.Settings.General.OrderStatus.Name, It.IsAny<string>()))
+            .ReturnsAsync(ModuleConstants.Settings.General.OrderStatus.AllowedValues
+                .Select(x => new KeyValue { Key = (string)x, Value = (string)x })
+                .ToList());
+
         _controller = new ReturnController(
             Mock.Of<IReturnSearchService>(),
             _returnService.Object,
             _returnFlowService.Object,
             new ReturnStateProvider(),
             _quantityService.Object,
-            _orderService.Object);
+            _orderService.Object,
+            _localizableSettingService.Object);
     }
 
     [Fact]
@@ -187,6 +204,86 @@ public class ReturnControllerTests
 
         Assert.IsType<OkObjectResult>(await _controller.UpdateReturn(edited));
         _quantityService.Verify(x => x.GetHeldQuantities("order-1", ReturnId));
+    }
+
+    [Theory]
+    [InlineData(ReturnStatus.PartiallyApproved)]
+    [InlineData(ReturnStatus.Completed)]
+    public async Task UpdateReturn_DecidedReturnWhoseReleasedUnitsWereRequestedAgain_IsSaved(string status)
+    {
+        // Both units asked for, one approved, and the released one since requested again by another
+        // return. The decided line still asks for 2 but holds only 1 - exactly what is left for it -
+        // so neither a resolution-only edit nor carrying the return on may be refused.
+        _storedReturn = NewReturn(ReturnStatus.PartiallyApproved, approvedQuantity: 1, itemState: ReturnItemState.Approved);
+        _held[OrderLineItemId] = 1;
+
+        var edited = NewReturn(status, approvedQuantity: 1, itemState: ReturnItemState.Approved);
+        edited.Resolution = "Refunded one unit";
+
+        var result = await _controller.UpdateReturn(edited);
+
+        Assert.IsType<OkObjectResult>(result);
+        Assert.Equal(status, Assert.Single(_saved).Status);
+    }
+
+    [Theory]
+    [InlineData(ReturnStatus.Rejected, ReturnItemState.Rejected)]
+    [InlineData(ReturnStatus.Cancelled, ReturnItemState.Requested)]
+    public async Task UpdateReturn_ReturnThatHoldsNothing_IsNotMeasuredAgainstWhatOthersHold(string status, string itemState)
+    {
+        // Declined or cancelled, it released everything, and another return has since asked for all
+        // of it. Its requested quantity no longer competes with anything.
+        _storedReturn = NewReturn(status, itemState: itemState);
+        _held[OrderLineItemId] = 2;
+
+        var edited = NewReturn(status, itemState: itemState);
+        edited.Resolution = "Nothing to refund";
+
+        Assert.IsType<OkObjectResult>(await _controller.UpdateReturn(edited));
+    }
+
+    [Fact]
+    public async Task UpdateReturn_DecidedLine_StillHasToFitWhatItHolds()
+    {
+        // A decided line is not waved through: its approved units are held, and they have to fit what
+        // the other returns leave - here the order line shrank to less than both returns hold.
+        _storedReturn = NewReturn(ReturnStatus.Approved, approvedQuantity: 2, itemState: ReturnItemState.Approved);
+        _held[OrderLineItemId] = 1;
+
+        var result = await _controller.UpdateReturn(NewReturn(ReturnStatus.Completed, approvedQuantity: 2, itemState: ReturnItemState.Approved));
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Empty(_saved);
+    }
+
+    [Fact]
+    public async Task GetAvailableStatuses_DecidedReturn_OffersItsOwnStatusAndWhereItGoesNext()
+    {
+        // What the admin's status list offered before: New, Canceled and the rest, every one refused on save.
+        _storedReturn = NewReturn(ReturnStatus.PartiallyApproved, approvedQuantity: 1, itemState: ReturnItemState.Approved);
+
+        var result = await _controller.GetAvailableStatuses(ReturnId);
+
+        var statuses = Assert.IsType<string[]>(Assert.IsType<OkObjectResult>(result.Result).Value);
+        Assert.Equal([ReturnStatus.Completed, ReturnStatus.Processing, ReturnStatus.PartiallyApproved], statuses);
+    }
+
+    [Fact]
+    public async Task GetAvailableStatuses_RequestedReturn_OffersOnlyItsOwnStatus()
+    {
+        // A request moves on only by being authorized or cancelled, never by an edit.
+        _storedReturn = NewReturn(ReturnStatus.Requested, itemState: ReturnItemState.Requested);
+
+        var result = await _controller.GetAvailableStatuses(ReturnId);
+
+        var statuses = Assert.IsType<string[]>(Assert.IsType<OkObjectResult>(result.Result).Value);
+        Assert.Equal([ReturnStatus.Requested], statuses);
+    }
+
+    [Fact]
+    public async Task GetAvailableStatuses_MissingReturn_IsNotFound()
+    {
+        Assert.IsType<NotFoundResult>((await _controller.GetAvailableStatuses("gone")).Result);
     }
 
     [Fact]

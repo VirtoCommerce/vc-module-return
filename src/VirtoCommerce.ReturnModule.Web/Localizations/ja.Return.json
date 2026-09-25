@@ -5,7 +5,8 @@
       "return-list": {
         "title": "返品リスト",
         "placeholders": {
-          "select-filter": "フィルターを選択"
+          "select-filter": "フィルターを選択",
+          "statuses": "すべてのステータス"
         },
         "labels": {
           "return-number": "返品番号",
@@ -37,7 +38,8 @@
           "price": "価格",
           "sku": "SKU",
           "approved-quantity": "承認数量",
-          "reject-reason": "却下理由"
+          "reject-reason": "却下理由",
+          "serial-number": "シリアル番号"
         },
         "commands": {
           "authorize": "承認 / 却下"

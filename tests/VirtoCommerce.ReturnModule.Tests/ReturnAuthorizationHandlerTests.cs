@@ -7,10 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using VirtoCommerce.FileExperienceApi.Core.Models;
 using VirtoCommerce.Platform.Core;
+using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.ExperienceApi.Authorization;
 using Xunit;
+using FilePermissions = VirtoCommerce.FileExperienceApi.Core.ModuleConstants.Security.Permissions;
 
 namespace VirtoCommerce.ReturnModule.Tests;
 
@@ -114,6 +116,58 @@ public class ReturnAuthorizationHandlerTests
         Assert.False(context.HasSucceeded);
     }
 
+    [Fact]
+    public async Task BackOfficeReaderOpeningAFile_Succeeds()
+    {
+        // The agent decides on the return from its photos, so whoever may read returns may open them.
+        var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Read, userPermission: ModuleConstants.Security.Permissions.Read);
+
+        await CreateHandler(OtherId).HandleAsync(context);
+
+        Assert.True(context.HasSucceeded);
+    }
+
+    [Fact]
+    public async Task BackOfficeReaderDeletingAFile_Fails()
+    {
+        // Reading returns is not a licence to destroy the buyer's evidence.
+        var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Delete, userPermission: ModuleConstants.Security.Permissions.Read);
+
+        await CreateHandler(OtherId).HandleAsync(context);
+
+        Assert.False(context.HasSucceeded);
+    }
+
+    [Fact]
+    public async Task SignedInUserWithoutReturnReadOpeningAFile_Fails()
+    {
+        // The control for the two above: being signed in opens nothing, the permission does.
+        var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Read);
+
+        await CreateHandler(OtherId).HandleAsync(context);
+
+        Assert.False(context.HasSucceeded);
+    }
+
+    [Fact]
+    public async Task OwnerDeletingOwnFile_Succeeds()
+    {
+        var context = CreateContext(OwnerId, OwnedFile(), permission: FilePermissions.Delete);
+
+        await CreateHandler().HandleAsync(context);
+
+        Assert.True(context.HasSucceeded);
+    }
+
+    [Fact]
+    public void RequirementFactory_CarriesWhatTheCallerWantsToDo()
+    {
+        // The factory is the only thing that tells the handler a read from a delete.
+        var requirement = new ReturnFileAuthorizationRequirementFactory().Create(OwnedFile(), FilePermissions.Delete);
+
+        Assert.Equal(FilePermissions.Delete, Assert.IsType<ReturnAuthorizationRequirement>(requirement).Permission);
+    }
+
     private static File OwnedFile()
     {
         return new File
@@ -172,13 +226,20 @@ public class ReturnAuthorizationHandlerTests
         string userId,
         object resource,
         string role = null,
-        bool authenticated = true)
+        bool authenticated = true,
+        string permission = null,
+        string userPermission = null)
     {
         var claims = new List<Claim> { new("name", userId), new(ClaimTypes.NameIdentifier, userId) };
 
         if (role != null)
         {
             claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
+        if (userPermission != null)
+        {
+            claims.Add(new Claim(PlatformConstants.Security.Claims.PermissionClaimType, userPermission));
         }
 
         // An identity with no authentication type reads as anonymous.
@@ -188,6 +249,6 @@ public class ReturnAuthorizationHandlerTests
 
         var user = new ClaimsPrincipal(identity);
 
-        return new AuthorizationHandlerContext([new ReturnAuthorizationRequirement()], user, resource);
+        return new AuthorizationHandlerContext([new ReturnAuthorizationRequirement { Permission = permission }], user, resource);
     }
 }

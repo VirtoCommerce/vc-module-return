@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Rückgabeliste",
         "placeholders": {
-          "select-filter": "Filter auswählen"
+          "select-filter": "Filter auswählen",
+          "statuses": "Alle Status"
         },
         "labels": {
           "return-number": "Rückgabenummer",
@@ -37,7 +38,8 @@
           "price": "Preis",
           "sku": "Artikelnummer",
           "approved-quantity": "Genehmigt",
-          "reject-reason": "Ablehnungsgrund"
+          "reject-reason": "Ablehnungsgrund",
+          "serial-number": "Seriennummer"
         },
         "commands": {
           "authorize": "Genehmigen / ablehnen"

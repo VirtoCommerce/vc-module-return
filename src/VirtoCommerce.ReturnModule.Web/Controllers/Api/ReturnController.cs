@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using VirtoCommerce.OrdersModule.Core.Model;
 using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Models.Search;
@@ -23,6 +24,7 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         private readonly IReturnStateProvider _stateProvider;
         private readonly IReturnQuantityService _quantityService;
         private readonly ICustomerOrderService _orderService;
+        private readonly ILocalizableSettingService _localizableSettingService;
 
         public ReturnController(
             IReturnSearchService returnSearchService,
@@ -30,7 +32,8 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             IReturnFlowService returnFlowService,
             IReturnStateProvider stateProvider,
             IReturnQuantityService quantityService,
-            ICustomerOrderService orderService)
+            ICustomerOrderService orderService,
+            ILocalizableSettingService localizableSettingService)
         {
             _returnSearchService = returnSearchService;
             _returnService = returnService;
@@ -38,6 +41,7 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             _stateProvider = stateProvider;
             _quantityService = quantityService;
             _orderService = orderService;
+            _localizableSettingService = localizableSettingService;
         }
 
         /// <summary>
@@ -75,6 +79,29 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             }
 
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Statuses an edit can give the return
+        /// </summary>
+        [HttpGet]
+        [Route("{id}/available-statuses")]
+        [Authorize(ModuleConstants.Security.Permissions.Read)]
+        public async Task<ActionResult<string[]>> GetAvailableStatuses(string id)
+        {
+            var orderReturn = await _returnService.GetByIdAsync(id, ReturnResponseGroup.None.ToString());
+
+            if (orderReturn == null)
+            {
+                return NotFound();
+            }
+
+            var statuses = await _localizableSettingService.GetValuesAsync(ModuleConstants.Settings.General.OrderStatus.Name, languageCode: null);
+
+            return Ok(statuses
+                .Select(x => x.Key)
+                .Where(x => _stateProvider.CanSetStatus(orderReturn, x))
+                .ToArray());
         }
 
         /// <summary>
@@ -179,9 +206,11 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             var order = orderReturn.Order ?? await _orderService.GetByIdAsync(orderReturn.OrderId);
             var availableQuantities = await GetAvailableQuantitiesAsync(order, orderReturn.Id);
 
+            // Measured by what a line holds, as the other returns are: a decided line keeps the quantity
+            // it was decided on, but holds only what was approved.
             return orderReturn.LineItems
                 .Where(item => item.Quantity < 1 ||
-                               item.Quantity > availableQuantities.GetValueOrDefault(item.OrderLineItemId ?? string.Empty))
+                               _quantityService.GetHeldQuantity(orderReturn, item) > availableQuantities.GetValueOrDefault(item.OrderLineItemId ?? string.Empty))
                 .Select(x => $"LineItem {x.OrderLineItemId} has incorrect quantity")
                 .ToList();
         }
@@ -211,22 +240,11 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             }
         }
 
-        private static readonly ISet<string> _decidedItemStates = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            ReturnItemState.Approved,
-            ReturnItemState.Rejected,
-        };
-
-        private static bool IsDecided(ReturnLineItem lineItem)
-        {
-            return _decidedItemStates.Contains(lineItem.ItemState ?? string.Empty);
-        }
-
         // A decided return is the set of lines the decision was made on: a line added afterwards would
         // hold stock nobody approved, and a line dropped would take its decision with it.
-        private static IEnumerable<string> ValidateLineChanges(Return storedReturn, Return orderReturn)
+        private IEnumerable<string> ValidateLineChanges(Return storedReturn, Return orderReturn)
         {
-            if (storedReturn == null || !storedReturn.LineItems.Any(IsDecided))
+            if (storedReturn == null || !storedReturn.LineItems.Any(_stateProvider.IsDecided))
             {
                 yield break;
             }
@@ -242,7 +260,7 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
 
         // The decision is recorded by authorizing the return; an edit keeps whatever was decided,
         // including the requested quantity the approved one was measured against.
-        private static void KeepDecisions(Return orderReturn, Return storedReturn)
+        private void KeepDecisions(Return orderReturn, Return storedReturn)
         {
             orderReturn.RejectReason = storedReturn?.RejectReason;
 
@@ -254,7 +272,7 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
                 lineItem.RejectReason = storedLineItem?.RejectReason;
                 lineItem.ItemState = storedLineItem?.ItemState;
 
-                if (storedLineItem != null && IsDecided(storedLineItem))
+                if (storedLineItem != null && _stateProvider.IsDecided(storedLineItem))
                 {
                     lineItem.Quantity = storedLineItem.Quantity;
                 }
