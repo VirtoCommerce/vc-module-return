@@ -1,11 +1,14 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using VirtoCommerce.CustomerModule.Core.Model;
 using VirtoCommerce.CustomerModule.Core.Services;
+using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Security;
+using VirtoCommerce.ReturnModule.Core;
+using VirtoCommerce.ReturnModule.Core.Models;
 using static VirtoCommerce.ReturnModule.Core.ModuleConstants.Security;
 
 namespace VirtoCommerce.ReturnModule.ExperienceApi.Authorization;
@@ -39,6 +42,14 @@ public class ReturnOrganizationAccessService : IReturnOrganizationAccessService
             Employee employee => employee.Organizations?.Contains(organizationId, StringComparer.OrdinalIgnoreCase) == true,
             _ => false,
         };
+    }
+
+    public virtual bool IsVisibleToOrganization(Return orderReturn, string organizationId)
+    {
+        // A draft is the buyer's own work in progress, not yet something the organization is waiting on.
+        return !string.IsNullOrEmpty(organizationId) &&
+            orderReturn.OrganizationId.EqualsIgnoreCase(organizationId) &&
+            !orderReturn.Status.EqualsIgnoreCase(ReturnStatus.Draft);
     }
 
     protected virtual string GetUserId(ClaimsPrincipal principal)

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
+using VirtoCommerce.ReturnModule.Core.Models;
 
 namespace VirtoCommerce.ReturnModule.ExperienceApi.Authorization;
 
@@ -10,4 +11,6 @@ public interface IReturnOrganizationAccessService
     /// grants a change: every mutation stays with the buyer who raised the return.
     /// </summary>
     Task<bool> CanViewAsync(ClaimsPrincipal principal, string organizationId);
+
+    bool IsVisibleToOrganization(Return orderReturn, string organizationId);
 }

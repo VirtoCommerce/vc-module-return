@@ -11,6 +11,7 @@
           "return-number": "Numéro de retour",
           "order-number": "Numéro de commande",
           "customer-name": "Client",
+          "organization-name": "Organisation",
           "return-status": "Statut du retour",
           "created-date": "Date de création",
           "modified-date": "Date de modification",

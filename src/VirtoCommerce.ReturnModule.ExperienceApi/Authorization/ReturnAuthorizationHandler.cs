@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using VirtoCommerce.CustomerModule.Core.Extensions;
 using VirtoCommerce.FileExperienceApi.Core.Extensions;
 using VirtoCommerce.FileExperienceApi.Core.Models;
 using VirtoCommerce.Platform.Core;
@@ -100,8 +101,10 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
         }
 
         var organizationAccessService = scope.ServiceProvider.GetRequiredService<IReturnOrganizationAccessService>();
+        var organizationId = context.User.GetCurrentOrganizationId();
 
-        return await organizationAccessService.CanViewAsync(context.User, orderReturn.OrganizationId);
+        return organizationAccessService.IsVisibleToOrganization(orderReturn, organizationId) &&
+            await organizationAccessService.CanViewAsync(context.User, organizationId);
     }
 
     protected virtual string GetUserId(AuthorizationHandlerContext context)

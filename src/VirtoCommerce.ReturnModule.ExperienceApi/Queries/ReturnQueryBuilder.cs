@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using GraphQL;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.ExperienceApi.Authorization;
 using VirtoCommerce.ReturnModule.ExperienceApi.Extensions;
@@ -13,14 +14,11 @@ namespace VirtoCommerce.ReturnModule.ExperienceApi.Queries;
 
 public class ReturnQueryBuilder : QueryBuilder<ReturnQuery, Return, ReturnType>
 {
-    private readonly IReturnOrganizationAccessService _organizationAccessService;
-
     protected override string Name => "return";
 
-    public ReturnQueryBuilder(IAuthorizationService authorizationService, IReturnOrganizationAccessService organizationAccessService)
+    public ReturnQueryBuilder(IAuthorizationService authorizationService)
         : base(authorizationService)
     {
-        _organizationAccessService = organizationAccessService;
     }
 
     protected override async Task BeforeMediatorSend(IResolveFieldContext<object> context, ReturnQuery request)
@@ -31,8 +29,9 @@ public class ReturnQueryBuilder : QueryBuilder<ReturnQuery, Return, ReturnType>
 
         // The same organization the list shows, so that every row it offers also opens.
         var organizationId = context.GetCurrentOrganizationId();
+        var organizationAccessService = context.RequestServices.GetRequiredService<IReturnOrganizationAccessService>();
 
-        if (await _organizationAccessService.CanViewAsync(context.GetCurrentPrincipal(), organizationId))
+        if (await organizationAccessService.CanViewAsync(context.GetCurrentPrincipal(), organizationId))
         {
             request.OrganizationId = organizationId;
         }

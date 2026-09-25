@@ -11,6 +11,7 @@
           "return-number": "Returnummer",
           "order-number": "Ordrenummer",
           "customer-name": "Kunde",
+          "organization-name": "Organisasjon",
           "return-status": "Returstatus",
           "created-date": "Opprettet dato",
           "modified-date": "Endret dato",

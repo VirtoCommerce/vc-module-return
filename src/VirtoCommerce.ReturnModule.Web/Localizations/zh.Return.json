@@ -11,6 +11,7 @@
           "return-number": "退货编号",
           "order-number": "订单编号",
           "customer-name": "客户",
+          "organization-name": "组织",
           "return-status": "退货状态",
           "created-date": "创建日期",
           "modified-date": "修改日期",

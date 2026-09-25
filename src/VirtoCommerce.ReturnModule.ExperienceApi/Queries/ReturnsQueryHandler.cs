@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.ReturnModule.Core.Models;
@@ -33,7 +33,7 @@ public class ReturnsQueryHandler : IQueryHandler<ReturnsQuery, ReturnSearchResul
         if (request.Scope == ReturnScope.Organization)
         {
             criteria.OrganizationId = request.OrganizationId;
-            criteria.DraftsOfCustomerId = request.CustomerId;
+            criteria.ExcludeDrafts = true;
         }
         else
         {

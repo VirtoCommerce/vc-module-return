@@ -11,6 +11,7 @@
           "return-number": "Номер возврата",
           "order-number": "Номер заказа",
           "customer-name": "Клиент",
+          "organization-name": "Организация",
           "return-status": "Статус возврата",
           "created-date": "Дата создания",
           "modified-date": "Дата изменения",

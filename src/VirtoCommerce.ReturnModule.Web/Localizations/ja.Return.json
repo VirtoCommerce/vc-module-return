@@ -11,6 +11,7 @@
           "return-number": "返品番号",
           "order-number": "注文番号",
           "customer-name": "顧客",
+          "organization-name": "組織",
           "return-status": "返品状況",
           "created-date": "作成日",
           "modified-date": "更新日",

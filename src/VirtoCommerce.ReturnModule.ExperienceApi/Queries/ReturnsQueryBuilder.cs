@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using GraphQL;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Models.Search;
 using VirtoCommerce.ReturnModule.ExperienceApi.Authorization;
@@ -15,14 +16,11 @@ namespace VirtoCommerce.ReturnModule.ExperienceApi.Queries;
 
 public class ReturnsQueryBuilder : SearchQueryBuilder<ReturnsQuery, ReturnSearchResult, Return, ReturnType>
 {
-    private readonly IReturnOrganizationAccessService _organizationAccessService;
-
     protected override string Name => "returns";
 
-    public ReturnsQueryBuilder(IAuthorizationService authorizationService, IReturnOrganizationAccessService organizationAccessService)
+    public ReturnsQueryBuilder(IAuthorizationService authorizationService)
         : base(authorizationService)
     {
-        _organizationAccessService = organizationAccessService;
     }
 
     protected override async Task BeforeMediatorSend(IResolveFieldContext<object> context, ReturnsQuery request)
@@ -39,8 +37,9 @@ public class ReturnsQueryBuilder : SearchQueryBuilder<ReturnsQuery, ReturnSearch
         // The organization the contact has switched to, as the organization orders list uses: a
         // contact of several organizations sees one at a time.
         var organizationId = context.GetCurrentOrganizationId();
+        var organizationAccessService = context.RequestServices.GetRequiredService<IReturnOrganizationAccessService>();
 
-        if (!await _organizationAccessService.CanViewAsync(context.GetCurrentPrincipal(), organizationId))
+        if (!await organizationAccessService.CanViewAsync(context.GetCurrentPrincipal(), organizationId))
         {
             throw AuthorizationError.Forbidden("The organization's returns are not available to this contact.");
         }

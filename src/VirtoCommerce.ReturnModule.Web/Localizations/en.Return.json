@@ -11,6 +11,7 @@
           "return-number": "Return number",
           "order-number": "Order number",
           "customer-name": "Customer",
+          "organization-name": "Organization",
           "return-status": "Return status",
           "created-date": "Create date",
           "modified-date": "Modify date",

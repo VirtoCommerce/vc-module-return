@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
+using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
+using VirtoCommerce.ReturnModule.ExperienceApi.Authorization;
 using VirtoCommerce.ReturnModule.ExperienceApi.Queries;
 using Xunit;
 
@@ -101,6 +103,10 @@ public class ReturnQueryHandlerTests
             .Setup(x => x.IsOwnedBy(It.IsAny<Return>(), It.IsAny<string>()))
             .ReturnsAsync((Return x, string customerId) => x.CustomerId == customerId);
 
-        return new ReturnQueryHandler(returnService.Object, flowService.Object).Handle(query, CancellationToken.None);
+        // The real visibility rule. Whether the caller may read the organization at all is the
+        // builder's question, answered before the handler runs and passed on as OrganizationId.
+        var organizationAccessService = new ReturnOrganizationAccessService(Mock.Of<IMemberService>(), () => null);
+
+        return new ReturnQueryHandler(returnService.Object, flowService.Object, organizationAccessService).Handle(query, CancellationToken.None);
     }
 }

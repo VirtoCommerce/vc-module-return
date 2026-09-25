@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -8,6 +8,8 @@ using VirtoCommerce.CustomerModule.Core.Model;
 using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.Platform.Core;
 using VirtoCommerce.Platform.Core.Security;
+using VirtoCommerce.ReturnModule.Core;
+using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.ExperienceApi.Authorization;
 using Xunit;
 using static VirtoCommerce.ReturnModule.Core.ModuleConstants.Security;
@@ -88,6 +90,57 @@ public class ReturnOrganizationAccessServiceTests
         var principal = Principal(withPermission: false, role: PlatformConstants.Security.SystemRoles.Administrator);
 
         Assert.False(await CreateService().CanViewAsync(principal, OrganizationId));
+    }
+
+    [Fact]
+    public void SubmittedReturnOfTheOrganization_IsVisible()
+    {
+        Assert.True(CreateService().IsVisibleToOrganization(NewReturn(ReturnStatus.Requested), OrganizationId));
+    }
+
+    [Fact]
+    public void ReturnOfTheOrganization_OrganizationInOtherCase_IsVisible()
+    {
+        Assert.True(CreateService().IsVisibleToOrganization(NewReturn(ReturnStatus.Requested), "ORG-1"));
+    }
+
+    [Fact]
+    public void Draft_IsNotVisible()
+    {
+        // Not through the organization, whoever reads it: its own buyer reaches it as the owner.
+        Assert.False(CreateService().IsVisibleToOrganization(NewReturn(ReturnStatus.Draft), OrganizationId));
+    }
+
+    [Fact]
+    public void AnotherOrganizationsReturn_IsNotVisible()
+    {
+        Assert.False(CreateService().IsVisibleToOrganization(NewReturn(ReturnStatus.Requested), "org-2"));
+    }
+
+    [Fact]
+    public void ReturnWithoutOrganization_IsNotVisible()
+    {
+        var orderReturn = NewReturn(ReturnStatus.Requested);
+        orderReturn.OrganizationId = null;
+
+        Assert.False(CreateService().IsVisibleToOrganization(orderReturn, OrganizationId));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void NoOrganizationOnEitherSide_IsNotVisible(string organizationId)
+    {
+        // A caller with no organization selected must not match every return that has none.
+        var orderReturn = NewReturn(ReturnStatus.Requested);
+        orderReturn.OrganizationId = organizationId;
+
+        Assert.False(CreateService().IsVisibleToOrganization(orderReturn, organizationId));
+    }
+
+    private static Return NewReturn(string status)
+    {
+        return new Return { Id = "return-1", CustomerId = "user-2", OrganizationId = OrganizationId, Status = status };
     }
 
     private ReturnOrganizationAccessService CreateService()

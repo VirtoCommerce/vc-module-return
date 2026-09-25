@@ -11,6 +11,7 @@
           "return-number": "Palautusnumero",
           "order-number": "Tilausnumero",
           "customer-name": "Asiakas",
+          "organization-name": "Organisaatio",
           "return-status": "Palautuksen tila",
           "created-date": "Luontipäivä",
           "modified-date": "Muokkauspäivä",

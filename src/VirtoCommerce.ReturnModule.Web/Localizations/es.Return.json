@@ -11,6 +11,7 @@
           "return-number": "Número de devolución",
           "order-number": "Número de pedido",
           "customer-name": "Cliente",
+          "organization-name": "Organización",
           "return-status": "Estado de la devolución",
           "created-date": "Fecha de creación",
           "modified-date": "Fecha de modificación",

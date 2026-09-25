@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -27,6 +27,7 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             nameof(ReturnEntity.OrderNumber),
             nameof(ReturnEntity.Status),
             nameof(ReturnEntity.CustomerName),
+            nameof(ReturnEntity.OrganizationName),
             nameof(ReturnEntity.CustomerReference),
         ];
 
@@ -73,9 +74,9 @@ namespace VirtoCommerce.ReturnModule.Data.Services
                 query = query.Where(x => x.OrganizationId == criteria.OrganizationId);
             }
 
-            if (!string.IsNullOrEmpty(criteria.DraftsOfCustomerId))
+            if (criteria.ExcludeDrafts)
             {
-                query = query.Where(x => x.Status != ReturnStatus.Draft || x.CustomerId == criteria.DraftsOfCustomerId);
+                query = query.Where(x => x.Status != ReturnStatus.Draft);
             }
 
             if (!string.IsNullOrEmpty(criteria.StoreId))
@@ -147,6 +148,7 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             return x => x.Number.Contains(keyword) ||
                         x.OrderNumber.Contains(keyword) ||
                         x.CustomerReference.Contains(keyword) ||
+                        x.CustomerName.Contains(keyword) ||
                         x.LineItems.Any(i => i.Sku.Contains(keyword) || i.Name.Contains(keyword));
         }
     }

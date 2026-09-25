@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
@@ -52,6 +52,8 @@ public class ReturnsQueryHandlerTests
         Assert.Equal(20, criteria.Skip);
         Assert.Equal(10, criteria.Take);
         Assert.Null(criteria.OrganizationId);
+        // The buyer's own list is where their drafts are continued, so it keeps them.
+        Assert.False(criteria.ExcludeDrafts);
     }
 
     [Fact]
@@ -77,7 +79,8 @@ public class ReturnsQueryHandlerTests
 
         Assert.Equal("org-1", criteria.OrganizationId);
         Assert.Null(criteria.CustomerId);
-        Assert.Equal("buyer-1", criteria.DraftsOfCustomerId);
+        // Read-only, so no drafts at all - the caller's own included, which stay in their own list.
+        Assert.True(criteria.ExcludeDrafts);
         Assert.Equal("B2B-store", criteria.StoreId);
     }
 

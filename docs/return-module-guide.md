@@ -22,7 +22,7 @@ As mentioned in the overview, the Return module supplies you with a list of all 
 
 ![Return list home screen](media/03-return-list-overview.png)
 
-As you can see, there are default columns, such as Return Number, Order Number, Customer, etc. You can also add more columns, as well as remove any of which you do not need, by ticking or unticking them after clicking the three line button:
+As you can see, there are default columns, such as Return Number, Order Number, Customer, Organization, etc. You can also add more columns, as well as remove any of which you do not need, by ticking or unticking them after clicking the three line button:
 
 ![Configuring return list columns](media/04-configuring-return-list-columns.png) 
 
@@ -30,7 +30,7 @@ You can also sort the return operations (both ascending and descending, if appli
 
 ![Return list sorted by number, ascending](media/05-return-list-sorted-by-number-ascending.png)
 
-Finally, you can use the search box to type a keyword or key phrase and thus filter only the relevant items. The search covers the return number, the order number, the customer reference and the SKU and name of any returned line item:
+Finally, you can use the search box to type a keyword or key phrase and thus filter only the relevant items. The search covers the return number, the order number, the customer reference, the customer's name and the SKU and name of any returned line item:
 
 ![Using the search feature](media/06-return-list-search-new-only.png) 
 
@@ -328,11 +328,14 @@ Two storefront permissions are granted to contacts through their role:
 
 * `xapi:my_organization:return:view` lets a contact list and open the returns of the organization they
   have currently selected, with `returns(scope: ORGANIZATION)`. Asking for that scope without the
-  permission is refused, not narrowed to the contact's own returns. Colleagues' drafts stay out of it
-  until they are submitted. A colleague's return is read-only:
-  its actions come back unavailable, every mutation still requires the buyer who raised it, and its
-  attachments can be opened but not deleted.
+  permission is refused, not narrowed to the contact's own returns. Drafts stay out of it, the
+  contact's own included: a draft is the buyer's work in progress and stays in their own list. A
+  colleague's return is read-only: its actions come back unavailable, every mutation still requires
+  the buyer who raised it, and its attachments can be opened but not deleted.
 * `xapi:my_organization:return:submit` is registered but not checked yet.
+
+No role holds `xapi:my_organization:return:view` out of the box. Grant it under Security → Roles to the
+role your organization maintainers have — **Organization maintainer** in the sample data.
 
 Returns raised before the organization was recorded on them are filled in from their order when the
 module is upgraded, provided the Orders tables are in the same database.

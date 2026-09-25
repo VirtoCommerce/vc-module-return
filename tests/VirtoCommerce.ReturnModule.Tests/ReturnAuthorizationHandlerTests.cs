@@ -1,13 +1,19 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.FileExperienceApi.Core.Models;
+using CustomerClaims = VirtoCommerce.CustomerModule.Core.ModuleConstants.Security.Claims;
 using FilePermissions = VirtoCommerce.FileExperienceApi.Core.ModuleConstants.Security.Permissions;
 using VirtoCommerce.Platform.Core;
+using VirtoCommerce.Platform.Core.Security;
+using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.ExperienceApi.Authorization;
@@ -146,6 +152,39 @@ public class ReturnAuthorizationHandlerTests
     }
 
     [Fact]
+    public async Task OrganizationViewerReadingAColleaguesDraftFile_Fails()
+    {
+        // A colleague's draft does not open through the organization, so neither do its photos.
+        var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Read);
+
+        await CreateHandler(OtherId, organizationViewer: true, status: ReturnStatus.Draft).HandleAsync(context);
+
+        Assert.False(context.HasSucceeded);
+    }
+
+    [Fact]
+    public async Task OrganizationViewerSwitchedToAnotherOrganization_Fails()
+    {
+        // A contact of two organizations, allowed to read both, who has switched to the other one:
+        // the photos follow the organization the list shows, as the return itself does.
+        var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Read, selectedOrganizationId: "org-2");
+
+        await CreateHandler(OtherId, organizationViewer: true).HandleAsync(context);
+
+        Assert.False(context.HasSucceeded);
+    }
+
+    [Fact]
+    public async Task OrganizationViewerWithNoOrganizationSelected_Fails()
+    {
+        var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Read, selectedOrganizationId: null);
+
+        await CreateHandler(OtherId, organizationViewer: true).HandleAsync(context);
+
+        Assert.False(context.HasSucceeded);
+    }
+
+    [Fact]
     public async Task OwnerDeletingOwnFile_Succeeds()
     {
         var context = CreateContext(OwnerId, OwnedFile(), permission: FilePermissions.Delete);
@@ -179,9 +218,9 @@ public class ReturnAuthorizationHandlerTests
         protected override string GetUserId(AuthorizationHandlerContext context) => _userId;
     }
 
-    private static ReturnAuthorizationHandler CreateHandler(string userId = OwnerId, bool organizationViewer = false)
+    private static ReturnAuthorizationHandler CreateHandler(string userId = OwnerId, bool organizationViewer = false, string status = ReturnStatus.Requested)
     {
-        var orderReturn = new Return { Id = ReturnId, CustomerId = OwnerId, OrganizationId = "org-1" };
+        var orderReturn = new Return { Id = ReturnId, CustomerId = OwnerId, OrganizationId = "org-1", Status = status };
 
         var returnService = new Mock<IReturnService>();
         returnService
@@ -194,9 +233,16 @@ public class ReturnAuthorizationHandlerTests
             .Setup(x => x.IsOwnedBy(It.IsAny<Return>(), It.IsAny<string>()))
             .ReturnsAsync((Return x, string customerId) => x.CustomerId == customerId);
 
-        var organizationAccessService = new Mock<IReturnOrganizationAccessService>();
+        // The real visibility rule; only the membership lookup is stood in for, and it answers the
+        // same for every organization so that the organization compared is the one selected.
+        var organizationAccessService = new Mock<ReturnOrganizationAccessService>(
+            Mock.Of<IMemberService>(),
+            (Func<UserManager<ApplicationUser>>)(() => null))
+        {
+            CallBase = true,
+        };
         organizationAccessService
-            .Setup(x => x.CanViewAsync(It.IsAny<ClaimsPrincipal>(), "org-1"))
+            .Setup(x => x.CanViewAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()))
             .ReturnsAsync(organizationViewer);
 
         return new TestHandler(ScopeFactoryFor(returnService.Object, flowService.Object, organizationAccessService.Object), userId);
@@ -223,13 +269,19 @@ public class ReturnAuthorizationHandlerTests
         object resource,
         string role = null,
         bool authenticated = true,
-        string permission = null)
+        string permission = null,
+        string selectedOrganizationId = "org-1")
     {
         var claims = new List<Claim> { new("name", userId), new(ClaimTypes.NameIdentifier, userId) };
 
         if (role != null)
         {
             claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
+        if (selectedOrganizationId != null)
+        {
+            claims.Add(new Claim(CustomerClaims.OrganizationId, selectedOrganizationId));
         }
 
         // An identity with no authentication type reads as anonymous.
