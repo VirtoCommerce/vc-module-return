@@ -130,7 +130,7 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             if (errors.Count == 0)
             {
                 KeepDecisions(orderReturn, storedReturn);
-                errors.AddRange(await ValidateReturn(orderReturn));
+                errors.AddRange(await ValidateReturn(orderReturn, storedReturn));
             }
 
             if (errors.Count > 0)
@@ -201,18 +201,28 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             return Ok(await GetAvailableQuantitiesAsync(order, excludeReturnId: null));
         }
 
-        private async Task<IEnumerable<string>> ValidateReturn(Return orderReturn)
+        private async Task<IEnumerable<string>> ValidateReturn(Return orderReturn, Return storedReturn)
         {
             var order = orderReturn.Order ?? await _orderService.GetByIdAsync(orderReturn.OrderId);
             var availableQuantities = await GetAvailableQuantitiesAsync(order, orderReturn.Id);
 
-            // Measured by what a line holds, as the other returns are: a decided line keeps the quantity
-            // it was decided on, but holds only what was approved.
             return orderReturn.LineItems
                 .Where(item => item.Quantity < 1 ||
-                               _quantityService.GetHeldQuantity(orderReturn, item) > availableQuantities.GetValueOrDefault(item.OrderLineItemId ?? string.Empty))
+                               GetMeasuredQuantity(orderReturn, storedReturn, item) > availableQuantities.GetValueOrDefault(item.OrderLineItemId ?? string.Empty))
                 .Select(x => $"LineItem {x.OrderLineItemId} has incorrect quantity")
                 .ToList();
+        }
+
+        // A quantity being written is measured as asked, whatever the status, so a return saved straight into
+        // one that holds nothing still cannot ask for more than is left. One already stored is measured by what
+        // the line holds, so a return stays editable after the units it released are requested again.
+        private int GetMeasuredQuantity(Return orderReturn, Return storedReturn, ReturnLineItem lineItem)
+        {
+            var storedLineItem = storedReturn?.LineItems.FirstOrDefault(x => x.Id.EqualsIgnoreCase(lineItem.Id));
+
+            return storedLineItem == null || storedLineItem.Quantity != lineItem.Quantity
+                ? lineItem.Quantity
+                : _quantityService.GetHeldQuantity(orderReturn, lineItem);
         }
 
         // What the storefront offers too: the ordered quantity less what other returns hold, so a line

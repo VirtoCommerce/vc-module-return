@@ -56,7 +56,7 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
 
         // Every other transition - a draft being created, a status this iteration does not model -
         // is silent by design rather than by omission.
-        if (notificationTypeName == null)
+        if (notificationTypeName == null || !IsAnnounced(message, notificationTypeName))
         {
             return;
         }
@@ -87,6 +87,14 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
     }
 
     protected abstract bool IsEnabled(ReturnStoreRules rules);
+
+    protected virtual bool IsAnnounced(ReturnStatusChangedEvent message, string notificationTypeName)
+    {
+        // A return created already cancelled was never announced to the buyer, so there is nothing to call
+        // off - the same reason an abandoned draft is not announced.
+        return message.FromStatus != null ||
+               !notificationTypeName.EqualsIgnoreCase(nameof(ReturnCancelledEmailNotification));
+    }
 
     /// <summary>
     /// Out of the save path: a mail server or a push fan-out that is slow or down must not fail the
