@@ -120,6 +120,23 @@ public class ReturnNotificationHandlerTests
         Assert.Empty(_sent);
     }
 
+    [Theory]
+    [InlineData(ReturnStatus.Cancelled)]
+    [InlineData("Canceled")]
+    public async Task ReturnCreatedAlreadyCancelled_QueuesNothing(string status)
+    {
+        // Saved straight as cancelled in the admin: the buyer never heard of this return, so "Return
+        // cancelled" would announce something they never raised. Cancelling one they did raise still
+        // sends - EachAnnouncedStatus_SendsItsOwnNotification.
+        _orderReturn.Status = status;
+        var handler = NewHandler();
+
+        await handler.Handle(new ReturnStatusChangedEvent(_orderReturn, fromStatus: null, status));
+
+        Assert.Empty(handler.Enqueued);
+        Assert.Empty(_sent);
+    }
+
     [Fact]
     public async Task NotificationsDisabledForStore_QueuesNothing()
     {

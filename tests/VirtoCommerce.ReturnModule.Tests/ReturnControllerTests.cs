@@ -231,8 +231,9 @@ public class ReturnControllerTests
     [InlineData(ReturnStatus.Cancelled, ReturnItemState.Requested)]
     public async Task UpdateReturn_ReturnThatHoldsNothing_IsNotMeasuredAgainstWhatOthersHold(string status, string itemState)
     {
-        // Declined or cancelled, it released everything, and another return has since asked for all
-        // of it. Its requested quantity no longer competes with anything.
+        // Declined, or cancelled by a buyer who then raised a fresh return for the same units: it
+        // released everything, and another return has since asked for all of it. Its stored quantity
+        // no longer competes with anything, so an edit that leaves it alone must still save.
         _storedReturn = NewReturn(status, itemState: itemState);
         _held[OrderLineItemId] = 2;
 
@@ -240,6 +241,43 @@ public class ReturnControllerTests
         edited.Resolution = "Nothing to refund";
 
         Assert.IsType<OkObjectResult>(await _controller.UpdateReturn(edited));
+    }
+
+    [Theory]
+    [InlineData(ReturnStatus.Cancelled)]
+    [InlineData("Canceled")]
+    public async Task UpdateReturn_ReturnCreatedStraightAsCancelled_CannotAskForMoreThanIsLeft(string status)
+    {
+        // A return saved straight as cancelled holds nothing, so measuring it by what it holds accepted
+        // 99 of 5 ordered units. What a line asks for is measured when it is written, whatever the status.
+        var created = NewReturn(status);
+        created.Id = null;
+        created.LineItems.Single().Id = null;
+        created.LineItems.Single().Quantity = 3;
+
+        var result = await _controller.UpdateReturn(created);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Empty(_saved);
+    }
+
+    [Theory]
+    [InlineData(ReturnStatus.Cancelled)]
+    [InlineData(ReturnStatus.Draft)]
+    public async Task UpdateReturn_QuantityRaisedOnAReturnThatHoldsNothing_IsRefused(string status)
+    {
+        // The same through an edit: raising a line past what the order has left is refused even though
+        // the return - cancelled, or still a draft - holds nothing.
+        _storedReturn = NewReturn(status, itemState: ReturnItemState.Requested);
+        _storedReturn.LineItems.Single().Quantity = 1;
+
+        var edited = NewReturn(status, itemState: ReturnItemState.Requested);
+        edited.LineItems.Single().Quantity = 3;
+
+        var result = await _controller.UpdateReturn(edited);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Empty(_saved);
     }
 
     [Fact]

@@ -185,6 +185,21 @@ public class ReturnPushMessageHandlerTests
         Assert.Empty(_saved);
     }
 
+    [Theory]
+    [InlineData(ReturnStatus.Cancelled)]
+    [InlineData("Canceled")]
+    public async Task ReturnCreatedAlreadyCancelled_QueuesNothing(string status)
+    {
+        // The push channel follows the email: no "Return cancelled" for a return the buyer never raised.
+        _orderReturn.Status = status;
+        var handler = NewHandler();
+
+        await handler.Handle(new ReturnStatusChangedEvent(_orderReturn, fromStatus: null, status));
+
+        Assert.Empty(handler.Enqueued);
+        Assert.Empty(_saved);
+    }
+
     [Fact]
     public async Task PushNotificationsDisabledForStore_QueuesNothing()
     {

@@ -231,8 +231,9 @@ The buyer is told when their return is registered, approved, partly approved, de
 Each of these has its own email notification — `ReturnRegisteredEmailNotification`,
 `ReturnApprovedEmailNotification`, `ReturnPartiallyApprovedEmailNotification`,
 `ReturnRejectedEmailNotification` and `ReturnCancelledEmailNotification` — whose templates can be edited
-and translated in the admin like any other notification. Nothing is sent for a draft, or for a draft
-that is abandoned before it is submitted.
+and translated in the admin like any other notification. Nothing is sent for a draft, for a draft
+that is abandoned before it is submitted, or for a return that is created already cancelled — the buyer
+never heard of it.
 
 Two store settings control this:
 
@@ -301,9 +302,10 @@ storefront and in the admin alike.
 
 The decision is written only this way. An edit through `PUT /api/return` keeps the approved quantities
 and decline reasons already stored, and once a line is decided also its requested quantity; lines
-cannot be added to or removed from a decided return. An edit is checked against what each line holds,
-so a decided return stays editable after the units it released have been requested again. The status
-an edit may set is limited too:
+cannot be added to or removed from a decided return. A quantity being written must fit what the order
+has left, whatever the status; one already stored is checked by what its line holds, so a return stays
+editable after the units it released have been requested again. The status an edit may set is limited
+too:
 
 * never `Draft`, `Requested`, `Approved`, `PartiallyApproved` or `Rejected` — only submitting and
   authorizing set those;
