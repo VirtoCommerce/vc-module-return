@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using FluentValidation;
 using GraphQL.MicrosoftDI;
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.FileExperienceApi.Core.Authorization;
+using VirtoCommerce.NotificationsModule.Core.Services;
+using VirtoCommerce.NotificationsModule.TemplateLoader.FileSystem;
+using VirtoCommerce.Platform.Core.Events;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Settings;
@@ -14,8 +18,11 @@ using VirtoCommerce.Platform.Data.MySql.Extensions;
 using VirtoCommerce.Platform.Data.PostgreSql.Extensions;
 using VirtoCommerce.Platform.Data.SqlServer.Extensions;
 using VirtoCommerce.ReturnModule.Core;
+using VirtoCommerce.ReturnModule.Core.Events;
 using VirtoCommerce.ReturnModule.Core.Models;
+using VirtoCommerce.ReturnModule.Core.Notifications;
 using VirtoCommerce.ReturnModule.Core.Services;
+using VirtoCommerce.ReturnModule.Data.Handlers;
 using VirtoCommerce.ReturnModule.Data.MySql;
 using VirtoCommerce.ReturnModule.Data.PostgreSql;
 using VirtoCommerce.ReturnModule.Data.Repositories;
@@ -31,10 +38,13 @@ using VirtoCommerce.Xapi.Core.Infrastructure;
 
 namespace VirtoCommerce.ReturnModule.Web
 {
-    public class Module : IModule, IHasConfiguration
+    public class Module : IModule, IHasConfiguration, IHasModuleService
     {
+        private const string PushMessagesModuleId = "VirtoCommerce.PushMessages";
+
         public ManifestModuleInfo ModuleInfo { get; set; }
         public IConfiguration Configuration { get; set; }
+        public IModuleService ModuleService { get; set; }
 
         public void Initialize(IServiceCollection serviceCollection)
         {
@@ -69,6 +79,9 @@ namespace VirtoCommerce.ReturnModule.Web
             serviceCollection.AddTransient<IReturnStateProvider, ReturnStateProvider>();
             serviceCollection.AddTransient<IReturnFlowService, ReturnFlowService>();
             serviceCollection.AddTransient<AbstractValidator<ReturnRequestValidationContext>, ReturnRequestValidator>();
+            serviceCollection.AddTransient<IReturnBuyerResolver, ReturnBuyerResolver>();
+
+            AddEventHandlers(serviceCollection, IsPushMessagesAvailable());
 
             // GraphQL
             _ = new GraphQLBuilder(serviceCollection, builder =>
@@ -83,6 +96,14 @@ namespace VirtoCommerce.ReturnModule.Web
 
         public void PostInitialize(IApplicationBuilder appBuilder)
         {
+            // Apply migrations first: a module whose PostInitialize throws keeps running, and every
+            // read selects the columns the migrations add.
+            using (var serviceScope = appBuilder.ApplicationServices.CreateScope())
+            {
+                using var dbContext = serviceScope.ServiceProvider.GetRequiredService<ReturnDbContext>();
+                dbContext.Database.Migrate();
+            }
+
             appBuilder.UseScopedSchema<AssemblyMarker>("return");
 
             // Register settings
@@ -94,10 +115,59 @@ namespace VirtoCommerce.ReturnModule.Web
             var permissionsRegistrar = appBuilder.ApplicationServices.GetRequiredService<IPermissionsRegistrar>();
             permissionsRegistrar.RegisterPermissions(ModuleInfo.Id, "Return", ModuleConstants.Security.Permissions.AllPermissions);
 
-            // Apply migrations
-            using var serviceScope = appBuilder.ApplicationServices.CreateScope();
-            using var dbContext = serviceScope.ServiceProvider.GetRequiredService<ReturnDbContext>();
-            dbContext.Database.Migrate();
+            RegisterEventHandlers(appBuilder, IsPushMessagesAvailable());
+
+            // Register notifications
+            var notificationRegistrar = appBuilder.ApplicationServices.GetRequiredService<INotificationRegistrar>();
+            var templatesPath = Path.Combine(ModuleInfo.FullPhysicalPath, "NotificationTemplates");
+
+            notificationRegistrar.RegisterNotification<ReturnRegisteredEmailNotification>().WithTemplatesFromPath(templatesPath);
+            notificationRegistrar.RegisterNotification<ReturnApprovedEmailNotification>().WithTemplatesFromPath(templatesPath);
+            notificationRegistrar.RegisterNotification<ReturnPartiallyApprovedEmailNotification>().WithTemplatesFromPath(templatesPath);
+            notificationRegistrar.RegisterNotification<ReturnRejectedEmailNotification>().WithTemplatesFromPath(templatesPath);
+            notificationRegistrar.RegisterNotification<ReturnCancelledEmailNotification>().WithTemplatesFromPath(templatesPath);
+        }
+
+        /// <summary>
+        /// The concrete types, because RegisterEventHandler resolves them by their own name. The
+        /// subscription itself is <see cref="RegisterEventHandlers"/>: the bus keeps its own handler
+        /// list and never looks in the container.
+        /// </summary>
+        public static void AddEventHandlers(IServiceCollection serviceCollection, bool withPushMessages)
+        {
+            serviceCollection.AddTransient<ReturnStatusChangedEventPublisher>();
+            serviceCollection.AddTransient<SendNotificationsReturnStatusChangedEventHandler>();
+
+            // The handler names IPushMessageService, so resolving it at all would load an assembly
+            // that is not there when the optional module is not installed.
+            if (withPushMessages)
+            {
+                serviceCollection.AddTransient<SendPushMessagesReturnStatusChangedEventHandler>();
+            }
+        }
+
+        /// <summary>
+        /// What makes the notifications exist at all: without these subscriptions no email or push
+        /// is ever sent, and nothing else fails.
+        /// </summary>
+        public static void RegisterEventHandlers(IApplicationBuilder appBuilder, bool withPushMessages)
+        {
+            appBuilder.RegisterEventHandler<ReturnChangedEvent, ReturnStatusChangedEventPublisher>();
+            appBuilder.RegisterEventHandler<ReturnStatusChangedEvent, SendNotificationsReturnStatusChangedEventHandler>();
+
+            if (withPushMessages)
+            {
+                appBuilder.RegisterEventHandler<ReturnStatusChangedEvent, SendPushMessagesReturnStatusChangedEventHandler>();
+            }
+        }
+
+        /// <summary>
+        /// IsInstalled alone is also true for a module that failed to load, whose services were never
+        /// registered.
+        /// </summary>
+        private bool IsPushMessagesAvailable()
+        {
+            return ModuleService.GetModule(PushMessagesModuleId) is { IsInstalled: true, Errors.Count: 0 };
         }
 
         public void Uninstall()

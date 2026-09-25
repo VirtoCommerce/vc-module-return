@@ -16,6 +16,10 @@ insert_final_newline = false
 [*.{html,htm}]
 insert_final_newline = false
 
+# Notification subjects are read verbatim, so a final newline would end up in the email subject
+[**/NotificationTemplates/*_subject.txt]
+insert_final_newline = false
+
 # Code
 [*.{cs,js,ts,ps1,sh,bat,cmd}]
 indent_size = 4

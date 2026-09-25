@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Liste des retours",
         "placeholders": {
-          "select-filter": "Sélectionner un filtre"
+          "select-filter": "Sélectionner un filtre",
+          "statuses": "Tous les statuts"
         },
         "labels": {
           "return-number": "Numéro de retour",
@@ -35,7 +36,13 @@
           "reason": "Motif du retour",
           "quantity": "Quantité",
           "price": "Prix",
-          "sku": "Référence"
+          "sku": "Référence",
+          "approved-quantity": "Approuvé",
+          "reject-reason": "Motif du refus",
+          "serial-number": "Numéro de série"
+        },
+        "commands": {
+          "authorize": "Approuver / refuser"
         }
       },
       "return-details": {
@@ -48,6 +55,8 @@
           "createdBy": "Créé par",
           "customer": "Client",
           "resolution": "Résolution",
+          "rejectReason": "Motif du refus",
+          "customerReference": "Référence de l'acheteur",
           "status": "Statut"
         }
       }
@@ -58,7 +67,8 @@
     "return:create": "Créer des données de retour",
     "return:read": "Afficher les données de retour",
     "return:update": "Mettre à jour les données de retour",
-    "return:delete": "Supprimer les données de retour"
+    "return:delete": "Supprimer les données de retour",
+    "return:authorize": "Approuver et refuser les retours"
   },
   "settings": {
     "Return": {
@@ -97,6 +107,14 @@
       "AttachmentsRequired": {
         "title": "Photos ou documents obligatoires",
         "description": "Exiger au moins un fichier sur chaque ligne retournée."
+      },
+      "SendNotifications": {
+        "title": "Notifications par e-mail des retours",
+        "description": "Envoyer un e-mail à l'acheteur lorsqu'un retour est enregistré, approuvé, partiellement approuvé, refusé ou annulé."
+      },
+      "SendPushNotifications": {
+        "title": "Notifications push des retours",
+        "description": "Envoyer également un message push dans l'application pour les mêmes événements. Nécessite le module Push Messages."
       }
     },
     "Return.Status": {
@@ -121,6 +139,28 @@
       "WrongItemDelivered": "Article livré incorrect",
       "OrderedByMistake": "Commandé par erreur",
       "NoLongerNeeded": "N’est plus nécessaire"
+    }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Retour enregistré",
+      "description": "L'acheteur reçoit un e-mail lorsque sa demande de retour est enregistrée et en attente d'examen"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Retour approuvé",
+      "description": "L'acheteur reçoit un e-mail lorsque chaque ligne de son retour est approuvée en totalité"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Retour partiellement approuvé",
+      "description": "L'acheteur reçoit un e-mail lorsqu'une partie des quantités demandées est approuvée et l'autre non"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Retour refusé",
+      "description": "L'acheteur reçoit un e-mail lorsqu'aucune des quantités demandées n'est approuvée"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Retour annulé",
+      "description": "L'acheteur reçoit un e-mail lorsque sa demande de retour est annulée et n'est plus en attente d'examen"
     }
   }
 }

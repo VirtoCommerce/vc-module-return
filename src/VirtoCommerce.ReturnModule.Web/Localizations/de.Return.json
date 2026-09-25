@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Rückgabeliste",
         "placeholders": {
-          "select-filter": "Filter auswählen"
+          "select-filter": "Filter auswählen",
+          "statuses": "Alle Status"
         },
         "labels": {
           "return-number": "Rückgabenummer",
@@ -35,7 +36,13 @@
           "reason": "Rückgabegrund",
           "quantity": "Menge",
           "price": "Preis",
-          "sku": "Artikelnummer"
+          "sku": "Artikelnummer",
+          "approved-quantity": "Genehmigt",
+          "reject-reason": "Ablehnungsgrund",
+          "serial-number": "Seriennummer"
+        },
+        "commands": {
+          "authorize": "Genehmigen / ablehnen"
         }
       },
       "return-details": {
@@ -48,6 +55,8 @@
           "createdBy": "Erstellt von",
           "customer": "Kunde",
           "resolution": "Lösung",
+          "rejectReason": "Grund der Ablehnung",
+          "customerReference": "Referenz des Käufers",
           "status": "Status"
         }
       }
@@ -58,7 +67,8 @@
     "return:create": "Rückgabedaten erstellen",
     "return:read": "Rückgabedaten anzeigen",
     "return:update": "Rückgabedaten aktualisieren",
-    "return:delete": "Rückgabedaten löschen"
+    "return:delete": "Rückgabedaten löschen",
+    "return:authorize": "Rücksendungen genehmigen und ablehnen"
   },
   "settings": {
     "Return": {
@@ -97,6 +107,14 @@
       "AttachmentsRequired": {
         "title": "Fotos oder Dokumente erforderlich",
         "description": "Mindestens eine Datei je zurückgesendeter Position verlangen."
+      },
+      "SendNotifications": {
+        "title": "E-Mail-Benachrichtigungen zu Rücksendungen",
+        "description": "Den Käufer per E-Mail benachrichtigen, wenn eine Rücksendung registriert, genehmigt, teilweise genehmigt, abgelehnt oder storniert wird."
+      },
+      "SendPushNotifications": {
+        "title": "Push-Benachrichtigungen zu Rücksendungen",
+        "description": "Bei denselben Ereignissen zusätzlich eine In-App-Push-Nachricht senden. Erfordert das Modul Push Messages."
       }
     },
     "Return.Status": {
@@ -121,6 +139,28 @@
       "WrongItemDelivered": "Falscher Artikel geliefert",
       "OrderedByMistake": "Versehentlich bestellt",
       "NoLongerNeeded": "Nicht mehr benötigt"
+    }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Rücksendung registriert",
+      "description": "Der Käufer erhält eine E-Mail, wenn seine Rücksendeanfrage registriert wurde und auf Prüfung wartet"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Rücksendung genehmigt",
+      "description": "Der Käufer erhält eine E-Mail, wenn jede Position seiner Rücksendung vollständig genehmigt wurde"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Rücksendung teilweise genehmigt",
+      "description": "Der Käufer erhält eine E-Mail, wenn ein Teil der angefragten Mengen genehmigt wurde und ein Teil nicht"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Rücksendung abgelehnt",
+      "description": "Der Käufer erhält eine E-Mail, wenn keine der angefragten Mengen genehmigt wurde"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Rücksendung storniert",
+      "description": "Der Käufer erhält eine E-Mail, wenn seine Rücksendeanfrage storniert wurde und nicht mehr auf Prüfung wartet"
     }
   }
 }

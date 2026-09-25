@@ -8,6 +8,8 @@ public class ReturnRequestValidationContext
 
     public string CustomerComment { get; set; }
 
+    public string LanguageCode { get; set; }
+
     public IList<CreateReturnItemRequest> Items { get; set; } = [];
 
     public IList<string> Reasons { get; set; } = [];

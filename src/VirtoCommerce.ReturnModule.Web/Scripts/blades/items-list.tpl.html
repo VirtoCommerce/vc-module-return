@@ -16,6 +16,8 @@
               <th class="table-col" width="33%">{{ 'return.blades.items-list.labels.reason' | translate }}</th>
               <th class="table-col" width="17%" ng-if="blade.editMode">{{ 'return.blades.items-list.labels.sku' | translate }}</th>
               <th class="table-col">{{ 'return.blades.items-list.labels.quantity' | translate }}</th>
+              <th class="table-col" ng-if="blade.editMode">{{ 'return.blades.items-list.labels.approved-quantity' | translate }}</th>
+              <th class="table-col" width="20%" ng-if="blade.editMode">{{ 'return.blades.items-list.labels.reject-reason' | translate }}</th>
               <th class="table-col">{{ 'return.blades.items-list.labels.price' | translate }}</th>
             </tr>
           </thead>
@@ -33,9 +35,17 @@
                 </div>
               </td>
               <td class="table-col">
-                <div class="form-input __inline">
+                <div class="form-input __inline" ng-if="!blade.editMode">
                   <div class="form-input">
                     <input ng-model="data.reason" ng-model-options="{ updateOn: 'blur' }">
+                  </div>
+                </div>
+                <div ng-if="blade.editMode">
+                  <div class="table-item">{{ data.reasonCode ? (data.reasonCode | settingTranslate:'Return.Reasons') : data.reason }}</div>
+                  <div class="table-descr" ng-if="data.reasonComment">{{ data.reasonComment }}</div>
+                  <div class="table-descr" ng-if="data.serialNumber">{{ 'return.blades.items-list.labels.serial-number' | translate }}: {{ data.serialNumber }}</div>
+                  <div class="table-descr" ng-repeat="attachment in data.attachments">
+                    <a ng-href="{{ attachment.url }}" target="_blank" rel="noopener"><i class="fa fa-paperclip"></i> {{ attachment.name }}</a>
                   </div>
                 </div>
               </td>
@@ -52,12 +62,39 @@
                            min="{{ blade.editMode ? 1 : 0 }}"
                            max="{{ data.availableQuantity }}"
                            ng-change="updateSelectionList()"
+                           ng-disabled="data.itemState === 'Approved' || data.itemState === 'Rejected'"
                            oninput="this.value = this.value < this.min ? Math.abs(Math.max(this.min, this.value)) : Math.min(this.max, this.value)"
                            num-type="integer"
                            required
                            ng-model="data.quantity"
                            ng-model-options="{ updateOn: 'blur' }">
                   </div>
+                </div>
+              </td>
+              <td class="table-col" ng-if="blade.editMode">
+                <div class="form-input __mini __inline" ng-if="blade.canAuthorize">
+                  <div class="form-input __mini __number">
+                    <input smart-float
+                           type="number"
+                           min="0"
+                           max="{{ data.quantity }}"
+                           num-type="integer"
+                           ng-model="data.approvedQuantity"
+                           ng-model-options="{ updateOn: 'blur' }">
+                  </div>
+                </div>
+                <div class="table-item" ng-if="!blade.canAuthorize">
+                  {{ data.approvedQuantity }}
+                </div>
+              </td>
+              <td class="table-col" ng-if="blade.editMode">
+                <div class="form-input __inline" ng-if="blade.canAuthorize">
+                  <div class="form-input">
+                    <input ng-model="data.rejectReason" ng-disabled="data.approvedQuantity >= data.quantity" ng-model-options="{ updateOn: 'blur' }">
+                  </div>
+                </div>
+                <div class="table-item" ng-if="!blade.canAuthorize">
+                  {{ data.rejectReason }}
                 </div>
               </td>
               <td class="table-col">
@@ -69,6 +106,12 @@
             <tr ng-repeat-end class="table-item" ng-class="{'__selected': $index === blade.selectedNodeId}" ng-click='blade.selectedNodeId = $index'></tr>
           </tbody>
         </table>
+      </div>
+      <div class="form-group" ng-if="blade.canAuthorize">
+        <label class="form-label">{{ 'return.blades.return-details.labels.rejectReason' | translate }}</label>
+        <div class="form-input">
+          <textarea ng-model="blade.currentEntity.rejectReason"></textarea>
+        </div>
       </div>
     </div>
   </div>

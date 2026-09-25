@@ -5,17 +5,23 @@ angular.module('virtoCommerce.returnModule')
             var blade = $scope.blade;
 
             $scope.saveChanges = () => {
-                angular.copy(blade.currentEntity, blade.originalEntity);
-
                 returns.update(blade.currentEntity,
                     (data) => {
+                        angular.copy(blade.currentEntity, blade.originalEntity);
+                        refreshAvailableStatuses();
                         if (blade.listRefresh) {
                             blade.listRefresh();
                         }
                     });
             };
             
-            settings.getValues({ id: 'Return.Status' }, translateBladeStatuses);
+            var statusSettingValues = [];
+            var availableStatuses = [];
+
+            settings.getValues({ id: 'Return.Status' }, (data) => {
+                statusSettingValues = data;
+                translateBladeStatuses();
+            });
 
             blade.refresh = () => {
                 returns.get({ id: blade.currentEntityId },
@@ -29,6 +35,8 @@ angular.module('virtoCommerce.returnModule')
 
                         blade.isLoading = false;
                     });
+
+                refreshAvailableStatuses();
             };
 
             blade.metaFields = [
@@ -72,9 +80,23 @@ angular.module('virtoCommerce.returnModule')
                     templateUrl: 'statusSelector.html'
                 },
                 {
+                    name: 'customerReference',
+                    isReadOnly: true,
+                    title: "return.blades.return-details.labels.customerReference",
+                    valueType: "ShortText"
+                },
+                {
                     name: 'resolution',
                     isRequired: false,
                     title: "return.blades.return-details.labels.resolution",
+                    valueType: "LongText"
+                },
+                {
+                    // Recorded when the return is approved or declined, from the line items blade.
+                    name: 'rejectReason',
+                    isReadOnly: true,
+                    isRequired: false,
+                    title: "return.blades.return-details.labels.rejectReason",
                     valueType: "LongText"
                 }
             ];
@@ -107,7 +129,10 @@ angular.module('virtoCommerce.returnModule')
                     id: 'settingDetailChild',
                     isApiSave: true,
                     currentEntityId: 'Return.Status',
-                    parentRefresh: translateBladeStatuses,
+                    parentRefresh: (data) => {
+                        statusSettingValues = data;
+                        refreshAvailableStatuses();
+                    },
                     controller: 'platformWebApp.settingDictionaryController',
                     template: '$(Platform)/Scripts/app/settings/blades/setting-dictionary.tpl.html'
                 };
@@ -135,8 +160,17 @@ angular.module('virtoCommerce.returnModule')
 
             };
 
-            function translateBladeStatuses(data) {
-                blade.statuses = statusTranslationService.translateStatuses(data, 'return');
+            // What an edit accepts depends on the return's decision as well as its status, so the server says.
+            function refreshAvailableStatuses() {
+                returns.availableStatuses({ id: blade.currentEntityId }, (data) => {
+                    availableStatuses = data;
+                    translateBladeStatuses();
+                });
+            }
+
+            function translateBladeStatuses() {
+                blade.statuses = statusTranslationService.translateStatuses(statusSettingValues, 'return')
+                    .filter(x => availableStatuses.indexOf(x.key) >= 0);
             }
 
             function canSave() {

@@ -5,7 +5,8 @@
       "return-list": {
         "title": "退货列表",
         "placeholders": {
-          "select-filter": "选择筛选条件"
+          "select-filter": "选择筛选条件",
+          "statuses": "所有状态"
         },
         "labels": {
           "return-number": "退货编号",
@@ -35,7 +36,13 @@
           "reason": "退货原因",
           "quantity": "数量",
           "price": "价格",
-          "sku": "SKU"
+          "sku": "SKU",
+          "approved-quantity": "已批准数量",
+          "reject-reason": "拒绝原因",
+          "serial-number": "序列号"
+        },
+        "commands": {
+          "authorize": "批准 / 拒绝"
         }
       },
       "return-details": {
@@ -48,6 +55,8 @@
           "createdBy": "创建人",
           "customer": "客户",
           "resolution": "解决方案",
+          "rejectReason": "拒绝原因",
+          "customerReference": "买家参考号",
           "status": "状态"
         }
       }
@@ -58,7 +67,8 @@
     "return:create": "创建退货数据",
     "return:read": "查看退货数据",
     "return:update": "更新退货数据",
-    "return:delete": "删除退货数据"
+    "return:delete": "删除退货数据",
+    "return:authorize": "批准和拒绝退货"
   },
   "settings": {
     "Return": {
@@ -97,6 +107,14 @@
       "AttachmentsRequired": {
         "title": "必须提供照片或文件",
         "description": "要求每条退货明细至少上传一个文件。"
+      },
+      "SendNotifications": {
+        "title": "退货邮件通知",
+        "description": "当退货被登记、批准、部分批准、拒绝或取消时，向买家发送邮件。"
+      },
+      "SendPushNotifications": {
+        "title": "退货推送通知",
+        "description": "在相同事件下同时发送应用内推送消息。需要 Push Messages 模块。"
       }
     },
     "Return.Status": {
@@ -121,6 +139,28 @@
       "WrongItemDelivered": "发错商品",
       "OrderedByMistake": "误下订单",
       "NoLongerNeeded": "不再需要"
+    }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "退货已登记",
+      "description": "买家的退货申请被登记并等待审核时，会收到邮件"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "退货已批准",
+      "description": "退货的每一条明细都被全额批准时，买家会收到邮件"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "退货部分批准",
+      "description": "申请数量中有一部分被批准、另一部分未被批准时，买家会收到邮件"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "退货被拒绝",
+      "description": "申请数量全部未获批准时，买家会收到邮件"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "退货已取消",
+      "description": "退货申请被取消、不再等待审核时，买家会收到邮件"
     }
   }
 }

@@ -29,6 +29,7 @@ public class CreateReturnCommandHandler : IRequestHandler<CreateReturnCommand, R
 
         var context = AbstractTypeFactory<ReturnFlowContext>.TryCreateInstance();
         context.CustomerId = request.CustomerId;
+        context.LanguageCode = request.LanguageCode;
 
         try
         {

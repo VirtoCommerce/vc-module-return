@@ -5,7 +5,8 @@
       "return-list": {
         "title": "返品リスト",
         "placeholders": {
-          "select-filter": "フィルターを選択"
+          "select-filter": "フィルターを選択",
+          "statuses": "すべてのステータス"
         },
         "labels": {
           "return-number": "返品番号",
@@ -35,7 +36,13 @@
           "reason": "返品理由",
           "quantity": "数量",
           "price": "価格",
-          "sku": "SKU"
+          "sku": "SKU",
+          "approved-quantity": "承認数量",
+          "reject-reason": "却下理由",
+          "serial-number": "シリアル番号"
+        },
+        "commands": {
+          "authorize": "承認 / 却下"
         }
       },
       "return-details": {
@@ -48,6 +55,8 @@
           "createdBy": "作成者",
           "customer": "顧客",
           "resolution": "解決策",
+          "rejectReason": "却下の理由",
+          "customerReference": "購入者の参照番号",
           "status": "状況"
         }
       }
@@ -58,7 +67,8 @@
     "return:create": "返品データを作成",
     "return:read": "返品データを表示",
     "return:update": "返品データを更新",
-    "return:delete": "返品データを削除"
+    "return:delete": "返品データを削除",
+    "return:authorize": "返品を承認・却下する"
   },
   "settings": {
     "Return": {
@@ -97,6 +107,14 @@
       "AttachmentsRequired": {
         "title": "写真または書類が必須",
         "description": "返品する各明細に少なくとも1つのファイルを必須にします。"
+      },
+      "SendNotifications": {
+        "title": "返品のメール通知",
+        "description": "返品が登録、承認、一部承認、却下、またはキャンセルされたときに購入者へメールを送信します。"
+      },
+      "SendPushNotifications": {
+        "title": "返品のプッシュ通知",
+        "description": "同じイベントでアプリ内プッシュ通知も送信します。Push Messages モジュールが必要です。"
       }
     },
     "Return.Status": {
@@ -121,6 +139,28 @@
       "WrongItemDelivered": "誤った商品が届いた",
       "OrderedByMistake": "誤って注文",
       "NoLongerNeeded": "不要になった"
+    }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "返品を受け付け",
+      "description": "返品依頼が登録され、確認待ちになったときに購入者へメールが届きます"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "返品を承認",
+      "description": "返品のすべての明細が全数承認されたときに購入者へメールが届きます"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "返品を一部承認",
+      "description": "依頼された数量の一部が承認され、一部が承認されなかったときに購入者へメールが届きます"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "返品を却下",
+      "description": "依頼された数量がいずれも承認されなかったときに購入者へメールが届きます"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "返品を取り消し",
+      "description": "返品依頼が取り消され、確認待ちでなくなったときに購入者へメールが届きます"
     }
   }
 }

@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Lista de devoluções",
         "placeholders": {
-          "select-filter": "Selecionar filtro"
+          "select-filter": "Selecionar filtro",
+          "statuses": "Todos os status"
         },
         "labels": {
           "return-number": "Número da devolução",
@@ -35,7 +36,13 @@
           "reason": "Motivo da devolução",
           "quantity": "Quantidade",
           "price": "Preço",
-          "sku": "SKU"
+          "sku": "SKU",
+          "approved-quantity": "Aprovado",
+          "reject-reason": "Motivo da recusa",
+          "serial-number": "Número de série"
+        },
+        "commands": {
+          "authorize": "Aprovar / recusar"
         }
       },
       "return-details": {
@@ -48,6 +55,8 @@
           "createdBy": "Criado por",
           "customer": "Cliente",
           "resolution": "Resolução",
+          "rejectReason": "Motivo da recusa",
+          "customerReference": "Referência do comprador",
           "status": "Status"
         }
       }
@@ -58,7 +67,8 @@
     "return:create": "Criar dados de devolução",
     "return:read": "Visualizar dados de devolução",
     "return:update": "Atualizar dados de devolução",
-    "return:delete": "Excluir dados de devolução"
+    "return:delete": "Excluir dados de devolução",
+    "return:authorize": "Aprovar e recusar devoluções"
   },
   "settings": {
     "Return": {
@@ -97,6 +107,14 @@
       "AttachmentsRequired": {
         "title": "Fotografias ou documentos obrigatórios",
         "description": "Exigir pelo menos um ficheiro em cada linha devolvida."
+      },
+      "SendNotifications": {
+        "title": "Notificações por e-mail de devoluções",
+        "description": "Enviar um e-mail ao comprador quando uma devolução for registada, aprovada, parcialmente aprovada, recusada ou cancelada."
+      },
+      "SendPushNotifications": {
+        "title": "Notificações push de devoluções",
+        "description": "Enviar também uma mensagem push na aplicação nos mesmos eventos. Requer o módulo Push Messages."
       }
     },
     "Return.Status": {
@@ -121,6 +139,28 @@
       "WrongItemDelivered": "Artigo errado entregue",
       "OrderedByMistake": "Encomendado por engano",
       "NoLongerNeeded": "Já não é necessário"
+    }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Devolução registada",
+      "description": "O comprador recebe um e-mail quando o seu pedido de devolução é registado e fica a aguardar análise"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Devolução aprovada",
+      "description": "O comprador recebe um e-mail quando todas as linhas da devolução são aprovadas na totalidade"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Devolução aprovada parcialmente",
+      "description": "O comprador recebe um e-mail quando parte das quantidades pedidas é aprovada e parte não"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Devolução recusada",
+      "description": "O comprador recebe um e-mail quando nenhuma das quantidades pedidas é aprovada"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Devolução cancelada",
+      "description": "O comprador recebe um e-mail quando o seu pedido de devolução é cancelado e deixa de aguardar análise"
     }
   }
 }

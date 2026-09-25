@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Moq;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Settings;
+using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Data.Services;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
@@ -65,6 +66,19 @@ public class ReturnSettingsServiceTests
         Assert.Equal(["NoLongerNeeded"], rules.Reasons);
         Assert.Equal(["FaultyOnArrival", "DamagedInTransit", "WrongItemDelivered"], rules.ReasonsRequiringComment);
         Assert.False(rules.AttachmentsRequired);
+
+        // Default on: upgrading the module starts telling buyers, with no operator opt-in.
+        Assert.True(rules.SendNotifications);
+        Assert.True(rules.SendPushNotifications);
+    }
+
+    [Fact]
+    public void NotificationSettings_AreStoreLevel()
+    {
+        var storeLevelSettings = ModuleConstants.Settings.StoreLevelSettings.ToList();
+
+        Assert.Contains(ModuleConstants.Settings.General.ReturnSendNotifications, storeLevelSettings);
+        Assert.Contains(ModuleConstants.Settings.General.ReturnSendPushNotifications, storeLevelSettings);
     }
 
     private static ObjectSettingEntry Setting(string name, SettingValueType valueType, object value)

@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Elenco resi",
         "placeholders": {
-          "select-filter": "Seleziona un filtro"
+          "select-filter": "Seleziona un filtro",
+          "statuses": "Tutti gli stati"
         },
         "labels": {
           "return-number": "Numero di reso",
@@ -35,7 +36,13 @@
           "reason": "Motivo del reso",
           "quantity": "Quantità",
           "price": "Prezzo",
-          "sku": "SKU"
+          "sku": "SKU",
+          "approved-quantity": "Approvato",
+          "reject-reason": "Motivo del rifiuto",
+          "serial-number": "Numero di serie"
+        },
+        "commands": {
+          "authorize": "Approva / rifiuta"
         }
       },
       "return-details": {
@@ -48,6 +55,8 @@
           "createdBy": "Creato da",
           "customer": "Cliente",
           "resolution": "Risoluzione",
+          "rejectReason": "Motivo del rifiuto",
+          "customerReference": "Riferimento dell'acquirente",
           "status": "Stato"
         }
       }
@@ -58,7 +67,8 @@
     "return:create": "Crea dati di reso",
     "return:read": "Visualizza dati di reso",
     "return:update": "Aggiorna dati di reso",
-    "return:delete": "Elimina dati di reso"
+    "return:delete": "Elimina dati di reso",
+    "return:authorize": "Approvare e rifiutare i resi"
   },
   "settings": {
     "Return": {
@@ -97,6 +107,14 @@
       "AttachmentsRequired": {
         "title": "Foto o documenti obbligatori",
         "description": "Richiedere almeno un file per ogni riga resa."
+      },
+      "SendNotifications": {
+        "title": "Notifiche e-mail sui resi",
+        "description": "Invia un'e-mail all'acquirente quando un reso viene registrato, approvato, approvato parzialmente, rifiutato o annullato."
+      },
+      "SendPushNotifications": {
+        "title": "Notifiche push sui resi",
+        "description": "Invia anche un messaggio push nell'app per gli stessi eventi. Richiede il modulo Push Messages."
       }
     },
     "Return.Status": {
@@ -121,6 +139,28 @@
       "WrongItemDelivered": "Articolo errato consegnato",
       "OrderedByMistake": "Ordinato per errore",
       "NoLongerNeeded": "Non più necessario"
+    }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Reso registrato",
+      "description": "L'acquirente riceve un'e-mail quando la sua richiesta di reso viene registrata ed è in attesa di verifica"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Reso approvato",
+      "description": "L'acquirente riceve un'e-mail quando ogni riga del reso viene approvata per intero"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Reso approvato parzialmente",
+      "description": "L'acquirente riceve un'e-mail quando una parte delle quantità richieste viene approvata e una parte no"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Reso rifiutato",
+      "description": "L'acquirente riceve un'e-mail quando nessuna delle quantità richieste viene approvata"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Reso annullato",
+      "description": "L'acquirente riceve un'e-mail quando la sua richiesta di reso viene annullata e non è più in attesa di verifica"
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -62,20 +62,16 @@ public class ReturnQuantityService : IReturnQuantityService
             .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity), StringComparer.OrdinalIgnoreCase);
     }
 
-    protected virtual int GetHeldQuantity(Return orderReturn, ReturnLineItem lineItem)
+    public virtual int GetHeldQuantity(Return orderReturn, ReturnLineItem lineItem)
     {
-        var status = orderReturn.Status ?? string.Empty;
-
-        if (NonHoldingStatuses.Contains(status))
+        if (NonHoldingStatuses.Contains(orderReturn.Status ?? string.Empty))
         {
             return 0;
         }
 
-        // "Approved" is also a legacy Return.Status value, and nothing writes ApprovedQuantity until
-        // the agent side lands, so an admin-approved return would otherwise report zero held.
-        return ApprovedStatuses.Contains(status) && IsDecided(lineItem)
-            ? lineItem.ApprovedQuantity
-            : lineItem.Quantity;
+        // Keyed on the line, not the status: a decided return moves on to Completed and the like, and
+        // "Approved" is also a legacy status set without any decision.
+        return IsDecided(lineItem) ? lineItem.ApprovedQuantity : lineItem.Quantity;
     }
 
     protected virtual ISet<string> NonHoldingStatuses { get; } =
@@ -97,12 +93,5 @@ public class ReturnQuantityService : IReturnQuantityService
         {
             ReturnItemState.Approved,
             ReturnItemState.Rejected,
-        };
-
-    protected virtual ISet<string> ApprovedStatuses { get; } =
-        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            ReturnStatus.Approved,
-            ReturnStatus.PartiallyApproved,
         };
 }

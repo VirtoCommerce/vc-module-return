@@ -34,6 +34,8 @@ public class ReturnSettingsService : IReturnSettingsService
         result.Reasons = await GetReasonsAsync();
         result.ReasonsRequiringComment = ParseSetting(settings, ModuleConstants.Settings.General.ReturnReasonsRequiringComment);
         result.AttachmentsRequired = settings.GetValue<bool>(ModuleConstants.Settings.General.ReturnAttachmentsRequired);
+        result.SendNotifications = settings.GetValue<bool>(ModuleConstants.Settings.General.ReturnSendNotifications);
+        result.SendPushNotifications = settings.GetValue<bool>(ModuleConstants.Settings.General.ReturnSendPushNotifications);
 
         return result;
     }

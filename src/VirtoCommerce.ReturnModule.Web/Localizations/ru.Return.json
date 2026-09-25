@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Список возвратов",
         "placeholders": {
-          "select-filter": "Выберите фильтр"
+          "select-filter": "Выберите фильтр",
+          "statuses": "Все статусы"
         },
         "labels": {
           "return-number": "Номер возврата",
@@ -35,7 +36,13 @@
           "reason": "Причина возврата",
           "quantity": "Количество",
           "price": "Цена",
-          "sku": "Артикул"
+          "sku": "Артикул",
+          "approved-quantity": "Одобрено",
+          "reject-reason": "Причина отказа",
+          "serial-number": "Серийный номер"
+        },
+        "commands": {
+          "authorize": "Одобрить / отклонить"
         }
       },
       "return-details": {
@@ -48,6 +55,8 @@
           "createdBy": "Создано",
           "customer": "Клиент",
           "resolution": "Решение",
+          "rejectReason": "Причина отказа",
+          "customerReference": "Референс покупателя",
           "status": "Статус"
         }
       }
@@ -58,7 +67,8 @@
     "return:create": "Создать данные возврата",
     "return:read": "Просмотреть данные возврата",
     "return:update": "Обновить данные возврата",
-    "return:delete": "Удалить данные возврата"
+    "return:delete": "Удалить данные возврата",
+    "return:authorize": "Одобрять и отклонять возвраты"
   },
   "settings": {
     "Return": {
@@ -97,6 +107,14 @@
       "AttachmentsRequired": {
         "title": "Фото или документы обязательны",
         "description": "Требовать хотя бы один файл к каждой возвращаемой строке."
+      },
+      "SendNotifications": {
+        "title": "Email-уведомления о возвратах",
+        "description": "Отправлять покупателю письмо, когда возврат зарегистрирован, одобрен, одобрен частично, отклонён или отменён."
+      },
+      "SendPushNotifications": {
+        "title": "Push-уведомления о возвратах",
+        "description": "По тем же событиям также отправлять push-сообщение в приложении. Требуется модуль Push Messages."
       }
     },
     "Return.Status": {
@@ -121,6 +139,28 @@
       "WrongItemDelivered": "Привезли не тот товар",
       "OrderedByMistake": "Заказан по ошибке",
       "NoLongerNeeded": "Больше не нужен"
+    }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Возврат зарегистрирован",
+      "description": "Покупатель получает письмо, когда его заявка на возврат зарегистрирована и ожидает рассмотрения"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Возврат одобрен",
+      "description": "Покупатель получает письмо, когда все строки возврата одобрены полностью"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Возврат одобрен частично",
+      "description": "Покупатель получает письмо, когда часть запрошенных количеств одобрена, а часть нет"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Возврат отклонён",
+      "description": "Покупатель получает письмо, когда ни одно из запрошенных количеств не одобрено"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Возврат отменён",
+      "description": "Покупатель получает письмо, когда его заявка на возврат отменена и больше не ожидает рассмотрения"
     }
   }
 }

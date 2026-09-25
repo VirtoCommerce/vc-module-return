@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.FileExperienceApi.Core.Authorization;
 using VirtoCommerce.FileExperienceApi.Core.Models;
 using VirtoCommerce.ReturnModule.Core;
@@ -11,6 +11,6 @@ public class ReturnFileAuthorizationRequirementFactory : IFileAuthorizationRequi
 
     public IAuthorizationRequirement Create(File file, string permission)
     {
-        return new ReturnAuthorizationRequirement();
+        return new ReturnAuthorizationRequirement { Permission = permission };
     }
 }

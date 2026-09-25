@@ -10,7 +10,14 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="VirtoCommerce.FileExperienceApi.Core" Version="3.1003.0" />
+    <PackageReference Include="VirtoCommerce.NotificationsModule.TemplateLoader.FileSystem" Version="3.1009.0" />
   </ItemGroup>
+  <ItemGroup>
+    <NotificationTemplates Include="NotificationTemplates\**" />
+  </ItemGroup>
+  <Target Name="CopyNotificationTemplatesOnPublish" AfterTargets="Publish">
+    <Copy SourceFiles="@(NotificationTemplates)" DestinationFiles="$(PublishDir)\..\%(Identity)" />
+  </Target>
   <ItemGroup>
     <ProjectReference Include="..\VirtoCommerce.ReturnModule.Core\VirtoCommerce.ReturnModule.Core.csproj" />
     <ProjectReference Include="..\VirtoCommerce.ReturnModule.Data.MySql\VirtoCommerce.ReturnModule.Data.MySql.csproj" />

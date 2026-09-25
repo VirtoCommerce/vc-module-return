@@ -17,7 +17,11 @@ namespace VirtoCommerce.ReturnModule.Core
                 public const string Update = "return:update";
                 public const string Delete = "return:delete";
 
-                public static string[] AllPermissions { get; } = { Read, Create, Access, Update, Delete };
+                // Approving and declining is a decision about money and stock, not an edit, so it
+                // is granted on its own.
+                public const string Authorize = "return:authorize";
+
+                public static string[] AllPermissions { get; } = { Read, Create, Access, Update, Delete, Authorize };
             }
         }
 
@@ -131,6 +135,26 @@ namespace VirtoCommerce.ReturnModule.Core
                     IsPublic = true
                 };
 
+                // Off would mean a store that upgrades the module silently stops telling buyers
+                // anything, which is the opposite of what this module is for.
+                public static SettingDescriptor ReturnSendNotifications { get; } = new SettingDescriptor
+                {
+                    Name = "Return.SendNotifications",
+                    ValueType = SettingValueType.Boolean,
+                    GroupName = "Return|Notifications",
+                    DefaultValue = true
+                };
+
+                // Transactional pushes accumulate in the Push Messages admin list, which was agreed
+                // to be acceptable, so this follows the emails rather than waiting to be switched on.
+                public static SettingDescriptor ReturnSendPushNotifications { get; } = new SettingDescriptor
+                {
+                    Name = "Return.SendPushNotifications",
+                    ValueType = SettingValueType.Boolean,
+                    GroupName = "Return|Notifications",
+                    DefaultValue = true
+                };
+
                 public static IEnumerable<SettingDescriptor> AllSettings
                 {
                     get
@@ -144,6 +168,8 @@ namespace VirtoCommerce.ReturnModule.Core
                         yield return ReturnReasons;
                         yield return ReturnReasonsRequiringComment;
                         yield return ReturnAttachmentsRequired;
+                        yield return ReturnSendNotifications;
+                        yield return ReturnSendPushNotifications;
                         yield return OrderStatus;
                     }
                 }
@@ -169,6 +195,8 @@ namespace VirtoCommerce.ReturnModule.Core
                     yield return General.ReturnReasons;
                     yield return General.ReturnReasonsRequiringComment;
                     yield return General.ReturnAttachmentsRequired;
+                    yield return General.ReturnSendNotifications;
+                    yield return General.ReturnSendPushNotifications;
                 }
             }
         }

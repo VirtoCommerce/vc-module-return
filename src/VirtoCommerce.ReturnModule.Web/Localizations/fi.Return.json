@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Palautuslista",
         "placeholders": {
-          "select-filter": "Valitse suodatin"
+          "select-filter": "Valitse suodatin",
+          "statuses": "Kaikki tilat"
         },
         "labels": {
           "return-number": "Palautusnumero",
@@ -35,7 +36,13 @@
           "reason": "Palautuksen syy",
           "quantity": "Määrä",
           "price": "Hinta",
-          "sku": "Tuotekoodi"
+          "sku": "Tuotekoodi",
+          "approved-quantity": "Hyväksytty",
+          "reject-reason": "Hylkäyksen syy",
+          "serial-number": "Sarjanumero"
+        },
+        "commands": {
+          "authorize": "Hyväksy / hylkää"
         }
       },
       "return-details": {
@@ -48,6 +55,8 @@
           "createdBy": "Luonut",
           "customer": "Asiakas",
           "resolution": "Ratkaisu",
+          "rejectReason": "Hylkäyksen syy",
+          "customerReference": "Ostajan viite",
           "status": "Tila"
         }
       }
@@ -58,7 +67,8 @@
     "return:create": "Luo palautustietoja",
     "return:read": "Näytä palautustietoja",
     "return:update": "Päivitä palautustietoja",
-    "return:delete": "Poista palautustietoja"
+    "return:delete": "Poista palautustietoja",
+    "return:authorize": "Hyväksyä ja hylätä palautuksia"
   },
   "settings": {
     "Return": {
@@ -97,6 +107,14 @@
       "AttachmentsRequired": {
         "title": "Kuvat tai asiakirjat pakollisia",
         "description": "Vaadi vähintään yksi tiedosto jokaiselle palautettavalle riville."
+      },
+      "SendNotifications": {
+        "title": "Palautusten sähköposti-ilmoitukset",
+        "description": "Lähetä ostajalle sähköposti, kun palautus rekisteröidään, hyväksytään, hyväksytään osittain, hylätään tai perutaan."
+      },
+      "SendPushNotifications": {
+        "title": "Palautusten push-ilmoitukset",
+        "description": "Lähetä samoista tapahtumista myös push-viesti sovellukseen. Vaatii Push Messages -moduulin."
       }
     },
     "Return.Status": {
@@ -121,6 +139,28 @@
       "WrongItemDelivered": "Väärä tuote toimitettu",
       "OrderedByMistake": "Tilattu vahingossa",
       "NoLongerNeeded": "Ei enää tarpeen"
+    }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Palautus rekisteröity",
+      "description": "Ostaja saa sähköpostin, kun hänen palautuspyyntönsä on rekisteröity ja odottaa käsittelyä"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Palautus hyväksytty",
+      "description": "Ostaja saa sähköpostin, kun palautuksen jokainen rivi hyväksytään kokonaan"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Palautus hyväksytty osittain",
+      "description": "Ostaja saa sähköpostin, kun osa pyydetyistä määristä hyväksytään ja osa ei"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Palautus hylätty",
+      "description": "Ostaja saa sähköpostin, kun yhtään pyydettyä määrää ei hyväksytä"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Palautus peruutettu",
+      "description": "Ostaja saa sähköpostin, kun hänen palautuspyyntönsä peruutetaan eikä se enää odota käsittelyä"
     }
   }
 }

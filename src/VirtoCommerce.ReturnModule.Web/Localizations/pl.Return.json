@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Lista zwrotów",
         "placeholders": {
-          "select-filter": "Wybierz filtr"
+          "select-filter": "Wybierz filtr",
+          "statuses": "Wszystkie statusy"
         },
         "labels": {
           "return-number": "Numer zwrotu",
@@ -35,7 +36,13 @@
           "reason": "Powód zwrotu",
           "quantity": "Ilość",
           "price": "Cena",
-          "sku": "SKU"
+          "sku": "SKU",
+          "approved-quantity": "Zatwierdzono",
+          "reject-reason": "Powód odrzucenia",
+          "serial-number": "Numer seryjny"
+        },
+        "commands": {
+          "authorize": "Zatwierdź / odrzuć"
         }
       },
       "return-details": {
@@ -48,6 +55,8 @@
           "createdBy": "Utworzono przez",
           "customer": "Klient",
           "resolution": "Rozwiązanie",
+          "rejectReason": "Powód odrzucenia",
+          "customerReference": "Numer referencyjny kupującego",
           "status": "Status"
         }
       }
@@ -58,7 +67,8 @@
     "return:create": "Utwórz dane zwrotu",
     "return:read": "Wyświetl dane zwrotu",
     "return:update": "Zaktualizuj dane zwrotu",
-    "return:delete": "Usuń dane zwrotu"
+    "return:delete": "Usuń dane zwrotu",
+    "return:authorize": "Zatwierdzanie i odrzucanie zwrotów"
   },
   "settings": {
     "Return": {
@@ -97,6 +107,14 @@
       "AttachmentsRequired": {
         "title": "Zdjęcia lub dokumenty wymagane",
         "description": "Wymagaj co najmniej jednego pliku dla każdej zwracanej pozycji."
+      },
+      "SendNotifications": {
+        "title": "Powiadomienia e-mail o zwrotach",
+        "description": "Wyślij kupującemu wiadomość e-mail, gdy zwrot zostanie zarejestrowany, zatwierdzony, częściowo zatwierdzony, odrzucony lub anulowany."
+      },
+      "SendPushNotifications": {
+        "title": "Powiadomienia push o zwrotach",
+        "description": "Wyślij również wiadomość push w aplikacji przy tych samych zdarzeniach. Wymaga modułu Push Messages."
       }
     },
     "Return.Status": {
@@ -121,6 +139,28 @@
       "WrongItemDelivered": "Dostarczono niewłaściwy produkt",
       "OrderedByMistake": "Zamówiony przez pomyłkę",
       "NoLongerNeeded": "Już niepotrzebny"
+    }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Zwrot zarejestrowany",
+      "description": "Kupujący otrzymuje wiadomość e-mail, gdy jego wniosek o zwrot zostanie zarejestrowany i czeka na rozpatrzenie"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Zwrot zatwierdzony",
+      "description": "Kupujący otrzymuje wiadomość e-mail, gdy każda pozycja zwrotu zostanie zatwierdzona w całości"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Zwrot zatwierdzony częściowo",
+      "description": "Kupujący otrzymuje wiadomość e-mail, gdy część wnioskowanych ilości zostanie zatwierdzona, a część nie"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Zwrot odrzucony",
+      "description": "Kupujący otrzymuje wiadomość e-mail, gdy żadna z wnioskowanych ilości nie zostanie zatwierdzona"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Zwrot anulowany",
+      "description": "Kupujący otrzymuje wiadomość e-mail, gdy jego wniosek o zwrot zostanie anulowany i przestanie czekać na rozpatrzenie"
     }
   }
 }

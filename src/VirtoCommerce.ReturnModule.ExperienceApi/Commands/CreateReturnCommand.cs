@@ -14,6 +14,8 @@ public class CreateReturnCommand : ICommand<Return>
 
     public string CustomerComment { get; set; }
 
+    public string LanguageCode { get; set; }
+
     public IList<CreateReturnItemRequest> Items { get; set; }
 
     public string CustomerId { get; set; }
@@ -26,6 +28,7 @@ public class CreateReturnCommandType : InputObjectGraphType<CreateReturnCommand>
         Field(x => x.OrderId, nullable: false);
         Field(x => x.CustomerReference, nullable: true);
         Field(x => x.CustomerComment, nullable: true);
+        Field(x => x.LanguageCode, nullable: true);
         Field<NonNullGraphType<ListGraphType<NonNullGraphType<InputReturnItemType>>>>("items");
     }
 }
