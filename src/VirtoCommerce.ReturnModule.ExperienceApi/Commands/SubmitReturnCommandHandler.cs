@@ -1,0 +1,36 @@
+﻿using System.Threading;
+using System.Threading.Tasks;
+using GraphQL;
+using MediatR;
+using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.ReturnModule.Core;
+using VirtoCommerce.ReturnModule.Core.Models;
+using VirtoCommerce.ReturnModule.Core.Services;
+using VirtoCommerce.ReturnModule.ExperienceApi.Extensions;
+
+namespace VirtoCommerce.ReturnModule.ExperienceApi.Commands;
+
+public class SubmitReturnCommandHandler : IRequestHandler<SubmitReturnCommand, Return>
+{
+    private readonly IReturnFlowService _flowService;
+
+    public SubmitReturnCommandHandler(IReturnFlowService flowService)
+    {
+        _flowService = flowService;
+    }
+
+    public virtual async Task<Return> Handle(SubmitReturnCommand request, CancellationToken cancellationToken)
+    {
+        var context = AbstractTypeFactory<ReturnFlowContext>.TryCreateInstance();
+        context.CustomerId = request.CustomerId;
+
+        try
+        {
+            return await _flowService.Submit(request.ReturnId, context, cancellationToken);
+        }
+        catch (ReturnFlowException exception)
+        {
+            throw exception.ToExecutionError();
+        }
+    }
+}

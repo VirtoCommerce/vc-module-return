@@ -21,6 +21,8 @@ namespace VirtoCommerce.ReturnModule.Data.Repositories
 
         public IQueryable<ReturnLineItemEntity> ReturnLineItems => DbContext.Set<ReturnLineItemEntity>();
 
+        public IQueryable<ReturnAttachmentEntity> ReturnAttachments => DbContext.Set<ReturnAttachmentEntity>();
+
         public virtual async Task<IList<ReturnEntity>> GetReturnsByIdsAsync(IList<string> ids, string responseGroup = null)
         {
             if (ids.IsNullOrEmpty())
@@ -33,7 +35,13 @@ namespace VirtoCommerce.ReturnModule.Data.Repositories
             if (result.Any())
             {
                 var existingIds = result.Select(x => x.Id).ToList();
-                await ReturnLineItems.Where(x => existingIds.Contains(x.ReturnId)).LoadAsync();
+                var lineItems = await ReturnLineItems.Where(x => existingIds.Contains(x.ReturnId)).ToListAsync();
+
+                if (lineItems.Count > 0)
+                {
+                    var lineItemIds = lineItems.Select(x => x.Id).ToList();
+                    await ReturnAttachments.Where(x => lineItemIds.Contains(x.ReturnLineItemId)).LoadAsync();
+                }
             }
 
             return result;

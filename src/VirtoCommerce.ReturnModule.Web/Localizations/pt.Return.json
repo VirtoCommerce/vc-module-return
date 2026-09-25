@@ -1,4 +1,4 @@
-{
+﻿{
   "return": {
     "main-menu-title": "Devoluções",
     "blades": {
@@ -17,7 +17,9 @@
           "created-by": "Criado por",
           "items-count": "Quantidade de itens",
           "add-return": "Adicionar nova devolução",
-          "create-return": "Criar devolução"
+          "create-return": "Criar devolução",
+          "copy-id": "Copiar ID",
+          "copy-number": "Copiar número"
         }
       },
       "order-list": {
@@ -71,11 +73,54 @@
       "ReturnNewNumberTemplate": {
         "title": "Modelo de número de devolução",
         "description": "Use este modelo para gerar novos números de devolução de pedidos"
+      },
+      "WindowDays": {
+        "title": "Prazo de devolução, dias",
+        "description": "Durante quanto tempo após a entrega uma linha pode ser devolvida. Contado por linha a partir da última data de entrega."
+      },
+      "AllowedOrderStatuses": {
+        "title": "Estados da encomenda que permitem devolução",
+        "description": "Estados da encomenda separados por vírgulas a partir dos quais se pode pedir uma devolução. Em branco não permite nenhum."
+      },
+      "AllowedShipmentStatuses": {
+        "title": "Estados de envio considerados entregues",
+        "description": "Estados de envio separados por vírgulas a considerar entregues. Em branco aceita qualquer estado e a entrega é retirada da data de entrega do envio."
+      },
+      "Reasons": {
+        "title": "Motivos de devolução",
+        "description": "Motivos que o comprador escolhe por linha. Localizáveis."
+      },
+      "ReasonsRequiringComment": {
+        "title": "Motivos que exigem comentário",
+        "description": "Códigos de motivo separados por vírgulas que obrigam o comprador a explicar."
+      },
+      "AttachmentsRequired": {
+        "title": "Fotografias ou documentos obrigatórios",
+        "description": "Exigir pelo menos um ficheiro em cada linha devolvida."
       }
     },
     "Return.Status": {
       "description": "Status de devolução de pedidos",
-      "title": "Status de devolução de pedidos de clientes"
+      "title": "Status de devolução de pedidos de clientes",
+      "New": "Novo",
+      "Approved": "Aprovado",
+      "Completed": "Concluído",
+      "Canceled": "Cancelado",
+      "Processing": "Em processamento",
+      "Draft": "Rascunho",
+      "Requested": "Solicitado",
+      "PartiallyApproved": "Parcialmente aprovado",
+      "Rejected": "Rejeitado",
+      "Cancelled": "Cancelado"
+    },
+    "Return.Reasons": {
+      "title": "Motivos de devolução",
+      "description": "Motivos que o comprador escolhe por linha",
+      "FaultyOnArrival": "Com defeito à chegada",
+      "DamagedInTransit": "Danificado no transporte",
+      "WrongItemDelivered": "Artigo errado entregue",
+      "OrderedByMistake": "Encomendado por engano",
+      "NoLongerNeeded": "Já não é necessário"
     }
   }
 }

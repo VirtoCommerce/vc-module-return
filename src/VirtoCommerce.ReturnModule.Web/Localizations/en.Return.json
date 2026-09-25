@@ -1,4 +1,4 @@
-{
+﻿{
   "return": {
     "main-menu-title": "Returns",
     "blades": {
@@ -17,7 +17,9 @@
           "created-by": "Created by",
           "items-count": "Item count",
           "add-return": "Add new return",
-          "create-return": "Create return"
+          "create-return": "Create return",
+          "copy-id": "Copy Id",
+          "copy-number": "Copy number"
         }
       },
       "order-list": {
@@ -71,11 +73,54 @@
       "ReturnNewNumberTemplate": {
         "title": "Return number template",
         "description": "Use this template to generate new order returns"
+      },
+      "WindowDays": {
+        "title": "Return window, days",
+        "description": "How long after delivery a line stays returnable. Counted per line from the latest delivery date."
+      },
+      "AllowedOrderStatuses": {
+        "title": "Order statuses allowing returns",
+        "description": "Comma-separated order statuses a return may be requested from. Blank allows nothing."
+      },
+      "AllowedShipmentStatuses": {
+        "title": "Shipment statuses counted as delivered",
+        "description": "Comma-separated shipment statuses to count as delivered. Blank counts any status, and delivery is taken from the shipment delivery date."
+      },
+      "Reasons": {
+        "title": "Return reasons",
+        "description": "Reasons the buyer picks per line. Localizable."
+      },
+      "ReasonsRequiringComment": {
+        "title": "Reasons requiring a comment",
+        "description": "Comma-separated reason codes that oblige the buyer to explain."
+      },
+      "AttachmentsRequired": {
+        "title": "Photos or documents required",
+        "description": "Require at least one file on every returned line."
       }
     },
     "Return.Status": {
       "description": "Order return statuses",
-      "title": "Customer order return statuses"
-    } 
+      "title": "Customer order return statuses",
+      "New": "New",
+      "Approved": "Approved",
+      "Completed": "Completed",
+      "Canceled": "Canceled",
+      "Processing": "Processing",
+      "Draft": "Draft",
+      "Requested": "Requested",
+      "PartiallyApproved": "Partially approved",
+      "Rejected": "Rejected",
+      "Cancelled": "Cancelled"
+    },
+    "Return.Reasons": {
+      "title": "Return reasons",
+      "description": "Reasons the buyer picks per line",
+      "FaultyOnArrival": "Faulty on arrival",
+      "DamagedInTransit": "Damaged in transit",
+      "WrongItemDelivered": "Wrong item delivered",
+      "OrderedByMistake": "Ordered by mistake",
+      "NoLongerNeeded": "No longer needed"
+    }
   }
 }

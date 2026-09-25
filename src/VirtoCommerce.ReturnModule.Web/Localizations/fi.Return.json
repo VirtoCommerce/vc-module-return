@@ -1,4 +1,4 @@
-{
+﻿{
   "return": {
     "main-menu-title": "Palautukset",
     "blades": {
@@ -17,7 +17,9 @@
           "created-by": "Luonut",
           "items-count": "Tuotteiden määrä",
           "add-return": "Lisää uusi palautus",
-          "create-return": "Luo palautus"
+          "create-return": "Luo palautus",
+          "copy-id": "Kopioi tunnus",
+          "copy-number": "Kopioi numero"
         }
       },
       "order-list": {
@@ -71,11 +73,54 @@
       "ReturnNewNumberTemplate": {
         "title": "Palautusnumeron malli",
         "description": "Käytä tätä mallia uusien palautusten numerointiin"
+      },
+      "WindowDays": {
+        "title": "Palautusaika, päivää",
+        "description": "Kuinka kauan toimituksen jälkeen rivin voi palauttaa. Lasketaan riveittäin viimeisimmästä toimituspäivästä."
+      },
+      "AllowedOrderStatuses": {
+        "title": "Tilauksen tilat, joista palautus on sallittu",
+        "description": "Pilkulla erotetut tilauksen tilat, joista palautusta voi pyytää. Tyhjä ei salli mitään."
+      },
+      "AllowedShipmentStatuses": {
+        "title": "Toimitetuiksi katsottavat toimitustilat",
+        "description": "Pilkulla erotetut toimitustilat, jotka katsotaan toimitetuiksi. Tyhjä hyväksyy minkä tahansa tilan, jolloin toimitus otetaan toimituksen toimituspäivästä."
+      },
+      "Reasons": {
+        "title": "Palautuksen syyt",
+        "description": "Syyt, jotka ostaja valitsee riveittäin. Lokalisoitavissa."
+      },
+      "ReasonsRequiringComment": {
+        "title": "Syyt, jotka vaativat kommentin",
+        "description": "Pilkulla erotetut syykoodit, jotka velvoittavat ostajan perustelemaan."
+      },
+      "AttachmentsRequired": {
+        "title": "Kuvat tai asiakirjat pakollisia",
+        "description": "Vaadi vähintään yksi tiedosto jokaiselle palautettavalle riville."
       }
     },
     "Return.Status": {
       "description": "Tilauksen palautusten tilat",
-      "title": "Asiakkaan palautusten tilat"
-    } 
+      "title": "Asiakkaan palautusten tilat",
+      "New": "Uusi",
+      "Approved": "Hyväksytty",
+      "Completed": "Valmis",
+      "Canceled": "Peruutettu",
+      "Processing": "Käsittelyssä",
+      "Draft": "Luonnos",
+      "Requested": "Pyydetty",
+      "PartiallyApproved": "Osittain hyväksytty",
+      "Rejected": "Hylätty",
+      "Cancelled": "Peruutettu"
+    },
+    "Return.Reasons": {
+      "title": "Palautuksen syyt",
+      "description": "Syyt, jotka ostaja valitsee riveittäin",
+      "FaultyOnArrival": "Viallinen saapuessaan",
+      "DamagedInTransit": "Vaurioitunut kuljetuksessa",
+      "WrongItemDelivered": "Väärä tuote toimitettu",
+      "OrderedByMistake": "Tilattu vahingossa",
+      "NoLongerNeeded": "Ei enää tarpeen"
+    }
   }
 }

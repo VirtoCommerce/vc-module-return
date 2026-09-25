@@ -30,18 +30,19 @@ You can also sort the return operations (both ascending and descending, if appli
 
 ![Return list sorted by number, ascending](media/05-return-list-sorted-by-number-ascending.png)
 
-Finally, you can use the search box to type a keyword or key phrase and thus filter only the relevant items. For instance, you can type *New* to view only the return operations that have the *New* status:
+Finally, you can use the search box to type a keyword or key phrase and thus filter only the relevant items. The search covers the return number, the order number, the customer reference and the SKU and name of any returned line item:
 
-![Using the search feature: Return list items with the New status only](media/06-return-list-search-new-only.png) 
+![Using the search feature](media/06-return-list-search-new-only.png) 
 
-***Important:*** *You can use both sorting and searching/filtering for all columns, except these three: Order Number, Customer, and Item Count. This is because these columns are borrowed from the Order module and thus are not native to the Return module.*
+***Important:*** *The admin grid does not offer sorting on Order Number, Customer or Item Count. Order Number and Customer are now native columns on the return and both are searchable; Item Count is computed and has nothing to sort on.*
 
 ## Creating Return from List
 There are two ways to create a return. The first one is creating it from a return list with the _Add new return_ located on the toolbar:
 
 ![Add new return button](media/07-add-new-return-button.png)
 
-This button will take you to a screen with orders. Click the order you need to open another screen with this order's line items. Here, you can select line items to return, enter the return reason and quantity, and optionally change the price. Once you select at least one line item with non-zero quantity, the _Make Return_ button will become active. You can also specify the return reason, which is an optional field.
+This button will take you to a screen with orders. Click the order you need to open another screen with this order's line items. Here, you can select line items to return, enter the return reason and quantity, and optionally change the price. Once you select at least one line item with non-zero quantity, the _Make Return_ button will become active. You can also specify the return reason. It is optional while the return is a draft and required to
+submit it.
 
 > ***Note:*** *The Quantity field gets automatically validated, which means you cannot return more items than the order contains and that have not been returned with other returns related to this order.*
 
@@ -90,12 +91,21 @@ POST /api/return/search
   "objectIds": [
     "<some_guid>"
   ],
+  "customerId": "<some_guid>",
+  "storeId": "<some_store>",
+  "statuses": [
+    "Requested"
+  ],
+  "startDate": "2026-01-01T00:00:00Z",
+  "endDate": "2026-12-31T23:59:59Z",
   "keyword": "<some_keyword>",
-  "sort": "Ascending",
+  "sort": "createdDate:desc",
   "skip": 0,
   "take": 0
 }
 ```
+`startDate` and `endDate` both match the `createdDate` inclusively, down to the instant rather than the day. When `sort` is omitted, results come back newest first.
+
 Here is an example of search response:
 
 ```json
@@ -115,9 +125,9 @@ Here is an example of search response:
           "returnId": "2fffc88f-014a-48a0-b80d-29a178a43b29",
           "orderLineItemId": "4c893e7fe56348b5a05c8b4671c5f140",
           "quantity": 9,
-          "availableQuantity": 0,
           "price": 589.99,
-          "reason": "Not wanted",
+          "reasonCode": "FaultyOnArrival",
+          "reasonComment": "Arrived cracked",
           "createdDate": "2022-03-14T07:17:08.074618Z",
           "modifiedDate": "2022-03-15T11:47:47.6054095Z",
           "createdBy": "admin",
@@ -128,9 +138,8 @@ Here is an example of search response:
           "returnId": "2fffc88f-014a-48a0-b80d-29a178a43b29",
           "orderLineItemId": "c32a0b78aac84cb8becf6657fe9895fa",
           "quantity": 7,
-          "availableQuantity": 0,
           "price": 399,
-          "reason": "Not needed",
+          "reasonCode": "NoLongerNeeded",
           "createdDate": "2022-03-14T07:17:08.0818378Z",
           "modifiedDate": "2022-03-15T11:47:16.6209129Z",
           "createdBy": "admin",
@@ -158,6 +167,8 @@ The API has the following URL:
 ```
 
 It receives _Order ID_ as a parameter and returns a quantity available for return for each order's line item considering all existing returns for the order in question.
+
+***Note:*** *this endpoint counts every return regardless of its status, so a cancelled or rejected one still consumes quantity. The storefront does not use it; `returnableItems` in the xAPI applies the status rules described under Quantities.*
 Here is a response example:
 
 ```json
@@ -171,6 +182,45 @@ Here is a response example:
 You can configure the template for generating return numbers in the store settings, individually for every store:
 
 ![Settings template](media/13-settings.png)
+
+## Line item attachments
+
+Buyers attach photos and documents per return line. Uploads go through the File Experience API, which
+resolves its scopes from platform configuration only, so the module cannot register one for you. Until
+this entry exists in the platform's `appsettings.json`, `POST /api/files/return-attachments` answers
+`InvalidScope`:
+
+```json
+{
+  "FileUpload": {
+    "Scopes": [
+      {
+        "Scope": "return-attachments",
+        "MaxFileSize": 5242880,
+        "AllowedExtensions": [ ".jpg", ".jpeg", ".png", ".pdf" ]
+      }
+    ]
+  }
+}
+```
+
+The size and the extension list are yours to choose; the module deliberately imposes neither.
+
+`Return.AttachmentsRequired` is off by default for the same reason — turned on before the scope exists,
+it would refuse every submit for a file the buyer has no way to upload.
+
+A buyer may only attach files they uploaded themselves and that no other return has claimed. Dropping
+a line releases its files, and a released file that no return refers to any more is deleted.
+
+## When the rules are applied
+
+A draft is saved on every edit, so a half-filled line has to be allowed to persist: while drafting,
+the module only checks lengths and that a reason, if one is given, is in `Return.Reasons`.
+
+Submit runs the same checks and additionally requires a reason on every line, so
+`Return.ReasonsRequiringComment` cannot be sidestepped by clearing the reason. Submit validates the
+draft as it stands, whoever wrote it — a draft written through `PUT /api/return` is held to the same
+rules as one built in the storefront.
 
 # Permissions
 

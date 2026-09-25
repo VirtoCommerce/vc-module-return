@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VirtoCommerce.ReturnModule.Data.Repositories;
 
@@ -16,10 +17,12 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.13")
+                .HasAnnotation("ProductVersion", "10.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("VirtoCommerce.ReturnModule.Data.Models.ReturnEntity", b =>
+            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+
+            modelBuilder.Entity("VirtoCommerce.ReturnModule.Data.Models.ReturnAttachmentEntity", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
@@ -32,6 +35,80 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("MimeType")
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("varchar(1024)");
+
+                    b.Property<string>("ReturnLineItemId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("varchar(2048)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReturnLineItemId");
+
+                    b.ToTable("ReturnAttachment", (string)null);
+                });
+
+            modelBuilder.Entity("VirtoCommerce.ReturnModule.Data.Models.ReturnEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
+
+                    b.Property<string>("CancelReason")
+                        .HasMaxLength(2048)
+                        .HasColumnType("varchar(2048)");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(2048)
+                        .HasColumnType("varchar(2048)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CustomerComment")
+                        .HasMaxLength(2048)
+                        .HasColumnType("varchar(2048)");
+
+                    b.Property<string>("CustomerId")
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
+
+                    b.Property<string>("CustomerName")
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
+
+                    b.Property<string>("CustomerReference")
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(64)
@@ -50,6 +127,14 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("varchar(128)");
 
+                    b.Property<string>("OrderNumber")
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<string>("RejectReason")
+                        .HasMaxLength(2048)
+                        .HasColumnType("varchar(2048)");
+
                     b.Property<string>("Resolution")
                         .HasMaxLength(2048)
                         .HasColumnType("varchar(2048)");
@@ -58,7 +143,15 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("varchar(64)");
 
+                    b.Property<string>("StoreId")
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("CustomerId", "StoreId", "CreatedDate");
 
                     b.ToTable("Return", (string)null);
                 });
@@ -70,12 +163,27 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("varchar(128)");
 
+                    b.Property<int>("ApprovedQuantity")
+                        .HasColumnType("int");
+
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(64)
                         .HasColumnType("varchar(64)");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("varchar(2048)");
+
+                    b.Property<string>("ItemState")
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<string>("MeasureUnit")
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(64)
@@ -84,14 +192,25 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("Name")
+                        .HasMaxLength(1024)
+                        .HasColumnType("varchar(1024)");
+
                     b.Property<string>("OrderLineItemId")
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("varchar(128)");
 
+                    b.Property<int>("OrderedQuantity")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
+                        .HasColumnType("decimal");
+
+                    b.Property<string>("ProductId")
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -100,8 +219,28 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
                         .HasMaxLength(1024)
                         .HasColumnType("varchar(1024)");
 
+                    b.Property<string>("ReasonCode")
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<string>("ReasonComment")
+                        .HasMaxLength(1024)
+                        .HasColumnType("varchar(1024)");
+
+                    b.Property<string>("RejectReason")
+                        .HasMaxLength(1024)
+                        .HasColumnType("varchar(1024)");
+
                     b.Property<string>("ReturnId")
                         .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
+
+                    b.Property<string>("SerialNumber")
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
+
+                    b.Property<string>("Sku")
                         .HasMaxLength(128)
                         .HasColumnType("varchar(128)");
 
@@ -110,6 +249,17 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
                     b.HasIndex("ReturnId");
 
                     b.ToTable("ReturnLineItem", (string)null);
+                });
+
+            modelBuilder.Entity("VirtoCommerce.ReturnModule.Data.Models.ReturnAttachmentEntity", b =>
+                {
+                    b.HasOne("VirtoCommerce.ReturnModule.Data.Models.ReturnLineItemEntity", "ReturnLineItem")
+                        .WithMany("Attachments")
+                        .HasForeignKey("ReturnLineItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ReturnLineItem");
                 });
 
             modelBuilder.Entity("VirtoCommerce.ReturnModule.Data.Models.ReturnLineItemEntity", b =>
@@ -126,6 +276,11 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
             modelBuilder.Entity("VirtoCommerce.ReturnModule.Data.Models.ReturnEntity", b =>
                 {
                     b.Navigation("LineItems");
+                });
+
+            modelBuilder.Entity("VirtoCommerce.ReturnModule.Data.Models.ReturnLineItemEntity", b =>
+                {
+                    b.Navigation("Attachments");
                 });
 #pragma warning restore 612, 618
         }

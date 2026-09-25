@@ -1,4 +1,4 @@
-{
+﻿{
   "return": {
     "main-menu-title": "返品",
     "blades": {
@@ -17,7 +17,9 @@
           "created-by": "作成者",
           "items-count": "商品数",
           "add-return": "新規返品を追加",
-          "create-return": "返品を作成"
+          "create-return": "返品を作成",
+          "copy-id": "IDをコピー",
+          "copy-number": "番号をコピー"
         }
       },
       "order-list": {
@@ -71,11 +73,54 @@
       "ReturnNewNumberTemplate": {
         "title": "返品番号テンプレート",
         "description": "新しい注文返品を生成するためのテンプレートを使用"
+      },
+      "WindowDays": {
+        "title": "返品可能期間（日）",
+        "description": "配達後、明細を返品できる期間。明細ごとに最新の配達日から計算されます。"
+      },
+      "AllowedOrderStatuses": {
+        "title": "返品を許可する注文ステータス",
+        "description": "返品を申請できる注文ステータス（カンマ区切り）。空の場合は一切許可されません。"
+      },
+      "AllowedShipmentStatuses": {
+        "title": "配達済みとみなす出荷ステータス",
+        "description": "配達済みとみなす出荷ステータス（カンマ区切り）。空の場合はすべてのステータスを受け入れ、配達は出荷の配達日から判断されます。"
+      },
+      "Reasons": {
+        "title": "返品理由",
+        "description": "購入者が明細ごとに選ぶ理由。ローカライズ可能です。"
+      },
+      "ReasonsRequiringComment": {
+        "title": "コメントが必要な理由",
+        "description": "購入者に説明を求める理由コード（カンマ区切り）。"
+      },
+      "AttachmentsRequired": {
+        "title": "写真または書類が必須",
+        "description": "返品する各明細に少なくとも1つのファイルを必須にします。"
       }
     },
     "Return.Status": {
       "description": "注文返品ステータス",
-      "title": "顧客注文返品ステータス"
+      "title": "顧客注文返品ステータス",
+      "New": "新規",
+      "Approved": "承認済み",
+      "Completed": "完了",
+      "Canceled": "キャンセル",
+      "Processing": "処理中",
+      "Draft": "下書き",
+      "Requested": "申請済み",
+      "PartiallyApproved": "一部承認",
+      "Rejected": "却下",
+      "Cancelled": "キャンセル"
+    },
+    "Return.Reasons": {
+      "title": "返品理由",
+      "description": "購入者が明細ごとに選ぶ理由",
+      "FaultyOnArrival": "到着時に不良",
+      "DamagedInTransit": "輸送中の破損",
+      "WrongItemDelivered": "誤った商品が届いた",
+      "OrderedByMistake": "誤って注文",
+      "NoLongerNeeded": "不要になった"
     }
   }
 }

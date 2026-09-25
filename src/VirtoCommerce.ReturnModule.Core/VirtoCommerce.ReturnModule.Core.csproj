@@ -8,6 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     
+    <PackageReference Include="VirtoCommerce.FileExperienceApi.Core" Version="3.1003.0" />
     <PackageReference Include="VirtoCommerce.OrdersModule.Core" Version="3.1009.0" />
     <PackageReference Include="VirtoCommerce.Platform.Core" Version="3.1039.0" />
   </ItemGroup>

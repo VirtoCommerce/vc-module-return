@@ -1,4 +1,4 @@
-{
+﻿{
   "return": {
     "main-menu-title": "Retours",
     "blades": {
@@ -17,7 +17,9 @@
           "created-by": "Créé par",
           "items-count": "Nombre d'articles",
           "add-return": "Ajouter un nouveau retour",
-          "create-return": "Créer un retour"
+          "create-return": "Créer un retour",
+          "copy-id": "Copier l'identifiant",
+          "copy-number": "Copier le numéro"
         }
       },
       "order-list": {
@@ -71,11 +73,54 @@
       "ReturnNewNumberTemplate": {
         "title": "Modèle de numéro de retour",
         "description": "Utilisez ce modèle pour générer de nouveaux retours de commande"
+      },
+      "WindowDays": {
+        "title": "Délai de retour, jours",
+        "description": "Combien de temps après la livraison une ligne reste retournable. Compté par ligne à partir de la dernière date de livraison."
+      },
+      "AllowedOrderStatuses": {
+        "title": "Statuts de commande autorisant les retours",
+        "description": "Statuts de commande séparés par des virgules depuis lesquels un retour peut être demandé. Vide n’autorise rien."
+      },
+      "AllowedShipmentStatuses": {
+        "title": "Statuts d’expédition considérés comme livrés",
+        "description": "Statuts d’expédition séparés par des virgules comptant comme livrés. Vide accepte tout statut, la livraison étant alors prise de la date de livraison de l’expédition."
+      },
+      "Reasons": {
+        "title": "Motifs de retour",
+        "description": "Motifs que l’acheteur choisit par ligne. Localisables."
+      },
+      "ReasonsRequiringComment": {
+        "title": "Motifs exigeant un commentaire",
+        "description": "Codes de motif séparés par des virgules qui obligent l’acheteur à s’expliquer."
+      },
+      "AttachmentsRequired": {
+        "title": "Photos ou documents obligatoires",
+        "description": "Exiger au moins un fichier sur chaque ligne retournée."
       }
     },
     "Return.Status": {
       "description": "Statuts de retour de commande",
-      "title": "Statuts de retour de commande client"
+      "title": "Statuts de retour de commande client",
+      "New": "Nouveau",
+      "Approved": "Approuvé",
+      "Completed": "Terminé",
+      "Canceled": "Annulé",
+      "Processing": "En cours",
+      "Draft": "Brouillon",
+      "Requested": "Demandé",
+      "PartiallyApproved": "Partiellement approuvé",
+      "Rejected": "Refusé",
+      "Cancelled": "Annulé"
+    },
+    "Return.Reasons": {
+      "title": "Motifs de retour",
+      "description": "Motifs que l’acheteur choisit par ligne",
+      "FaultyOnArrival": "Défectueux à la livraison",
+      "DamagedInTransit": "Endommagé pendant le transport",
+      "WrongItemDelivered": "Article livré incorrect",
+      "OrderedByMistake": "Commandé par erreur",
+      "NoLongerNeeded": "N’est plus nécessaire"
     }
   }
 }
