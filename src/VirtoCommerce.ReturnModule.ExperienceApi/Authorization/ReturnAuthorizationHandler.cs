@@ -7,6 +7,7 @@ using VirtoCommerce.FileExperienceApi.Core.Models;
 using VirtoCommerce.Platform.Core;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Security;
+using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
 using FileExperienceApiModuleConstants = VirtoCommerce.FileExperienceApi.Core.ModuleConstants;
@@ -94,10 +95,16 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
             return true;
         }
 
-        // A colleague who may read the return may open its photos too, but not delete them.
+        // Anyone else may open the photos but never delete them: the back office, which decides on a
+        // return from them, and a colleague who may read the return through the organization.
         if (!requirement.Permission.EqualsIgnoreCase(FileExperienceApiModuleConstants.Security.Permissions.Read))
         {
             return false;
+        }
+
+        if (context.User.HasGlobalPermission(ModuleConstants.Security.Permissions.Read))
+        {
+            return true;
         }
 
         var organizationAccessService = scope.ServiceProvider.GetRequiredService<IReturnOrganizationAccessService>();

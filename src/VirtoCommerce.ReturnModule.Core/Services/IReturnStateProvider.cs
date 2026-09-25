@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using VirtoCommerce.ReturnModule.Core.Models;
 
 namespace VirtoCommerce.ReturnModule.Core.Services;
@@ -16,4 +16,6 @@ public interface IReturnStateProvider
     /// <paramref name="orderReturn"/> is the return as stored, or null for one being created.
     /// </summary>
     bool CanSetStatus(Return orderReturn, string newStatus);
+
+    bool IsDecided(ReturnLineItem lineItem);
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using VirtoCommerce.Platform.Core.Common;
@@ -76,9 +76,14 @@ public class ReturnStateProvider : IReturnStateProvider
 
         // Once lines are decided, an edit can only carry the return out - not cancel it, reopen it
         // or decide it again.
-        var isDecided = orderReturn?.LineItems?.Any(x => DecidedItemStates.Contains(x.ItemState ?? string.Empty)) == true;
+        var isDecided = orderReturn?.LineItems?.Any(IsDecided) == true;
 
         return !isDecided || FulfilmentStatuses.Contains(newStatus ?? string.Empty);
+    }
+
+    public virtual bool IsDecided(ReturnLineItem lineItem)
+    {
+        return DecidedItemStates.Contains(lineItem.ItemState ?? string.Empty);
     }
 
     /// <summary>

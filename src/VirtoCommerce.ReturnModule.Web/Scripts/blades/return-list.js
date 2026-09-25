@@ -1,6 +1,6 @@
 angular.module('virtoCommerce.returnModule')
-    .controller('virtoCommerce.returnModule.returnListController', ['$scope', 'virtoCommerce.returnModule.returns', 'platformWebApp.bladeUtils', 'platformWebApp.uiGridHelper', 'platformWebApp.ui-grid.extension',
-        ($scope, returns, bladeUtils, uiGridHelper, gridOptionExtension) => {
+    .controller('virtoCommerce.returnModule.returnListController', ['$scope', 'virtoCommerce.returnModule.returns', 'platformWebApp.bladeUtils', 'platformWebApp.uiGridHelper', 'platformWebApp.ui-grid.extension', 'platformWebApp.settings', 'virtoCommerce.orderModule.statusTranslationService',
+        ($scope, returns, bladeUtils, uiGridHelper, gridOptionExtension, settings, statusTranslationService) => {
             $scope.uiGridConstants = uiGridHelper.uiGridConstants;
 
             var blade = $scope.blade;
@@ -8,6 +8,10 @@ angular.module('virtoCommerce.returnModule')
 
             blade.title = 'return.blades.return-list.title';
             blade.headIcon = 'fa fa-exchange';
+
+            settings.getValues({ id: 'Return.Status' }, (data) => {
+                blade.statuses = statusTranslationService.translateStatuses(data, 'return');
+            });
 
             blade.refresh = () => {
                 blade.isLoading = true;
@@ -92,7 +96,15 @@ angular.module('virtoCommerce.returnModule')
 
             $scope.clearKeyword = () => {
                 blade.searchKeyword = null;
-                blade.refresh();
+                $scope.criteriaChanged();
+            };
+
+            $scope.criteriaChanged = () => {
+                if ($scope.pageSettings.currentPage > 1) {
+                    $scope.pageSettings.currentPage = 1;
+                } else {
+                    blade.refresh();
+                }
             };
 
             $scope.selectNode = (node) => {
@@ -132,6 +144,7 @@ angular.module('virtoCommerce.returnModule')
             function getSearchCriteria() {
                 return {
                     keyword: blade.searchKeyword,
+                    statuses: blade.statusFilter ? [blade.statusFilter] : null,
                     responseGroup: "WithOrders",
                     sort: uiGridHelper.getSortExpression($scope),
                     skip: ($scope.pageSettings.currentPage - 1) * $scope.pageSettings.itemsPerPageCount,

@@ -30,7 +30,7 @@ You can also sort the return operations (both ascending and descending, if appli
 
 ![Return list sorted by number, ascending](media/05-return-list-sorted-by-number-ascending.png)
 
-Finally, you can use the search box to type a keyword or key phrase and thus filter only the relevant items. The search covers the return number, the order number, the customer reference, the customer's name and the SKU and name of any returned line item:
+Finally, you can use the search box to type a keyword or key phrase and thus filter only the relevant items. The search covers the return number, the order number, the customer reference, the customer's name and the SKU and name of any returned line item. The status filter next to it narrows the list to one status — `Requested`, for instance, lists the returns waiting for a decision:
 
 ![Using the search feature](media/06-return-list-search-new-only.png) 
 
@@ -54,7 +54,7 @@ The other way to create a return is using the _Create Return_ button in the orde
 ![Creating returns from order](media/09-return-from-order.png)
 
 ## Editing Returns
-You can edit any return by clicking it in the list, while newly created returns get opened for editing automatically. On the main return screen, you can edit both status and reason, with the status list being editable. To open the list of line items, click the widget with item count and its total price on the bottom part of the screen. It works similar to the creating process, apart from there being no checkboxes and no option to enter zero quantity.
+You can edit any return by clicking it in the list, while newly created returns get opened for editing automatically. On the main return screen, you can edit both status and reason, with the status list being editable. To open the list of line items, click the widget with item count and its total price on the bottom part of the screen. It works similar to the creating process, apart from there being no checkboxes and no option to enter zero quantity. Each line shows why the buyer is returning it: the reason, their comment, the serial number and the files they attached.
 
 > ***Note:*** *You can neither add nor remove line items for an existing return.*
 
@@ -72,7 +72,7 @@ The chart below shows how the return lifetime basically works:
 
 > ***Notes:***
 >
-> *1. Once created, the return cannot be deleted, while you can switch statuses in any way with no restrictions.*
+> *1. Once created, the return cannot be deleted, and its status changes as described under Approving and declining.*
 >
 > *2. You can change the number of line items within available value.*
 >
@@ -168,7 +168,7 @@ The API has the following URL:
 
 It receives _Order ID_ as a parameter and returns a quantity available for return for each order's line item considering all existing returns for the order in question.
 
-***Note:*** *this endpoint counts every return regardless of its status, so a cancelled or rejected one still consumes quantity. The storefront does not use it; `returnableItems` in the xAPI applies the status rules described under Quantities.*
+***Note:*** *this endpoint counts what the order's returns hold, the same way `returnableItems` does in the xAPI: nothing for a draft, a cancelled or a declined return, the approved quantity for a line that has been decided, and the requested quantity otherwise.*
 Here is a response example:
 
 ```json
@@ -211,6 +211,10 @@ it would refuse every submit for a file the buyer has no way to upload.
 
 A buyer may only attach files they uploaded themselves and that no other return has claimed. Dropping
 a line releases its files, and a released file that no return refers to any more is deleted.
+
+The buyer can open and delete the files of their return. In the back office, anyone with `return:read`
+can open them from the return's line items, and on the storefront so can a colleague who may read the
+return through the organization (see Permissions); deleting them stays with the buyer and administrators.
 
 ## When the rules are applied
 
@@ -300,12 +304,15 @@ the whole return goes underneath. **Approve / decline** records the decision in 
 
 Every line needs a decision, from 0 up to the requested quantity. The status follows from the numbers:
 `Approved` when every line is approved in full, `Rejected` when nothing is, `PartiallyApproved`
-otherwise. Each line is marked as decided, so the return goes on holding only the approved units —
-what was not approved can be requested again straight away, on the storefront and in the admin alike.
+otherwise. Each line is marked as decided, so the return goes on holding only the approved units,
+whatever status it moves on to — what was not approved can be requested again straight away, on the
+storefront and in the admin alike.
 
 The decision is written only this way. An edit through `PUT /api/return` keeps the approved quantities
 and decline reasons already stored, and once a line is decided also its requested quantity; lines
-cannot be added to or removed from a decided return. The status an edit may set is limited too:
+cannot be added to or removed from a decided return. An edit is checked against what each line holds,
+so a decided return stays editable after the units it released have been requested again. The status
+an edit may set is limited too:
 
 * never `Draft`, `Requested`, `Approved`, `PartiallyApproved` or `Rejected` — only submitting and
   authorizing set those;
@@ -315,7 +322,8 @@ cannot be added to or removed from a decided return. The status an edit may set 
   a decision cannot be cancelled or undone by an edit;
 * otherwise any status in the `Return.Status` dictionary, so a `New` return can still be cancelled.
 
-The status list in the return's details does not offer the statuses only the flow sets.
+The status list in the return's details offers only the statuses an edit would accept, as
+`GET /api/return/{id}/available-statuses` reports them.
 
 # Permissions
 

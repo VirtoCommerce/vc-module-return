@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Elenco resi",
         "placeholders": {
-          "select-filter": "Seleziona un filtro"
+          "select-filter": "Seleziona un filtro",
+          "statuses": "Tutti gli stati"
         },
         "labels": {
           "return-number": "Numero di reso",
@@ -38,7 +39,8 @@
           "price": "Prezzo",
           "sku": "SKU",
           "approved-quantity": "Approvato",
-          "reject-reason": "Motivo del rifiuto"
+          "reject-reason": "Motivo del rifiuto",
+          "serial-number": "Numero di serie"
         },
         "commands": {
           "authorize": "Approva / rifiuta"

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MockQueryable;
@@ -65,6 +65,27 @@ public class ReturnQuantityServiceTests
         var held = await service.GetHeldQuantities(OrderId);
 
         Assert.Equal(200, held[LineId]);
+    }
+
+    [Theory]
+    [InlineData(ReturnStatus.AwaitingDelivery)]
+    [InlineData(ReturnStatus.Received)]
+    [InlineData(ReturnStatus.Processing)]
+    [InlineData(ReturnStatus.Completed)]
+    public async Task GetHeldQuantities_DecidedReturnCarriedOn_StillHoldsOnlyWhatWasApproved(string status)
+    {
+        // 200 of 240 bolts approved and the tea declined, then the return is carried on towards a
+        // refund: the 40 bolts and the 12 tea turned down stay free to be requested again.
+        var orderReturn = MakeReturn("r1", status, quantity: 240, approvedQuantity: 200);
+        orderReturn.LineItems.First().ItemState = ReturnItemState.Approved;
+        orderReturn.LineItems.Add(new ReturnLineItem { OrderLineItemId = "line-2", Quantity = 12, ItemState = ReturnItemState.Rejected });
+
+        var service = CreateService(orderReturn);
+
+        var held = await service.GetHeldQuantities(OrderId);
+
+        Assert.Equal(200, held[LineId]);
+        Assert.False(held.ContainsKey("line-2"));
     }
 
     [Fact]

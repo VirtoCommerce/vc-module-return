@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Palautuslista",
         "placeholders": {
-          "select-filter": "Valitse suodatin"
+          "select-filter": "Valitse suodatin",
+          "statuses": "Kaikki tilat"
         },
         "labels": {
           "return-number": "Palautusnumero",
@@ -38,7 +39,8 @@
           "price": "Hinta",
           "sku": "Tuotekoodi",
           "approved-quantity": "Hyväksytty",
-          "reject-reason": "Hylkäyksen syy"
+          "reject-reason": "Hylkäyksen syy",
+          "serial-number": "Sarjanumero"
         },
         "commands": {
           "authorize": "Hyväksy / hylkää"

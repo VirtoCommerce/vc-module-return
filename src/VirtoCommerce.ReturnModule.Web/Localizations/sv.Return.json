@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Returöversikt",
         "placeholders": {
-          "select-filter": "Välj ett filter"
+          "select-filter": "Välj ett filter",
+          "statuses": "Alla statusar"
         },
         "labels": {
           "return-number": "Returnummer",
@@ -38,7 +39,8 @@
           "price": "Pris",
           "sku": "Artikelnummer",
           "approved-quantity": "Godkänt",
-          "reject-reason": "Orsak till avslag"
+          "reject-reason": "Orsak till avslag",
+          "serial-number": "Serienummer"
         },
         "commands": {
           "authorize": "Godkänn / avslå"

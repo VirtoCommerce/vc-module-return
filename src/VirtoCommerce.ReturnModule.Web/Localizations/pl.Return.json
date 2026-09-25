@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Lista zwrotów",
         "placeholders": {
-          "select-filter": "Wybierz filtr"
+          "select-filter": "Wybierz filtr",
+          "statuses": "Wszystkie statusy"
         },
         "labels": {
           "return-number": "Numer zwrotu",
@@ -38,7 +39,8 @@
           "price": "Cena",
           "sku": "SKU",
           "approved-quantity": "Zatwierdzono",
-          "reject-reason": "Powód odrzucenia"
+          "reject-reason": "Powód odrzucenia",
+          "serial-number": "Numer seryjny"
         },
         "commands": {
           "authorize": "Zatwierdź / odrzuć"

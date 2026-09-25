@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Returliste",
         "placeholders": {
-          "select-filter": "Velg et filter"
+          "select-filter": "Velg et filter",
+          "statuses": "Alle statuser"
         },
         "labels": {
           "return-number": "Returnummer",
@@ -38,7 +39,8 @@
           "price": "Pris",
           "sku": "SKU",
           "approved-quantity": "Godkjent",
-          "reject-reason": "Årsak til avslag"
+          "reject-reason": "Årsak til avslag",
+          "serial-number": "Serienummer"
         },
         "commands": {
           "authorize": "Godkjenn / avslå"

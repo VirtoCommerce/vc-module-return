@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Liste des retours",
         "placeholders": {
-          "select-filter": "Sélectionner un filtre"
+          "select-filter": "Sélectionner un filtre",
+          "statuses": "Tous les statuts"
         },
         "labels": {
           "return-number": "Numéro de retour",
@@ -38,7 +39,8 @@
           "price": "Prix",
           "sku": "Référence",
           "approved-quantity": "Approuvé",
-          "reject-reason": "Motif du refus"
+          "reject-reason": "Motif du refus",
+          "serial-number": "Numéro de série"
         },
         "commands": {
           "authorize": "Approuver / refuser"

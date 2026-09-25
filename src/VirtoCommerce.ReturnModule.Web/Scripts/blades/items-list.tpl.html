@@ -35,9 +35,17 @@
                 </div>
               </td>
               <td class="table-col">
-                <div class="form-input __inline">
+                <div class="form-input __inline" ng-if="!blade.editMode">
                   <div class="form-input">
                     <input ng-model="data.reason" ng-model-options="{ updateOn: 'blur' }">
+                  </div>
+                </div>
+                <div ng-if="blade.editMode">
+                  <div class="table-item">{{ data.reasonCode ? (data.reasonCode | settingTranslate:'Return.Reasons') : data.reason }}</div>
+                  <div class="table-descr" ng-if="data.reasonComment">{{ data.reasonComment }}</div>
+                  <div class="table-descr" ng-if="data.serialNumber">{{ 'return.blades.items-list.labels.serial-number' | translate }}: {{ data.serialNumber }}</div>
+                  <div class="table-descr" ng-repeat="attachment in data.attachments">
+                    <a ng-href="{{ attachment.url }}" target="_blank" rel="noopener"><i class="fa fa-paperclip"></i> {{ attachment.name }}</a>
                   </div>
                 </div>
               </td>

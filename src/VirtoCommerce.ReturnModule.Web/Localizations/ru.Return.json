@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Список возвратов",
         "placeholders": {
-          "select-filter": "Выберите фильтр"
+          "select-filter": "Выберите фильтр",
+          "statuses": "Все статусы"
         },
         "labels": {
           "return-number": "Номер возврата",
@@ -38,7 +39,8 @@
           "price": "Цена",
           "sku": "Артикул",
           "approved-quantity": "Одобрено",
-          "reject-reason": "Причина отказа"
+          "reject-reason": "Причина отказа",
+          "serial-number": "Серийный номер"
         },
         "commands": {
           "authorize": "Одобрить / отклонить"
