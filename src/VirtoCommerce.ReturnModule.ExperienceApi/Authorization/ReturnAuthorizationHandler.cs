@@ -15,9 +15,7 @@ namespace VirtoCommerce.ReturnModule.ExperienceApi.Authorization;
 
 public class ReturnAuthorizationRequirement : IAuthorizationRequirement
 {
-    /// <summary>
-    /// What the caller wants to do with the file, as the file module names it.
-    /// </summary>
+    // What the caller wants to do with the file, as the file module names it.
     public string Permission { get; set; }
 }
 
@@ -48,6 +46,20 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
 
     protected virtual async Task<bool> IsAllowedAsync(AuthorizationHandlerContext context, ReturnAuthorizationRequirement requirement)
     {
+        if (await IsAllowedAsync(context))
+        {
+            return true;
+        }
+
+        // The back office decides on a return from its photos, so whoever may read returns may open
+        // them too, but not delete them.
+        return requirement.Permission.EqualsIgnoreCase(FileExperienceApiModuleConstants.Security.Permissions.Read) &&
+            context.User.HasGlobalPermission(ModuleConstants.Security.Permissions.Read) &&
+            await GetReturnAsync(context) != null;
+    }
+
+    protected virtual async Task<bool> IsAllowedAsync(AuthorizationHandlerContext context)
+    {
         if (context.User.IsInRole(PlatformConstants.Security.SystemRoles.Administrator))
         {
             return true;
@@ -72,36 +84,32 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
             return true;
         }
 
-        if (!file.OwnerEntityType.EqualsIgnoreCase(nameof(Return)))
-        {
-            return false;
-        }
-
-        using var scope = _scopeFactory.CreateScope();
-
-        var returnService = scope.ServiceProvider.GetRequiredService<IReturnService>();
-        var flowService = scope.ServiceProvider.GetRequiredService<IReturnFlowService>();
-
-        var orderReturn = await returnService.GetNoCloneAsync(file.OwnerEntityId, ReturnResponseGroup.None.ToString());
+        var orderReturn = await GetReturnAsync(context);
 
         if (orderReturn == null)
         {
             return false;
         }
 
-        if (await flowService.IsOwnedBy(orderReturn, GetUserId(context)))
+        using var scope = _scopeFactory.CreateScope();
+
+        var flowService = scope.ServiceProvider.GetRequiredService<IReturnFlowService>();
+
+        return await flowService.IsOwnedBy(orderReturn, GetUserId(context));
+    }
+
+    protected virtual async Task<Return> GetReturnAsync(AuthorizationHandlerContext context)
+    {
+        if (context.Resource is not File file || file.OwnerIsEmpty() || !file.OwnerEntityType.EqualsIgnoreCase(nameof(Return)))
         {
-            return true;
+            return null;
         }
 
-        // The back office decides on a return from its photos, so whoever may read returns may open
-        // them too, but not delete them.
-        if (!requirement.Permission.EqualsIgnoreCase(FileExperienceApiModuleConstants.Security.Permissions.Read))
-        {
-            return false;
-        }
+        using var scope = _scopeFactory.CreateScope();
 
-        return context.User.HasGlobalPermission(ModuleConstants.Security.Permissions.Read);
+        var returnService = scope.ServiceProvider.GetRequiredService<IReturnService>();
+
+        return await returnService.GetNoCloneAsync(file.OwnerEntityId, ReturnResponseGroup.None.ToString());
     }
 
     protected virtual string GetUserId(AuthorizationHandlerContext context)

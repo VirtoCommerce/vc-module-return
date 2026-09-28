@@ -1,6 +1,6 @@
 angular.module('virtoCommerce.returnModule')
-    .controller('virtoCommerce.returnModule.returnListController', ['$scope', 'virtoCommerce.returnModule.returns', 'platformWebApp.bladeUtils', 'platformWebApp.uiGridHelper', 'platformWebApp.ui-grid.extension', 'platformWebApp.settings', 'virtoCommerce.orderModule.statusTranslationService',
-        ($scope, returns, bladeUtils, uiGridHelper, gridOptionExtension, settings, statusTranslationService) => {
+    .controller('virtoCommerce.returnModule.returnListController', ['$scope', 'virtoCommerce.returnModule.returns', 'platformWebApp.bladeUtils', 'platformWebApp.uiGridHelper', 'platformWebApp.ui-grid.extension', 'platformWebApp.settings', '$filter',
+        ($scope, returns, bladeUtils, uiGridHelper, gridOptionExtension, settings, $filter) => {
             $scope.uiGridConstants = uiGridHelper.uiGridConstants;
 
             var blade = $scope.blade;
@@ -10,7 +10,7 @@ angular.module('virtoCommerce.returnModule')
             blade.headIcon = 'fa fa-exchange';
 
             settings.getValues({ id: 'Return.Status' }, (data) => {
-                blade.statuses = statusTranslationService.translateStatuses(data, 'return');
+                blade.statuses = data.map(x => ({ key: x, value: $filter('returnStatusTranslate')(x) }));
             });
 
             blade.refresh = () => {

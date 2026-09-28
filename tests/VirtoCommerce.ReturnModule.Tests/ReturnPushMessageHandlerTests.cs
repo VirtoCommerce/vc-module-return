@@ -200,6 +200,33 @@ public class ReturnPushMessageHandlerTests
         Assert.Empty(_saved);
     }
 
+    [Theory]
+    [InlineData(ReturnStatus.Cancelled)]
+    [InlineData(ReturnStatus.Approved)]
+    public async Task DraftMovedWithoutSubmit_QueuesNothing(string status)
+    {
+        // The push channel follows the email: nothing for a draft the buyer never submitted.
+        _orderReturn.Status = status;
+        var handler = NewHandler();
+
+        await handler.Handle(new ReturnStatusChangedEvent(_orderReturn, ReturnStatus.Draft, status));
+
+        Assert.Empty(handler.Enqueued);
+        Assert.Empty(_saved);
+    }
+
+    [Fact]
+    public async Task DraftSubmitted_CreatesTheMessage()
+    {
+        _orderReturn.Status = ReturnStatus.Requested;
+        var handler = NewHandler();
+
+        await handler.Handle(new ReturnStatusChangedEvent(_orderReturn, ReturnStatus.Draft, ReturnStatus.Requested));
+        await handler.SendPushMessagesAsync([.. handler.Enqueued]);
+
+        Assert.Single(_saved);
+    }
+
     [Fact]
     public async Task PushNotificationsDisabledForStore_QueuesNothing()
     {

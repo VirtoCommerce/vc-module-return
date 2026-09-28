@@ -14,22 +14,10 @@ using VirtoCommerce.StoreModule.Core.Services;
 
 namespace VirtoCommerce.ReturnModule.Data.Handlers;
 
-/// <summary>
-/// The in-app half of telling the buyer where their return stands.
-/// <para>
-/// This class is registered only when VirtoCommerce.PushMessages is installed - the dependency is
-/// optional, so its assembly may be absent, and a type that mentions <see cref="IPushMessageService"/>
-/// must then never be constructed. Everything push-related lives here for that reason: the email
-/// handler stays loadable whatever is installed.
-/// </para>
-/// <para>
-/// The text comes from the matching email notification's subject template rather than from a
-/// notification type of its own. A push short message and that subject say the same sentence -
-/// "Return RET-0001 approved" - and this way an operator translates and edits it once, in the
-/// admin, alongside every other notification. A push-only notification kind would need its own
-/// template entity inside the Notifications module's schema, which is not ours to extend.
-/// </para>
-/// </summary>
+// Registered only when the optional VirtoCommerce.PushMessages is installed: without it, a type that names
+// IPushMessageService must never be constructed, so everything push-related lives here.
+// The text is the matching email's subject, so an operator edits and translates the sentence once; a
+// push-only notification kind would need a template entity in the Notifications module's schema.
 public class SendPushMessagesReturnStatusChangedEventHandler : ReturnStatusNotificationHandlerBase
 {
     private readonly INotificationTemplateRenderer _templateRenderer;
@@ -77,7 +65,7 @@ public class SendPushMessagesReturnStatusChangedEventHandler : ReturnStatusNotif
                 continue;
             }
 
-            // The subject files end with a newline, which a push message would keep.
+            // A subject edited in the admin may end with a newline, which a push message would keep.
             var shortMessage = (await RenderShortMessageAsync(prepared))?.Trim();
 
             if (string.IsNullOrEmpty(shortMessage))

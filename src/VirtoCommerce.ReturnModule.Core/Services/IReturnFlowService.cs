@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using VirtoCommerce.ReturnModule.Core.Models;
@@ -15,10 +15,6 @@ public interface IReturnFlowService
 
     Task<Return> Cancel(string returnId, string reason, ReturnFlowContext context, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Records the agent's decision on every line and moves the return to Approved,
-    /// PartiallyApproved or Rejected accordingly.
-    /// </summary>
     Task<Return> Authorize(ReturnAuthorizationRequest request, CancellationToken cancellationToken = default);
 
     IList<ReturnFlowAction> GetAvailableActions(Return orderReturn);

@@ -1,6 +1,6 @@
 angular.module('virtoCommerce.returnModule')
-    .controller('virtoCommerce.returnModule.returnDetailsController', ['$scope', '$translate', 'platformWebApp.bladeNavigationService', 'platformWebApp.dialogService', 'platformWebApp.settings', 'virtoCommerce.customerModule.members', 'virtoCommerce.customerModule.memberTypesResolverService', 'virtoCommerce.orderModule.statusTranslationService', 'platformWebApp.accounts', 'platformWebApp.objCompareService', 'virtoCommerce.returnModule.returns',
-        ($scope, $translate, bladeNavigationService, dialogService, settings, members, memberTypesResolverService, statusTranslationService, accounts, objCompareService, returns) => {
+    .controller('virtoCommerce.returnModule.returnDetailsController', ['$scope', '$translate', '$filter', 'platformWebApp.bladeNavigationService', 'platformWebApp.dialogService', 'virtoCommerce.customerModule.members', 'virtoCommerce.customerModule.memberTypesResolverService', 'platformWebApp.accounts', 'platformWebApp.objCompareService', 'virtoCommerce.returnModule.returns',
+        ($scope, $translate, $filter, bladeNavigationService, dialogService, members, memberTypesResolverService, accounts, objCompareService, returns) => {
 
             var blade = $scope.blade;
 
@@ -14,14 +14,6 @@ angular.module('virtoCommerce.returnModule')
                         }
                     });
             };
-            
-            var statusSettingValues = [];
-            var availableStatuses = [];
-
-            settings.getValues({ id: 'Return.Status' }, (data) => {
-                statusSettingValues = data;
-                translateBladeStatuses();
-            });
 
             blade.refresh = () => {
                 returns.get({ id: blade.currentEntityId },
@@ -92,7 +84,6 @@ angular.module('virtoCommerce.returnModule')
                     valueType: "LongText"
                 },
                 {
-                    // Recorded when the return is approved or declined, from the line items blade.
                     name: 'rejectReason',
                     isReadOnly: true,
                     isRequired: false,
@@ -129,10 +120,7 @@ angular.module('virtoCommerce.returnModule')
                     id: 'settingDetailChild',
                     isApiSave: true,
                     currentEntityId: 'Return.Status',
-                    parentRefresh: (data) => {
-                        statusSettingValues = data;
-                        refreshAvailableStatuses();
-                    },
+                    parentRefresh: refreshAvailableStatuses,
                     controller: 'platformWebApp.settingDictionaryController',
                     template: '$(Platform)/Scripts/app/settings/blades/setting-dictionary.tpl.html'
                 };
@@ -163,14 +151,8 @@ angular.module('virtoCommerce.returnModule')
             // What an edit accepts depends on the return's decision as well as its status, so the server says.
             function refreshAvailableStatuses() {
                 returns.availableStatuses({ id: blade.currentEntityId }, (data) => {
-                    availableStatuses = data;
-                    translateBladeStatuses();
+                    blade.statuses = data.map(x => ({ key: x, value: $filter('returnStatusTranslate')(x) }));
                 });
-            }
-
-            function translateBladeStatuses() {
-                blade.statuses = statusTranslationService.translateStatuses(statusSettingValues, 'return')
-                    .filter(x => availableStatuses.indexOf(x.key) >= 0);
             }
 
             function canSave() {

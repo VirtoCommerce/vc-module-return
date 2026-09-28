@@ -137,6 +137,34 @@ public class ReturnNotificationHandlerTests
         Assert.Empty(_sent);
     }
 
+    [Theory]
+    [InlineData(ReturnStatus.Cancelled)]
+    [InlineData(ReturnStatus.Approved)]
+    public async Task DraftMovedWithoutSubmit_QueuesNothing(string status)
+    {
+        // The event reports a draft abandoned or moved on by hand; the buyer never heard of the draft,
+        // so there is nothing to tell them.
+        _orderReturn.Status = status;
+        var handler = NewHandler();
+
+        await handler.Handle(new ReturnStatusChangedEvent(_orderReturn, ReturnStatus.Draft, status));
+
+        Assert.Empty(handler.Enqueued);
+        Assert.Empty(_sent);
+    }
+
+    [Fact]
+    public async Task DraftSubmitted_SendsTheRegisteredNotification()
+    {
+        _orderReturn.Status = ReturnStatus.Requested;
+        var handler = NewHandler();
+
+        await handler.Handle(new ReturnStatusChangedEvent(_orderReturn, ReturnStatus.Draft, ReturnStatus.Requested));
+        await handler.SendNotificationsAsync([.. handler.Enqueued]);
+
+        Assert.Equal(nameof(ReturnRegisteredEmailNotification), Assert.Single(_sent).Type);
+    }
+
     [Fact]
     public async Task NotificationsDisabledForStore_QueuesNothing()
     {

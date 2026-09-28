@@ -4,7 +4,6 @@ using System.Linq;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
-using VirtoCommerce.ReturnModule.Core.Notifications;
 using VirtoCommerce.ReturnModule.Core.Services;
 
 namespace VirtoCommerce.ReturnModule.Data.Services;
@@ -24,9 +23,7 @@ public class ReturnStateProvider : IReturnStateProvider
         new() { Action = ReturnAction.Authorize, FromStatus = ReturnStatus.New },
     ];
 
-    /// <summary>
-    /// Taken by an agent in the back office, so never offered to the buyer as one of their actions.
-    /// </summary>
+    // Taken by an agent in the back office, so never offered to the buyer as one of their actions.
     protected virtual ISet<string> AgentActions { get; } =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -86,9 +83,7 @@ public class ReturnStateProvider : IReturnStateProvider
         return DecidedItemStates.Contains(lineItem.ItemState ?? string.Empty);
     }
 
-    /// <summary>
-    /// Set only by the flow's actions: submitting, and authorizing.
-    /// </summary>
+    // Set only by the flow's actions: submitting and authorizing.
     protected virtual ISet<string> FlowStatuses { get; } =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -99,10 +94,8 @@ public class ReturnStateProvider : IReturnStateProvider
             ReturnStatus.Rejected,
         };
 
-    /// <summary>
-    /// Left only through the flow, or not at all: a draft and a request are the buyer's, a declined or
-    /// cancelled return is closed.
-    /// </summary>
+    // Left only through the flow, or not at all: a draft and a request are the buyer's, a declined or
+    // cancelled return is closed.
     protected virtual ISet<string> ClosedStatuses { get; } =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -112,9 +105,6 @@ public class ReturnStateProvider : IReturnStateProvider
             ReturnStatus.Cancelled,
         };
 
-    /// <summary>
-    /// Where a decided return goes next.
-    /// </summary>
     protected virtual ISet<string> FulfilmentStatuses { get; } =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -133,9 +123,7 @@ public class ReturnStateProvider : IReturnStateProvider
 
     protected virtual string Normalize(string status)
     {
-        return status.EqualsIgnoreCase(ReturnNotificationTypes.LegacyCancelledSpelling)
-            ? ReturnStatus.Cancelled
-            : status ?? string.Empty;
+        return ReturnStatus.Normalize(status);
     }
 
     protected virtual IEnumerable<string> GetActionNames()

@@ -4,10 +4,7 @@ using System.Collections.ObjectModel;
 
 namespace VirtoCommerce.ReturnModule.Core.Notifications
 {
-    /// <summary>
-    /// Which status the buyer is told about, and by which notification. Shared by the email and the
-    /// push handler so that the two can never disagree about what deserves telling the buyer.
-    /// </summary>
+    // One map for the email and the push handler, so the two cannot disagree on what the buyer is told.
     public static class ReturnNotificationTypes
     {
         public static IReadOnlyDictionary<string, string> ByStatus { get; } =
@@ -18,13 +15,7 @@ namespace VirtoCommerce.ReturnModule.Core.Notifications
                 [ReturnStatus.PartiallyApproved] = nameof(ReturnPartiallyApprovedEmailNotification),
                 [ReturnStatus.Rejected] = nameof(ReturnRejectedEmailNotification),
                 [ReturnStatus.Cancelled] = nameof(ReturnCancelledEmailNotification),
-
-                // The spelling the module shipped with. Both are in the Return.Status dictionary, so
-                // an operator can pick either, and a buyer whose return was cancelled should hear
-                // about it whichever one was picked.
-                [LegacyCancelledSpelling] = nameof(ReturnCancelledEmailNotification),
+                [ReturnStatus.LegacyCancelled] = nameof(ReturnCancelledEmailNotification),
             });
-
-        public const string LegacyCancelledSpelling = "Canceled";
     }
 }

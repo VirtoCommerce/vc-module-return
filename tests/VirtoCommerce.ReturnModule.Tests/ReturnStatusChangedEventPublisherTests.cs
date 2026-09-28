@@ -60,30 +60,33 @@ public class ReturnStatusChangedEventPublisherTests
 
     [Theory]
     [InlineData(ReturnStatus.Cancelled)]
-    [InlineData("Canceled")]
+    [InlineData(ReturnStatus.LegacyCancelled)]
     [InlineData(ReturnStatus.Approved)]
-    public async Task Handle_DraftAbandonedOrMovedWithoutSubmit_PublishesNothing(string newStatus)
+    public async Task Handle_DraftAbandonedOrMovedWithoutSubmit_IsStillAStatusChange(string newStatus)
     {
-        // The buyer was never told about the draft, so there is nothing to take back.
+        // The event reports what happened; that the buyer never heard of a draft is the notification
+        // handlers' concern, not a reason for other subscribers to miss the move.
         await Handle(Modified(ReturnStatus.Draft, newStatus));
 
-        Assert.Empty(_published);
+        var @event = Assert.Single(_published);
+        Assert.Equal(ReturnStatus.Draft, @event.FromStatus);
+        Assert.Equal(newStatus, @event.ToStatus);
     }
 
     [Theory]
     [InlineData(ReturnStatus.Requested)]
-    [InlineData("New")]
-    public async Task Handle_MovedBackToDraft_PublishesNothing(string oldStatus)
+    [InlineData(ReturnStatus.New)]
+    public async Task Handle_MovedBackToDraft_IsStillAStatusChange(string oldStatus)
     {
         await Handle(Modified(oldStatus, ReturnStatus.Draft));
 
-        Assert.Empty(_published);
+        Assert.Equal(ReturnStatus.Draft, Assert.Single(_published).ToStatus);
     }
 
     [Fact]
     public async Task Handle_LegacyCancelledSpelling_IsNotAStatusChange()
     {
-        await Handle(Modified("Canceled", ReturnStatus.Cancelled));
+        await Handle(Modified(ReturnStatus.LegacyCancelled, ReturnStatus.Cancelled));
 
         Assert.Empty(_published);
     }
@@ -107,9 +110,19 @@ public class ReturnStatusChangedEventPublisherTests
     }
 
     [Fact]
-    public async Task Handle_DraftCreated_PublishesNothing()
+    public async Task Handle_DraftCreated_PublishesTheDraft()
     {
         await Handle(Added(ReturnStatus.Draft));
+
+        var @event = Assert.Single(_published);
+        Assert.Null(@event.FromStatus);
+        Assert.Equal(ReturnStatus.Draft, @event.ToStatus);
+    }
+
+    [Fact]
+    public async Task Handle_ReturnWithoutStatus_PublishesNothing()
+    {
+        await Handle(Added(null), Modified(ReturnStatus.Requested, null));
 
         Assert.Empty(_published);
     }

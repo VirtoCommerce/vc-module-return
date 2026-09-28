@@ -24,7 +24,7 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         private readonly IReturnStateProvider _stateProvider;
         private readonly IReturnQuantityService _quantityService;
         private readonly ICustomerOrderService _orderService;
-        private readonly ILocalizableSettingService _localizableSettingService;
+        private readonly ISettingsManager _settingsManager;
 
         public ReturnController(
             IReturnSearchService returnSearchService,
@@ -33,7 +33,7 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             IReturnStateProvider stateProvider,
             IReturnQuantityService quantityService,
             ICustomerOrderService orderService,
-            ILocalizableSettingService localizableSettingService)
+            ISettingsManager settingsManager)
         {
             _returnSearchService = returnSearchService;
             _returnService = returnService;
@@ -41,7 +41,7 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             _stateProvider = stateProvider;
             _quantityService = quantityService;
             _orderService = orderService;
-            _localizableSettingService = localizableSettingService;
+            _settingsManager = settingsManager;
         }
 
         /// <summary>
@@ -96,12 +96,7 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
                 return NotFound();
             }
 
-            var statuses = await _localizableSettingService.GetValuesAsync(ModuleConstants.Settings.General.OrderStatus.Name, languageCode: null);
-
-            return Ok(statuses
-                .Select(x => x.Key)
-                .Where(x => _stateProvider.CanSetStatus(orderReturn, x))
-                .ToArray());
+            return Ok((await GetEditableStatusesAsync(orderReturn)).ToArray());
         }
 
         /// <summary>
@@ -123,7 +118,7 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
                 ? null
                 : await _returnService.GetByIdAsync(orderReturn.Id, ReturnResponseGroup.None.ToString());
 
-            var errors = ValidateStatusChange(storedReturn, orderReturn)
+            var errors = (await ValidateStatusChangeAsync(storedReturn, orderReturn))
                 .Concat(ValidateLineChanges(storedReturn, orderReturn))
                 .ToList();
 
@@ -196,14 +191,15 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         [Authorize(ModuleConstants.Security.Permissions.Read)]
         public async Task<ActionResult<Dictionary<string, int>>> GetAvailableQuantities(string orderId)
         {
-            var order = await _orderService.GetByIdAsync(orderId);
+            var order = await _orderService.GetNoCloneAsync(orderId);
 
             return Ok(await GetAvailableQuantitiesAsync(order, excludeReturnId: null));
         }
 
         private async Task<IEnumerable<string>> ValidateReturn(Return orderReturn, Return storedReturn)
         {
-            var order = orderReturn.Order ?? await _orderService.GetByIdAsync(orderReturn.OrderId);
+            // The order as stored, not as posted: the body could carry any quantities it likes.
+            var order = string.IsNullOrEmpty(orderReturn.OrderId) ? null : await _orderService.GetNoCloneAsync(orderReturn.OrderId);
             var availableQuantities = await GetAvailableQuantitiesAsync(order, orderReturn.Id);
 
             return orderReturn.LineItems
@@ -225,8 +221,8 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
                 : _quantityService.GetHeldQuantity(orderReturn, lineItem);
         }
 
-        // What the storefront offers too: the ordered quantity less what other returns hold, so a line
-        // approved in part frees the rest here as well.
+        // The ordered quantity less what the order's other returns hold, so a line approved in part frees the
+        // rest. The storefront counts from the delivered quantity instead, which is all a buyer can send back.
         private async Task<Dictionary<string, int>> GetAvailableQuantitiesAsync(CustomerOrder order, string excludeReturnId)
         {
             if (order == null)
@@ -242,12 +238,27 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
                 StringComparer.OrdinalIgnoreCase);
         }
 
-        private IEnumerable<string> ValidateStatusChange(Return storedReturn, Return orderReturn)
+        // Kept as it is, or moved to a status the dictionary offers and an edit may set - the same list the
+        // admin's status selector shows.
+        private async Task<IList<string>> ValidateStatusChangeAsync(Return storedReturn, Return orderReturn)
         {
-            if (!_stateProvider.CanSetStatus(storedReturn, orderReturn.Status))
+            if (ReturnStatus.Normalize(storedReturn?.Status).EqualsIgnoreCase(ReturnStatus.Normalize(orderReturn.Status)) ||
+                (await GetEditableStatusesAsync(storedReturn)).Contains(orderReturn.Status, StringComparer.OrdinalIgnoreCase))
             {
-                yield return $"Status '{storedReturn?.Status}' cannot be changed to '{orderReturn.Status}' by an edit: it is set by submitting, cancelling or authorizing the return.";
+                return [];
             }
+
+            return [$"Status '{storedReturn?.Status}' cannot be changed to '{orderReturn.Status}' by an edit."];
+        }
+
+        private async Task<IList<string>> GetEditableStatusesAsync(Return storedReturn)
+        {
+            var setting = await _settingsManager.GetObjectSettingAsync(ModuleConstants.Settings.General.OrderStatus.Name);
+
+            return (setting?.AllowedValues ?? [])
+                .OfType<string>()
+                .Where(x => _stateProvider.CanSetStatus(storedReturn, x))
+                .ToList();
         }
 
         // A decided return is the set of lines the decision was made on: a line added afterwards would

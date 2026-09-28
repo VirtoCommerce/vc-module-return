@@ -171,9 +171,10 @@ angular.module('virtoCommerce.returnModule')
                 });
             }
 
-            // The decision is recorded by authorizing; saving never writes it.
+            // The decision is recorded by authorizing; saving never writes it. Nothing here edits the order,
+            // and copying it on every digest is what an agent typing on a large order would feel.
             function withoutDecision(orderReturn) {
-                var result = angular.copy(orderReturn);
+                var result = orderReturn && angular.copy(_.omit(orderReturn, 'order'));
 
                 if (result && result.lineItems) {
                     delete result.rejectReason;

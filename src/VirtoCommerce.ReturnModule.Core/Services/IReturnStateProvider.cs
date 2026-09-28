@@ -11,10 +11,7 @@ public interface IReturnStateProvider
 
     IList<ReturnFlowAction> GetActions(Return orderReturn);
 
-    /// <summary>
-    /// Whether a status may be set by hand - an edit rather than one of the flow's actions.
-    /// <paramref name="orderReturn"/> is the return as stored, or null for one being created.
-    /// </summary>
+    // Whether an edit may set the status. orderReturn is the return as stored, or null for one being created.
     bool CanSetStatus(Return orderReturn, string newStatus);
 
     bool IsDecided(ReturnLineItem lineItem);

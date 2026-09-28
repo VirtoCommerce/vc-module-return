@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using VirtoCommerce.OrdersModule.Core.Model;
@@ -22,10 +22,7 @@ namespace VirtoCommerce.ReturnModule.Core.Models
 
         public string CustomerReference { get; set; }
 
-        /// <summary>
-        /// Culture the buyer was using when the return was raised. Notifications are rendered in it,
-        /// which is why it is a snapshot: the buyer's current preference may have moved on since.
-        /// </summary>
+        // A snapshot: the return's notifications speak the culture it was raised in, whatever the buyer uses now.
         public string LanguageCode { get; set; }
 
         public string Status { get; set; }
