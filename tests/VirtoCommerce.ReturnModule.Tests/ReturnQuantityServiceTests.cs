@@ -171,6 +171,28 @@ public class ReturnQuantityServiceTests
         Assert.Empty(held);
     }
 
+    [Fact]
+    public void GetHeldQuantity_ThroughTheInterface_UsesTheOverridableRule()
+    {
+        // 3.1002.0 shipped GetHeldQuantity as a protected seam; the interface member added since must
+        // reach an override of it rather than a copy of the rule.
+        IReturnQuantityService service = new HoldEverythingService();
+
+        var held = service.GetHeldQuantity(MakeReturn("r1", ReturnStatus.Draft, quantity: 7), new ReturnLineItem { Quantity = 7 });
+
+        Assert.Equal(7, held);
+    }
+
+    private sealed class HoldEverythingService : ReturnQuantityService
+    {
+        public HoldEverythingService()
+            : base(null, null)
+        {
+        }
+
+        protected override int GetHeldQuantity(Return orderReturn, ReturnLineItem lineItem) => lineItem.Quantity;
+    }
+
     private static ReturnQuantityService CreateService(params Return[] returns)
     {
         var entities = returns

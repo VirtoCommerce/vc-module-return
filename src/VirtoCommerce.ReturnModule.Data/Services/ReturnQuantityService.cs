@@ -62,7 +62,12 @@ public class ReturnQuantityService : IReturnQuantityService
             .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity), StringComparer.OrdinalIgnoreCase);
     }
 
-    public virtual int GetHeldQuantity(Return orderReturn, ReturnLineItem lineItem)
+    int IReturnQuantityService.GetHeldQuantity(Return orderReturn, ReturnLineItem lineItem)
+    {
+        return GetHeldQuantity(orderReturn, lineItem);
+    }
+
+    protected virtual int GetHeldQuantity(Return orderReturn, ReturnLineItem lineItem)
     {
         if (NonHoldingStatuses.Contains(orderReturn.Status ?? string.Empty))
         {
@@ -79,7 +84,7 @@ public class ReturnQuantityService : IReturnQuantityService
         {
             ReturnStatus.Draft,
             ReturnStatus.Cancelled,
-            "Canceled", // legacy dictionary spelling
+            ReturnStatus.LegacyCancelled,
             ReturnStatus.Rejected,
         };
 
@@ -93,5 +98,13 @@ public class ReturnQuantityService : IReturnQuantityService
         {
             ReturnItemState.Approved,
             ReturnItemState.Rejected,
+        };
+
+    [Obsolete("Not used: a decided line holds its approved quantity whatever the status.", DiagnosticId = "VC0016", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
+    protected virtual ISet<string> ApprovedStatuses { get; } =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ReturnStatus.Approved,
+            ReturnStatus.PartiallyApproved,
         };
 }

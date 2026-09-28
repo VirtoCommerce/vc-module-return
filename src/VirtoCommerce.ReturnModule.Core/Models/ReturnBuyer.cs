@@ -4,9 +4,7 @@ namespace VirtoCommerce.ReturnModule.Core.Models;
 
 public class ReturnBuyer
 {
-    /// <summary>
-    /// The contact behind the return; null when only a login was found.
-    /// </summary>
+    // Null when only a login was found.
     public Member Member { get; set; }
 
     public string Email { get; set; }

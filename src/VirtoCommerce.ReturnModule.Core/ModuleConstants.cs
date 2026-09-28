@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using VirtoCommerce.Platform.Core.Settings;
 
 namespace VirtoCommerce.ReturnModule.Core
@@ -17,8 +17,7 @@ namespace VirtoCommerce.ReturnModule.Core
                 public const string Update = "return:update";
                 public const string Delete = "return:delete";
 
-                // Approving and declining is a decision about money and stock, not an edit, so it
-                // is granted on its own.
+                // A decision about money and stock rather than an edit, so it is granted on its own.
                 public const string Authorize = "return:authorize";
 
                 public static string[] AllPermissions { get; } = { Read, Create, Access, Update, Delete, Authorize };
@@ -48,7 +47,7 @@ namespace VirtoCommerce.ReturnModule.Core
                     GroupName = "Return|Return",
                     IsDictionary = true,
                     IsLocalizable = true,
-                    DefaultValue = "New",
+                    DefaultValue = ReturnStatus.New,
                     // The first five shipped with the module. Of the rest, the buyer flow writes Draft,
                     // Requested and Cancelled; PartiallyApproved and Rejected are agent-side and land
                     // with step 2. Cancelled is this module's spelling, Canceled the shipped one, and
@@ -57,7 +56,7 @@ namespace VirtoCommerce.ReturnModule.Core
                     // and from the locale files.
                     AllowedValues = new[]
                     {
-                        "New", "Approved", "Completed", "Canceled", "Processing",
+                        ReturnStatus.New, ReturnStatus.Approved, ReturnStatus.Completed, ReturnStatus.LegacyCancelled, ReturnStatus.Processing,
                         ReturnStatus.Draft, ReturnStatus.Requested, ReturnStatus.PartiallyApproved,
                         ReturnStatus.Rejected, ReturnStatus.Cancelled,
                     }
@@ -145,8 +144,7 @@ namespace VirtoCommerce.ReturnModule.Core
                     IsPublic = true
                 };
 
-                // Off would mean a store that upgrades the module silently stops telling buyers
-                // anything, which is the opposite of what this module is for.
+                // On by default: off, a store that upgrades would silently stop telling its buyers anything.
                 public static SettingDescriptor ReturnSendNotifications { get; } = new SettingDescriptor
                 {
                     Name = "Return.SendNotifications",
@@ -155,8 +153,7 @@ namespace VirtoCommerce.ReturnModule.Core
                     DefaultValue = true
                 };
 
-                // Transactional pushes accumulate in the Push Messages admin list, which was agreed
-                // to be acceptable, so this follows the emails rather than waiting to be switched on.
+                // Follows the emails: the pushes piling up in the Push Messages admin list was agreed to be fine.
                 public static SettingDescriptor ReturnSendPushNotifications { get; } = new SettingDescriptor
                 {
                     Name = "Return.SendPushNotifications",

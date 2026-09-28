@@ -71,11 +71,8 @@ public class SendNotificationsReturnStatusChangedEventHandler : ReturnStatusNoti
         }
     }
 
-    /// <summary>
-    /// The address the order's own emails went to, as the Orders module picks it: the one the buyer
-    /// entered on the order first, then the buyer's contact or login. A return is about that order,
-    /// so it should not land in a different mailbox.
-    /// </summary>
+    // Where the order's own emails went, as the Orders module picks it: the address on the order first,
+    // then the buyer's contact or login. A return is about that order, so it lands in the same mailbox.
     protected virtual async Task<string> GetRecipientEmailAsync(PreparedReturnNotification prepared)
     {
         var order = string.IsNullOrEmpty(prepared.Return.OrderId)

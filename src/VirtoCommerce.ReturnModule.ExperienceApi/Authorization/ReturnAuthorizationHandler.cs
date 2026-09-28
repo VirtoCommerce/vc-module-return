@@ -16,9 +16,7 @@ namespace VirtoCommerce.ReturnModule.ExperienceApi.Authorization;
 
 public class ReturnAuthorizationRequirement : IAuthorizationRequirement
 {
-    /// <summary>
-    /// What the caller wants to do with the file, as the file module names it.
-    /// </summary>
+    // What the caller wants to do with the file, as the file module names it.
     public string Permission { get; set; }
 }
 
@@ -49,6 +47,41 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
 
     protected virtual async Task<bool> IsAllowedAsync(AuthorizationHandlerContext context, ReturnAuthorizationRequirement requirement)
     {
+        if (await IsAllowedAsync(context))
+        {
+            return true;
+        }
+
+        // Anyone else may open the photos but never delete them: the back office, which decides on a
+        // return from them, and a colleague who may read the return through the organization.
+        if (!requirement.Permission.EqualsIgnoreCase(FileExperienceApiModuleConstants.Security.Permissions.Read))
+        {
+            return false;
+        }
+
+        var orderReturn = await GetReturnAsync(context);
+
+        if (orderReturn == null)
+        {
+            return false;
+        }
+
+        if (context.User.HasGlobalPermission(ModuleConstants.Security.Permissions.Read))
+        {
+            return true;
+        }
+
+        using var scope = _scopeFactory.CreateScope();
+
+        var organizationAccessService = scope.ServiceProvider.GetRequiredService<IReturnOrganizationAccessService>();
+        var organizationId = context.User.GetCurrentOrganizationId();
+
+        return organizationAccessService.IsVisibleToOrganization(orderReturn, organizationId) &&
+            await organizationAccessService.CanViewAsync(context.User, organizationId);
+    }
+
+    protected virtual async Task<bool> IsAllowedAsync(AuthorizationHandlerContext context)
+    {
         if (context.User.IsInRole(PlatformConstants.Security.SystemRoles.Administrator))
         {
             return true;
@@ -73,45 +106,32 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
             return true;
         }
 
-        if (!file.OwnerEntityType.EqualsIgnoreCase(nameof(Return)))
-        {
-            return false;
-        }
-
-        using var scope = _scopeFactory.CreateScope();
-
-        var returnService = scope.ServiceProvider.GetRequiredService<IReturnService>();
-        var flowService = scope.ServiceProvider.GetRequiredService<IReturnFlowService>();
-
-        var orderReturn = await returnService.GetNoCloneAsync(file.OwnerEntityId, ReturnResponseGroup.None.ToString());
+        var orderReturn = await GetReturnAsync(context);
 
         if (orderReturn == null)
         {
             return false;
         }
 
-        if (await flowService.IsOwnedBy(orderReturn, GetUserId(context)))
+        using var scope = _scopeFactory.CreateScope();
+
+        var flowService = scope.ServiceProvider.GetRequiredService<IReturnFlowService>();
+
+        return await flowService.IsOwnedBy(orderReturn, GetUserId(context));
+    }
+
+    protected virtual async Task<Return> GetReturnAsync(AuthorizationHandlerContext context)
+    {
+        if (context.Resource is not File file || file.OwnerIsEmpty() || !file.OwnerEntityType.EqualsIgnoreCase(nameof(Return)))
         {
-            return true;
+            return null;
         }
 
-        // Anyone else may open the photos but never delete them: the back office, which decides on a
-        // return from them, and a colleague who may read the return through the organization.
-        if (!requirement.Permission.EqualsIgnoreCase(FileExperienceApiModuleConstants.Security.Permissions.Read))
-        {
-            return false;
-        }
+        using var scope = _scopeFactory.CreateScope();
 
-        if (context.User.HasGlobalPermission(ModuleConstants.Security.Permissions.Read))
-        {
-            return true;
-        }
+        var returnService = scope.ServiceProvider.GetRequiredService<IReturnService>();
 
-        var organizationAccessService = scope.ServiceProvider.GetRequiredService<IReturnOrganizationAccessService>();
-        var organizationId = context.User.GetCurrentOrganizationId();
-
-        return organizationAccessService.IsVisibleToOrganization(orderReturn, organizationId) &&
-            await organizationAccessService.CanViewAsync(context.User, organizationId);
+        return await returnService.GetNoCloneAsync(file.OwnerEntityId, ReturnResponseGroup.None.ToString());
     }
 
     protected virtual string GetUserId(AuthorizationHandlerContext context)

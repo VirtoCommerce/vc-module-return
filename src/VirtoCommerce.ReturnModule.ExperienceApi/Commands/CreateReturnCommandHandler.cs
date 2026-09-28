@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 using GraphQL;
 using MediatR;
@@ -29,7 +29,7 @@ public class CreateReturnCommandHandler : IRequestHandler<CreateReturnCommand, R
 
         var context = AbstractTypeFactory<ReturnFlowContext>.TryCreateInstance();
         context.CustomerId = request.CustomerId;
-        context.LanguageCode = request.LanguageCode;
+        context.LanguageCode = request.CultureName;
 
         try
         {

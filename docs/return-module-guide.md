@@ -271,9 +271,10 @@ the store right after upgrading, before any return changes status.
 Sending happens in a Hangfire background job, so a mail server that is slow or down never fails the
 save. Emails go through the Notifications module and need an email sender (SMTP or SendGrid) configured
 on the platform. It goes where the order's own emails went: the email on the order's addresses first,
-then the buyer's contact, then their login. The email is written in the language the return was raised
-in, falling back to the store's default language; a language without a template of its own gets the
-default one, which ships with the module.
+then the buyer's contact, then their login. The email is written in the culture the buyer was using when
+they raised the return (`cultureName` on `createReturn`, which the storefront sends), falling back to the
+order's language and then to the store's default language; a language without a template of its own gets
+the default one, which ships with the module.
 
 A notification switched off in the admin sends neither the email nor the push message.
 
@@ -314,17 +315,19 @@ and decline reasons already stored, and once a line is decided also its requeste
 cannot be added to or removed from a decided return. A quantity being written must fit what the order
 has left, whatever the status; one already stored is checked by what its line holds, so a return stays
 editable after the units it released have been requested again. The status an edit may set is limited
-too:
+too. It has to be in the `Return.Status` dictionary — keeping the one the return already has is always
+fine — and:
 
 * never `Draft`, `Requested`, `Approved`, `PartiallyApproved` or `Rejected` — only submitting and
   authorizing set those;
 * never away from `Draft` or `Requested`, which are the buyer's, or from `Rejected` or `Cancelled`,
   which are closed;
 * once a return is decided, only on to `AwaitingDelivery`, `Received`, `Processing` or `Completed` —
-  a decision cannot be cancelled or undone by an edit;
-* otherwise any status in the `Return.Status` dictionary, so a `New` return can still be cancelled.
+  a decision cannot be cancelled or undone by an edit. `AwaitingDelivery` and `Received` are not in the
+  shipped dictionary, so add them to it to use them;
+* otherwise any status in the dictionary, so a `New` return can still be cancelled.
 
-The status list in the return's details offers only the statuses an edit would accept, as
+The status list in the return's details offers exactly the statuses an edit would accept, as
 `GET /api/return/{id}/available-statuses` reports them.
 
 # Permissions

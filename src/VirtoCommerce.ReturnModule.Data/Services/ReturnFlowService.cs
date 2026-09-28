@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -68,7 +68,15 @@ public class ReturnFlowService : IReturnFlowService
         }
 
         ValidateNoDuplicateLines(request.Items);
-        await ValidateRequestAsync(order.StoreId, request.CustomerReference, request.CustomerComment, request.Items, languageCode: context.LanguageCode);
+
+        if (context.LanguageCode?.Length > DbContextBase.LanguageCodeLength)
+        {
+            throw new ReturnFlowException(
+                ReturnFlowError.InvalidRequest,
+                $"The culture name is longer than {DbContextBase.LanguageCodeLength} characters.");
+        }
+
+        await ValidateRequestAsync(order.StoreId, request.CustomerReference, request.CustomerComment, request.Items);
 
         var orderLineItems = (order.Items ?? []).ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
 
@@ -82,7 +90,7 @@ public class ReturnFlowService : IReturnFlowService
         result.OrganizationId = order.OrganizationId;
         result.OrganizationName = order.OrganizationName;
         result.CustomerReference = request.CustomerReference ?? order.PurchaseOrderNumber;
-        result.LanguageCode = context.LanguageCode ?? order.LanguageCode;
+        result.LanguageCode = context.LanguageCode;
         result.CustomerComment = request.CustomerComment;
         result.LineItems = request.Items.Select(x => CreateLineItem(x, orderLineItems)).ToList();
 
@@ -316,10 +324,8 @@ public class ReturnFlowService : IReturnFlowService
         return orderReturn;
     }
 
-    /// <summary>
-    /// Every line decided once, within what was requested - the status and the buyer's email are
-    /// derived from these numbers, so they have to be complete.
-    /// </summary>
+    // Every line decided once, within what was requested: the status and the buyer's email are
+    // derived from these numbers, so they have to be complete.
     protected virtual IDictionary<string, ReturnLineDecision> ValidateDecisions(Return orderReturn, ReturnAuthorizationRequest request)
     {
         var decisions = request.Items ?? [];
@@ -434,14 +440,13 @@ public class ReturnFlowService : IReturnFlowService
         }
     }
 
-    protected virtual async Task ValidateRequestAsync(string storeId, string customerReference, string customerComment, IList<CreateReturnItemRequest> items, bool requireReason = false, string languageCode = null)
+    protected virtual async Task ValidateRequestAsync(string storeId, string customerReference, string customerComment, IList<CreateReturnItemRequest> items, bool requireReason = false)
     {
         var rules = await _settingsService.GetRulesAsync(storeId);
 
         var validationContext = AbstractTypeFactory<ReturnRequestValidationContext>.TryCreateInstance();
         validationContext.CustomerReference = customerReference;
         validationContext.CustomerComment = customerComment;
-        validationContext.LanguageCode = languageCode;
         validationContext.Items = items ?? [];
         validationContext.Reasons = rules.Reasons;
         validationContext.ReasonsRequiringComment = rules.ReasonsRequiringComment;

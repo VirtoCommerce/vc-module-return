@@ -34,7 +34,7 @@ public class ReturnControllerTests
     };
 
     private readonly Mock<ICustomerOrderService> _orderService = new();
-    private readonly Mock<ILocalizableSettingService> _localizableSettingService = new();
+    private readonly Mock<ISettingsManager> _settingsManager = new();
     private readonly Dictionary<string, int> _held = new();
     private readonly List<Return> _saved = [];
     private readonly ReturnController _controller;
@@ -60,11 +60,9 @@ public class ReturnControllerTests
             .Callback<IList<Return>>(_saved.AddRange)
             .Returns(Task.CompletedTask);
 
-        _localizableSettingService
-            .Setup(x => x.GetValuesAsync(ModuleConstants.Settings.General.OrderStatus.Name, It.IsAny<string>()))
-            .ReturnsAsync(ModuleConstants.Settings.General.OrderStatus.AllowedValues
-                .Select(x => new KeyValue { Key = (string)x, Value = (string)x })
-                .ToList());
+        _settingsManager
+            .Setup(x => x.GetObjectSettingAsync(ModuleConstants.Settings.General.OrderStatus.Name, null, null))
+            .ReturnsAsync(new ObjectSettingEntry(ModuleConstants.Settings.General.OrderStatus));
 
         _controller = new ReturnController(
             Mock.Of<IReturnSearchService>(),
@@ -73,7 +71,7 @@ public class ReturnControllerTests
             new ReturnStateProvider(),
             _quantityService.Object,
             _orderService.Object,
-            _localizableSettingService.Object);
+            _settingsManager.Object);
     }
 
     [Fact]
@@ -173,6 +171,58 @@ public class ReturnControllerTests
 
         Assert.IsType<OkObjectResult>(result);
         Assert.Equal(ReturnStatus.Completed, Assert.Single(_saved).Status);
+    }
+
+    [Fact]
+    public async Task UpdateReturn_StatusOutsideTheDictionary_IsNotSaved()
+    {
+        // The state provider alone lets an open return move to anything at all; the status list only
+        // ever offers what the dictionary has, and PUT now asks the same question.
+        _storedReturn = NewReturn(ReturnStatus.New);
+
+        var result = await _controller.UpdateReturn(NewReturn("Shipped"));
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Empty(_saved);
+    }
+
+    [Fact]
+    public async Task UpdateReturn_DecidedReturnMovedToAFulfilmentStatusTheDictionaryLacks_IsNotSaved()
+    {
+        // AwaitingDelivery is where a decided return may go, but it is not in the shipped dictionary.
+        _storedReturn = NewReturn(ReturnStatus.Approved, approvedQuantity: 2, itemState: ReturnItemState.Approved);
+
+        var result = await _controller.UpdateReturn(NewReturn(ReturnStatus.AwaitingDelivery, approvedQuantity: 2, itemState: ReturnItemState.Approved));
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Empty(_saved);
+    }
+
+    [Fact]
+    public async Task UpdateReturn_KeepingAStatusOutsideTheDictionary_IsSaved()
+    {
+        // A return already in a status the dictionary no longer has can still be edited in other ways.
+        _storedReturn = NewReturn("Shipped");
+
+        var result = await _controller.UpdateReturn(NewReturn("Shipped"));
+
+        Assert.IsType<OkObjectResult>(result);
+        Assert.Single(_saved);
+    }
+
+    [Fact]
+    public async Task UpdateReturn_QuantityMeasuredAgainstTheStoredOrder_NotThePostedOne()
+    {
+        // The stored order has 2 units; a body claiming the order has 99 must not make room for 5.
+        _storedReturn = NewReturn(ReturnStatus.New);
+        var orderReturn = NewReturn(ReturnStatus.New);
+        orderReturn.LineItems.First().Quantity = 5;
+        orderReturn.Order = new CustomerOrder { Id = "order-1", Items = [new LineItem { Id = OrderLineItemId, Quantity = 99 }] };
+
+        var result = await _controller.UpdateReturn(orderReturn);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Empty(_saved);
     }
 
     [Fact]

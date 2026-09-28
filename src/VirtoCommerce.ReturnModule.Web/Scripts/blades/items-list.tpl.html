@@ -110,7 +110,7 @@
       <div class="form-group" ng-if="blade.canAuthorize">
         <label class="form-label">{{ 'return.blades.return-details.labels.rejectReason' | translate }}</label>
         <div class="form-input">
-          <textarea ng-model="blade.currentEntity.rejectReason"></textarea>
+          <textarea ng-model="blade.currentEntity.rejectReason" ng-model-options="{ updateOn: 'blur' }"></textarea>
         </div>
       </div>
     </div>

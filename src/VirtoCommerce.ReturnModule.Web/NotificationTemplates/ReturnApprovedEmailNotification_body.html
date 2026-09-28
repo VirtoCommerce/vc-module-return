@@ -36,16 +36,12 @@
                 <th align="right" style="padding:8px 0 8px 8px;border-bottom:1px solid #dcdcdc;font-size:12px;text-transform:uppercase;color:#6b6b6b">Approved</th>
               </tr>
             </thead>
-            <!-- An approved line with no approved quantity is one the agent left untouched: it was
-                 approved as requested. A quantity that was entered is printed as entered, so the
-                 email never claims more than the agent approved. -->
             <tbody>
               {% for line_item in return.line_items %}
               <tr>
                 <td align="left" style="padding:10px 8px 10px 0;border-bottom:1px solid #f0f0f0;vertical-align:top">
                   {{ line_item.name }}
                   {% if line_item.sku %}<br /><span style="color:#6b6b6b;font-size:12px">{{ line_item.sku }}</span>{% endif %}
-                  {% if line_item.reject_reason and line_item.approved_quantity > 0 and line_item.approved_quantity < line_item.quantity %}<br /><span style="color:#b00020;font-size:12px">Declined: {{ line_item.reject_reason }}</span>{% endif %}
                 </td>
                 <td align="right" style="padding:10px 8px;border-bottom:1px solid #f0f0f0;vertical-align:top;white-space:nowrap">{{ line_item.quantity }}{% if line_item.measure_unit %} {{ line_item.measure_unit }}{% endif %}</td>
                 <td align="right" style="padding:10px 0 10px 8px;border-bottom:1px solid #f0f0f0;vertical-align:top;white-space:nowrap">{% if line_item.approved_quantity > 0 %}{{ line_item.approved_quantity }}{% else %}{{ line_item.quantity }}{% endif %}{% if line_item.measure_unit %} {{ line_item.measure_unit }}{% endif %}</td>

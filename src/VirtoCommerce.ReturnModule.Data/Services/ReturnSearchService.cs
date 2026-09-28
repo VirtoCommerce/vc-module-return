@@ -138,7 +138,7 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
         protected virtual IList<string[]> StatusSynonyms { get; } =
         [
-            [ReturnStatus.Cancelled, "Canceled"],
+            [ReturnStatus.Cancelled, ReturnStatus.LegacyCancelled],
         ];
 
         protected virtual Expression<Func<ReturnEntity, bool>> GetKeywordPredicate(ReturnSearchCriteria criteria)

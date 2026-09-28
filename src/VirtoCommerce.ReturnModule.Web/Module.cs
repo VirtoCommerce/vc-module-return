@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using FluentValidation;
 using GraphQL.MicrosoftDI;
@@ -130,11 +130,8 @@ namespace VirtoCommerce.ReturnModule.Web
             notificationRegistrar.RegisterNotification<ReturnCancelledEmailNotification>().WithTemplatesFromPath(templatesPath);
         }
 
-        /// <summary>
-        /// The concrete types, because RegisterEventHandler resolves them by their own name. The
-        /// subscription itself is <see cref="RegisterEventHandlers"/>: the bus keeps its own handler
-        /// list and never looks in the container.
-        /// </summary>
+        // The concrete types, because RegisterEventHandler resolves them by their own name. Subscribing is
+        // RegisterEventHandlers' job: the bus keeps its own handler list and never looks in the container.
         public static void AddEventHandlers(IServiceCollection serviceCollection, bool withPushMessages)
         {
             serviceCollection.AddTransient<ReturnStatusChangedEventPublisher>();
@@ -148,10 +145,7 @@ namespace VirtoCommerce.ReturnModule.Web
             }
         }
 
-        /// <summary>
-        /// What makes the notifications exist at all: without these subscriptions no email or push
-        /// is ever sent, and nothing else fails.
-        /// </summary>
+        // Without these subscriptions no email or push is ever sent, and nothing else fails.
         public static void RegisterEventHandlers(IApplicationBuilder appBuilder, bool withPushMessages)
         {
             appBuilder.RegisterEventHandler<ReturnChangedEvent, ReturnStatusChangedEventPublisher>();
@@ -163,10 +157,7 @@ namespace VirtoCommerce.ReturnModule.Web
             }
         }
 
-        /// <summary>
-        /// IsInstalled alone is also true for a module that failed to load, whose services were never
-        /// registered.
-        /// </summary>
+        // IsInstalled alone is also true for a module that failed to load, whose services were never registered.
         private bool IsPushMessagesAvailable()
         {
             return ModuleService.GetModule(PushMessagesModuleId) is { IsInstalled: true, Errors.Count: 0 };

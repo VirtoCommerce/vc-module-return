@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -66,6 +66,7 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             return returns;
         }
 
+        [Obsolete("Counts the requested quantity of every return, drafts, cancelled and declined ones included. Subtract IReturnQuantityService.GetHeldQuantities instead.", DiagnosticId = "VC0016", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
         public virtual async Task<Dictionary<string, int>> GetItemsAvailableQuantities(string orderId)
         {
             var order = await _orderService.GetByIdAsync(orderId);
@@ -73,6 +74,7 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             return await GetItemsAvailableQuantities(order);
         }
 
+        [Obsolete("Counts the requested quantity of every return, drafts, cancelled and declined ones included. Subtract IReturnQuantityService.GetHeldQuantities instead.", DiagnosticId = "VC0016", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
         public virtual async Task<Dictionary<string, int>> GetItemsAvailableQuantities(CustomerOrder order, string returnId = null)
         {
             using var repository = _repositoryFactory();

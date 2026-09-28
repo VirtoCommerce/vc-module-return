@@ -218,6 +218,41 @@ public class ReturnAuthorizationHandlerTests
     }
 
     [Fact]
+    public async Task BackOfficeReaderOpeningAFileOfAMissingReturn_Fails()
+    {
+        // The permission opens a return's photos, not whatever file claims to belong to one.
+        var file = new File { Id = "f1", OwnerEntityType = nameof(Return), OwnerEntityId = "gone" };
+        var context = CreateContext(OtherId, file, permission: FilePermissions.Read, userPermission: ModuleConstants.Security.Permissions.Read);
+
+        await CreateHandler(OtherId).HandleAsync(context);
+
+        Assert.False(context.HasSucceeded);
+    }
+
+    [Fact]
+    public async Task BackOfficeReaderOpeningAFileOwnedBySomethingElse_Fails()
+    {
+        var file = new File { Id = "f1", OwnerEntityType = "Quote", OwnerEntityId = ReturnId };
+        var context = CreateContext(OtherId, file, permission: FilePermissions.Read, userPermission: ModuleConstants.Security.Permissions.Read);
+
+        await CreateHandler(OtherId).HandleAsync(context);
+
+        Assert.False(context.HasSucceeded);
+    }
+
+    [Fact]
+    public async Task HandlerOverridingTheReleasedCheck_IsStillConsulted()
+    {
+        // 3.1002.0 shipped IsAllowedAsync(context) as the seam: a handler built on it has to keep working,
+        // here one that lets a colleague delete a buyer's file.
+        var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Delete);
+
+        await new ReleasedSeamHandler(DefaultScopeFactory()).HandleAsync(context);
+
+        Assert.True(context.HasSucceeded);
+    }
+
+    [Fact]
     public async Task OwnerDeletingOwnFile_Succeeds()
     {
         var context = CreateContext(OwnerId, OwnedFile(), permission: FilePermissions.Delete);
@@ -260,7 +295,22 @@ public class ReturnAuthorizationHandlerTests
         protected override string GetUserId(AuthorizationHandlerContext context) => _userId;
     }
 
+    private sealed class ReleasedSeamHandler : ReturnAuthorizationHandler
+    {
+        public ReleasedSeamHandler(IServiceScopeFactory scopeFactory)
+            : base(scopeFactory)
+        {
+        }
+
+        protected override Task<bool> IsAllowedAsync(AuthorizationHandlerContext context) => Task.FromResult(true);
+    }
+
     private static ReturnAuthorizationHandler CreateHandler(string userId = OwnerId, bool organizationViewer = false, string status = ReturnStatus.Requested)
+    {
+        return new TestHandler(DefaultScopeFactory(organizationViewer, status), userId);
+    }
+
+    private static IServiceScopeFactory DefaultScopeFactory(bool organizationViewer = false, string status = ReturnStatus.Requested)
     {
         var orderReturn = new Return { Id = ReturnId, CustomerId = OwnerId, OrganizationId = "org-1", Status = status };
 
@@ -287,7 +337,7 @@ public class ReturnAuthorizationHandlerTests
             .Setup(x => x.CanViewAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()))
             .ReturnsAsync(organizationViewer);
 
-        return new TestHandler(ScopeFactoryFor(returnService.Object, flowService.Object, organizationAccessService.Object), userId);
+        return ScopeFactoryFor(returnService.Object, flowService.Object, organizationAccessService.Object);
     }
 
     // The handler is a singleton and resolves the return services per check, so the test has to

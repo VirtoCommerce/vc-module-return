@@ -54,8 +54,6 @@ public class ReturnBuyerResolver : IReturnBuyerResolver
         return result;
     }
 
-    /// <summary>
-    /// The templates read the name, which every group carries, and the handlers read the emails.
-    /// </summary>
+    // The templates read the name, which every group carries, and the handlers read the emails.
     protected virtual string ResponseGroup => MemberResponseGroup.WithEmails.ToString();
 }

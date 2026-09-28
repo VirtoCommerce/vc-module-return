@@ -8,6 +8,7 @@ using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Events;
+using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Events;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Notifications;
@@ -17,11 +18,7 @@ using VirtoCommerce.StoreModule.Core.Services;
 
 namespace VirtoCommerce.ReturnModule.Data.Handlers;
 
-/// <summary>
-/// What the email and the push channel share: which transitions are announced, whether the store
-/// wants them, and - when the job runs - who the buyer is and which template speaks to them. Kept in
-/// one place so that the two channels behave the same on the same data.
-/// </summary>
+// What the email and the push channel share, so that the two behave the same on the same data.
 public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<ReturnStatusChangedEvent>
 {
     private readonly INotificationSearchService _notificationSearchService;
@@ -54,8 +51,6 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
 
         var notificationTypeName = GetNotificationTypeName(message.ToStatus);
 
-        // Every other transition - a draft being created, a status this iteration does not model -
-        // is silent by design rather than by omission.
         if (notificationTypeName == null || !IsAnnounced(message, notificationTypeName))
         {
             return;
@@ -90,26 +85,25 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
 
     protected virtual bool IsAnnounced(ReturnStatusChangedEvent message, string notificationTypeName)
     {
-        // A return created already cancelled was never announced to the buyer, so there is nothing to call
-        // off - the same reason an abandoned draft is not announced.
+        // A draft is the buyer's work in progress, so the only move out of it they need to hear about is
+        // the submit. A return created already cancelled was never announced, so nothing is called off.
+        if (message.FromStatus.EqualsIgnoreCase(ReturnStatus.Draft))
+        {
+            return message.ToStatus.EqualsIgnoreCase(ReturnStatus.Requested);
+        }
+
         return message.FromStatus != null ||
                !notificationTypeName.EqualsIgnoreCase(nameof(ReturnCancelledEmailNotification));
     }
 
-    /// <summary>
-    /// Out of the save path: a mail server or a push fan-out that is slow or down must not fail the
-    /// save that a buyer or an agent is waiting on.
-    /// </summary>
+    // Out of the save path: a mail server or a push fan-out that is slow or down must not fail the
+    // save that a buyer or an agent is waiting on.
     protected abstract void EnqueueSending(ReturnNotificationJobArgument argument);
 
-    /// <summary>
-    /// Re-reads each return and keeps only the jobs that can still be delivered as queued. Whatever
-    /// is dropped is logged with the reason.
-    /// </summary>
     protected virtual async Task<IList<PreparedReturnNotification>> PrepareAsync(IList<ReturnNotificationJobArgument> jobArguments)
     {
         var returnsById = (await _returnService.GetAsync(
-                jobArguments.Select(x => x.ReturnId).Distinct().ToList(),
+                jobArguments.Select(x => x.ReturnId).Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
                 ReturnResponseGroup.None.ToString()))
             .ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
 
@@ -139,9 +133,8 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
 
     protected virtual async Task<PreparedReturnNotification> PrepareAsync(ReturnNotificationJobArgument jobArgument, Return orderReturn)
     {
-        // The return moved on to another announced status before the job ran. That move queued its own
-        // notification, so sending this one would only put old news next to the new. A move to a status
-        // that announces nothing - Completed, say - leaves this one as the last word, so it still goes.
+        // A move to another announced status queued its own notification, so this one would be old news.
+        // A move to a status that announces nothing - Completed, say - leaves this one as the last word.
         var currentTypeName = GetNotificationTypeName(orderReturn.Status);
 
         if (currentTypeName != null && !jobArgument.NotificationTypeName.EqualsIgnoreCase(currentTypeName))
@@ -155,7 +148,7 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
 
         var notification = await _notificationSearchService.GetNotificationAsync(
             jobArgument.NotificationTypeName,
-            new TenantIdentity(jobArgument.StoreId, nameof(Store)));
+            new TenantIdentity(orderReturn.StoreId, nameof(Store)));
 
         if (notification is not ReturnEmailNotificationBase returnNotification)
         {
@@ -179,8 +172,7 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
         var store = await _storeService.GetNoCloneAsync(orderReturn.StoreId, StoreResponseGroup.StoreInfo.ToString());
         var languageCode = orderReturn.LanguageCode.EmptyToNull() ?? store?.DefaultLanguage;
 
-        // The shipped templates carry no language and match every one, so this only fails when they
-        // are missing altogether.
+        // The shipped templates carry no language and match every one, so this fails only when they are missing.
         if (returnNotification.Templates.FindTemplateForLanguage(languageCode) is not EmailNotificationTemplate template)
         {
             Logger.LogWarning(
@@ -190,8 +182,7 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
             return null;
         }
 
-        // May be null: a channel that can reach the buyer without it - email, through the order's
-        // address - decides for itself.
+        // May be null: email can still reach the buyer through the order's address.
         var buyer = await _buyerResolver.GetBuyerAsync(orderReturn.CustomerId);
 
         returnNotification.ReturnId = orderReturn.Id;
