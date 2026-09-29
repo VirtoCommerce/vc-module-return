@@ -93,6 +93,8 @@ POST /api/return/search
   ],
   "customerId": "<some_guid>",
   "storeId": "<some_store>",
+  "organizationId": "<some_organization_id>",
+  "excludeDrafts": true,
   "statuses": [
     "Requested"
   ],
@@ -104,7 +106,7 @@ POST /api/return/search
   "take": 0
 }
 ```
-`startDate` and `endDate` both match the `createdDate` inclusively, down to the instant rather than the day. When `sort` is omitted, results come back newest first.
+`startDate` and `endDate` both match the `createdDate` inclusively, down to the instant rather than the day. When `sort` is omitted, results come back newest first. `organizationId` keeps the returns raised for one organization, and `excludeDrafts` leaves drafts out, as the storefront's organization list does; `organizationName` can be sorted on too.
 
 Here is an example of search response:
 
