@@ -128,6 +128,7 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
                 : await _returnService.GetByIdAsync(orderReturn.Id, ReturnResponseGroup.None.ToString());
 
             var errors = (await ValidateStatusChangeAsync(storedReturn, orderReturn))
+                .Concat(ValidateLineIds(storedReturn, orderReturn))
                 .Concat(ValidateLineChanges(storedReturn, orderReturn))
                 .ToList();
 
@@ -232,6 +233,19 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             }
         }
 
+        // A line is saved by its id, so an id the return does not have is inserted as a new row: under the key of
+        // another return's line, the database refused it with a 500. A new line comes without an id.
+        private static IEnumerable<string> ValidateLineIds(Return storedReturn, Return orderReturn)
+        {
+            var foreignLineItem = orderReturn.LineItems.FirstOrDefault(x =>
+                !string.IsNullOrEmpty(x.Id) && storedReturn?.LineItems.Any(stored => stored.Id.EqualsIgnoreCase(x.Id)) != true);
+
+            if (foreignLineItem != null)
+            {
+                yield return $"Line '{foreignLineItem.Id}' is not a line of this return.";
+            }
+        }
+
         private async Task<IEnumerable<string>> ValidateReturn(Return orderReturn, Return storedReturn)
         {
             // The order as stored, not as posted: the body could carry any quantities it likes.
@@ -275,9 +289,14 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         }
 
         // Kept as it is, or moved to a status the dictionary offers and an edit may set - the same list the
-        // admin's status selector shows.
+        // admin's status selector shows. A new return has no status to keep, so an empty one would pass as kept.
         private async Task<IList<string>> ValidateStatusChangeAsync(Return storedReturn, Return orderReturn)
         {
+            if (storedReturn == null && string.IsNullOrEmpty(orderReturn.Status))
+            {
+                return ["A return needs a status."];
+            }
+
             if (ReturnStatus.Normalize(storedReturn?.Status).EqualsIgnoreCase(ReturnStatus.Normalize(orderReturn.Status)) ||
                 (await GetEditableStatusesAsync(storedReturn)).Contains(orderReturn.Status, StringComparer.OrdinalIgnoreCase))
             {

@@ -199,6 +199,80 @@ public class ReturnControllerTests
     }
 
     [Fact]
+    public async Task UpdateReturn_LineOfAnotherReturn_IsRefused()
+    {
+        // The line is saved by its id: one the return does not have is inserted as a new row, under the key
+        // the other return's line already has, and the database refused it with a 500.
+        _storedReturn = NewReturn(ReturnStatus.Requested, itemState: ReturnItemState.Requested);
+
+        var edited = NewReturn(ReturnStatus.Requested, itemState: ReturnItemState.Requested);
+        edited.LineItems.Single().Id = "line-of-another-return";
+
+        var result = await _controller.UpdateReturn(edited);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Empty(_saved);
+    }
+
+    [Fact]
+    public async Task UpdateReturn_NewLineInPlaceOfTheOldOne_IsSaved()
+    {
+        // The control for the test above: the same exchange with the new line left without an id.
+        _storedReturn = NewReturn(ReturnStatus.Requested, itemState: ReturnItemState.Requested);
+
+        var edited = NewReturn(ReturnStatus.Requested, itemState: ReturnItemState.Requested);
+        edited.LineItems.Single().Id = null;
+
+        var result = await _controller.UpdateReturn(edited);
+
+        Assert.IsType<OkObjectResult>(result);
+        Assert.Null(Assert.Single(Assert.Single(_saved).LineItems).Id);
+    }
+
+    [Fact]
+    public async Task UpdateReturn_NewReturnWhoseLineCarriesAnId_IsRefused()
+    {
+        // A new return has no lines yet, so a line with an id can only be someone else's.
+        var created = NewReturn(ReturnStatus.New);
+        created.Id = null;
+        created.LineItems.Single().Id = "line-of-another-return";
+
+        var result = await _controller.UpdateReturn(created);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Empty(_saved);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public async Task UpdateReturn_NewReturnWithoutStatus_IsRefused(string status)
+    {
+        // There is no status to keep yet, so an empty one used to pass as kept: the return was saved with none,
+        // held its units and could not be approved or declined.
+        var created = NewReturn(status);
+        created.Id = null;
+        created.LineItems.Single().Id = null;
+
+        var result = await _controller.UpdateReturn(created);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Empty(_saved);
+    }
+
+    [Fact]
+    public async Task UpdateReturn_ReturnStoredWithoutStatus_CanBeGivenOne()
+    {
+        // The control for the test above: only a new return needs a status, so one saved without it can be repaired.
+        _storedReturn = NewReturn(null);
+
+        var result = await _controller.UpdateReturn(NewReturn(ReturnStatus.New));
+
+        Assert.IsType<OkObjectResult>(result);
+        Assert.Equal(ReturnStatus.New, Assert.Single(_saved).Status);
+    }
+
+    [Fact]
     public async Task UpdateReturn_OldSpellingOfCancelled_IsStillAccepted()
     {
         // Only the status list offers a single spelling; a client that sends the old one keeps working.
@@ -214,6 +288,7 @@ public class ReturnControllerTests
     {
         var created = NewReturn("New", approvedQuantity: 2, itemState: ReturnItemState.Approved);
         created.Id = null;
+        created.LineItems.Single().Id = null;
 
         await _controller.UpdateReturn(created);
 
