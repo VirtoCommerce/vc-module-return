@@ -12,13 +12,13 @@ public class ReturnQueryHandler : IQueryHandler<ReturnQuery, Return>
 {
     private readonly IReturnService _returnService;
     private readonly IReturnFlowService _flowService;
-    private readonly IReturnOrganizationAccessService _organizationAccessService;
+    private readonly IReturnAccessService _accessService;
 
-    public ReturnQueryHandler(IReturnService returnService, IReturnFlowService flowService, IReturnOrganizationAccessService organizationAccessService)
+    public ReturnQueryHandler(IReturnService returnService, IReturnFlowService flowService, IReturnAccessService accessService)
     {
         _returnService = returnService;
         _flowService = flowService;
-        _organizationAccessService = organizationAccessService;
+        _accessService = accessService;
     }
 
     public virtual async Task<Return> Handle(ReturnQuery request, CancellationToken cancellationToken)
@@ -35,6 +35,6 @@ public class ReturnQueryHandler : IQueryHandler<ReturnQuery, Return>
             return result;
         }
 
-        return _organizationAccessService.IsVisibleToOrganization(result, request.OrganizationId) ? result : null;
+        return await _accessService.CanViewReturnAsync(request.CustomerId, result) ? result : null;
     }
 }

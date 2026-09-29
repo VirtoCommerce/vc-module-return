@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using GraphQL;
 using GraphQL.Types;
 using VirtoCommerce.ReturnModule.Core.Models;
@@ -11,11 +11,6 @@ public class ReturnQuery : Query<Return>
     public string Id { get; set; }
 
     public string CustomerId { get; set; }
-
-    /// <summary>
-    /// The organization whose returns the caller may read besides their own; empty when none.
-    /// </summary>
-    public string OrganizationId { get; set; }
 
     public override IEnumerable<QueryArgument> GetArguments()
     {

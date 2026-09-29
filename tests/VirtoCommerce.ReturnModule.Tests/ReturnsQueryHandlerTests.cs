@@ -5,7 +5,6 @@ using Moq;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models.Search;
 using VirtoCommerce.ReturnModule.Core.Services;
-using VirtoCommerce.ReturnModule.ExperienceApi.Models;
 using VirtoCommerce.ReturnModule.ExperienceApi.Queries;
 using Xunit;
 
@@ -13,92 +12,85 @@ namespace VirtoCommerce.ReturnModule.Tests;
 
 public class ReturnsQueryHandlerTests
 {
+    private static readonly DateTime StartDate = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    private static readonly DateTime EndDate = new(2026, 12, 31, 23, 59, 59, DateTimeKind.Utc);
+
+    private readonly Mock<IReturnSearchService> _searchService = new();
+    private ReturnSearchCriteria _criteria;
+
+    public ReturnsQueryHandlerTests()
+    {
+        _searchService
+            .Setup(x => x.SearchAsync(It.IsAny<ReturnSearchCriteria>(), false))
+            .Callback((ReturnSearchCriteria x, bool _) => _criteria = x)
+            .ReturnsAsync(new ReturnSearchResult());
+    }
+
     [Fact]
     public async Task Handle_CarriesEveryArgumentOntoTheCriteria()
     {
-        var startDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        var endDate = new DateTime(2026, 12, 31, 23, 59, 59, DateTimeKind.Utc);
+        var query = new ReturnsQuery { CustomerId = "buyer-1" };
+        FillSharedArguments(query);
 
-        var query = new ReturnsQuery
-        {
-            CustomerId = "buyer-1",
-            StoreId = "B2B-store",
-            Statuses = [ReturnStatus.Requested],
-            StartDate = startDate,
-            EndDate = endDate,
-            Keyword = "RET-42",
-            Sort = "createdDate:desc",
-            Skip = 20,
-            Take = 10,
-        };
+        await new ReturnsQueryHandler(_searchService.Object).Handle(query, CancellationToken.None);
 
-        ReturnSearchCriteria criteria = null;
-
-        var searchService = new Mock<IReturnSearchService>();
-        searchService
-            .Setup(x => x.SearchAsync(It.IsAny<ReturnSearchCriteria>(), false))
-            .Callback((ReturnSearchCriteria x, bool _) => criteria = x)
-            .ReturnsAsync(new ReturnSearchResult());
-
-        await new ReturnsQueryHandler(searchService.Object).Handle(query, CancellationToken.None);
-
-        Assert.Equal("buyer-1", criteria.CustomerId);
-        Assert.Equal("B2B-store", criteria.StoreId);
-        Assert.Equal([ReturnStatus.Requested], criteria.Statuses);
-        Assert.Equal(startDate, criteria.StartDate);
-        Assert.Equal(endDate, criteria.EndDate);
-        Assert.Equal("RET-42", criteria.Keyword);
-        Assert.Equal("createdDate:desc", criteria.Sort);
-        Assert.Equal(20, criteria.Skip);
-        Assert.Equal(10, criteria.Take);
-        Assert.Null(criteria.OrganizationId);
+        Assert.Equal("buyer-1", _criteria.CustomerId);
+        AssertSharedArguments();
+        Assert.Null(_criteria.OrganizationId);
         // The buyer's own list is where their drafts are continued, so it keeps them.
-        Assert.False(criteria.ExcludeDrafts);
+        Assert.False(_criteria.ExcludeDrafts);
     }
 
     [Fact]
-    public async Task Handle_OrganizationScope_FiltersByOrganizationInsteadOfBuyer()
+    public async Task Handle_OrganizationReturns_FiltersByOrganizationInsteadOfBuyer()
     {
-        var query = new ReturnsQuery
-        {
-            CustomerId = "buyer-1",
-            StoreId = "B2B-store",
-            Scope = ReturnScope.Organization,
-            OrganizationId = "org-1",
-        };
+        var query = new OrganizationReturnsQuery { CustomerId = "buyer-1", OrganizationId = "org-1" };
+        FillSharedArguments(query);
 
-        ReturnSearchCriteria criteria = null;
+        await new ReturnsQueryHandler(_searchService.Object).Handle(query, CancellationToken.None);
 
-        var searchService = new Mock<IReturnSearchService>();
-        searchService
-            .Setup(x => x.SearchAsync(It.IsAny<ReturnSearchCriteria>(), false))
-            .Callback((ReturnSearchCriteria x, bool _) => criteria = x)
-            .ReturnsAsync(new ReturnSearchResult());
-
-        await new ReturnsQueryHandler(searchService.Object).Handle(query, CancellationToken.None);
-
-        Assert.Equal("org-1", criteria.OrganizationId);
-        Assert.Null(criteria.CustomerId);
+        Assert.Equal("org-1", _criteria.OrganizationId);
+        Assert.Null(_criteria.CustomerId);
         // Read-only, so no drafts at all - the caller's own included, which stay in their own list.
-        Assert.True(criteria.ExcludeDrafts);
-        Assert.Equal("B2B-store", criteria.StoreId);
+        Assert.True(_criteria.ExcludeDrafts);
+        // Both lists answer the same filters, sorting and paging.
+        AssertSharedArguments();
     }
 
     [Fact]
-    public async Task Handle_OrganizationScopeWithoutOrganization_SearchesNothing()
+    public async Task Handle_OrganizationReturnsWithoutOrganization_SearchesNothing()
     {
-        var query = new ReturnsQuery
-        {
-            CustomerId = "buyer-1",
-            StoreId = "B2B-store",
-            Scope = ReturnScope.Organization,
-        };
+        // The builder refuses an organization the caller may not read; a handler reached any other way
+        // must still not drop the owner filter and return the whole store.
+        var query = new OrganizationReturnsQuery { CustomerId = "buyer-1", StoreId = "B2B-store" };
 
-        var searchService = new Mock<IReturnSearchService>();
-
-        var result = await new ReturnsQueryHandler(searchService.Object).Handle(query, CancellationToken.None);
+        var result = await new ReturnsQueryHandler(_searchService.Object).Handle(query, CancellationToken.None);
 
         Assert.Empty(result.Results);
-        searchService.Verify(x => x.SearchAsync(It.IsAny<ReturnSearchCriteria>(), It.IsAny<bool>()), Times.Never);
+        _searchService.Verify(x => x.SearchAsync(It.IsAny<ReturnSearchCriteria>(), It.IsAny<bool>()), Times.Never);
+    }
+
+    private static void FillSharedArguments(ReturnsQuery query)
+    {
+        query.StoreId = "B2B-store";
+        query.Statuses = [ReturnStatus.Requested];
+        query.StartDate = StartDate;
+        query.EndDate = EndDate;
+        query.Keyword = "RET-42";
+        query.Sort = "createdDate:desc";
+        query.Skip = 20;
+        query.Take = 10;
+    }
+
+    private void AssertSharedArguments()
+    {
+        Assert.Equal("B2B-store", _criteria.StoreId);
+        Assert.Equal([ReturnStatus.Requested], _criteria.Statuses);
+        Assert.Equal(StartDate, _criteria.StartDate);
+        Assert.Equal(EndDate, _criteria.EndDate);
+        Assert.Equal("RET-42", _criteria.Keyword);
+        Assert.Equal("createdDate:desc", _criteria.Sort);
+        Assert.Equal(20, _criteria.Skip);
+        Assert.Equal(10, _criteria.Take);
     }
 }

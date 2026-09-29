@@ -339,16 +339,22 @@ plus `return:authorize` to approve and decline returns. Editing a return does no
 
 Two storefront permissions are granted to contacts through their role:
 
-* `xapi:my_organization:return:view` lets a contact list and open the returns of the organization they
-  have currently selected, with `returns(scope: ORGANIZATION)`. Asking for that scope without the
-  permission is refused, not narrowed to the contact's own returns. Drafts stay out of it, the
+* `xapi:my_organization:return:view` lets a contact list the returns of an organization they belong
+  to, with `organizationReturns(organizationId: …)`, and open them. It counts in an organization when
+  a role holding it is assigned to the user globally or in that organization, and only while that
+  membership is active: not locked, and not invited, rejected or removed. Asking for an organization
+  the contact may not read is refused, not narrowed to their own returns. Drafts stay out of it, the
   contact's own included: a draft is the buyer's work in progress and stays in their own list. A
   colleague's return is read-only: its actions come back unavailable, every mutation still requires
   the buyer who raised it, and its attachments can be opened but not deleted.
 * `xapi:my_organization:return:submit` is registered but not checked yet.
 
 No role holds `xapi:my_organization:return:view` out of the box. Grant it under Security → Roles to the
-role your organization maintainers have — **Organization maintainer** in the sample data.
+role your organization maintainers have — **Organization maintainer** in the sample data — or give a
+contact such a role in one organization only.
+
+Every storefront query and mutation of returns also refuses an account that can no longer be used —
+locked, deleted, or with its password expired — even while its token is still valid.
 
 Returns raised before the organization was recorded on them are filled in from their order when the
 module is upgraded, provided the Orders tables are in the same database.

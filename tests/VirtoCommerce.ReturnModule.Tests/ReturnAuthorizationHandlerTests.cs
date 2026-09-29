@@ -9,15 +9,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.FileExperienceApi.Core.Models;
-using CustomerClaims = VirtoCommerce.CustomerModule.Core.ModuleConstants.Security.Claims;
-using FilePermissions = VirtoCommerce.FileExperienceApi.Core.ModuleConstants.Security.Permissions;
 using VirtoCommerce.Platform.Core;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.ReturnModule.ExperienceApi.Authorization;
+using VirtoCommerce.Xapi.Core.Services;
 using Xunit;
+using CustomerClaims = VirtoCommerce.CustomerModule.Core.ModuleConstants.Security.Claims;
+using FilePermissions = VirtoCommerce.FileExperienceApi.Core.ModuleConstants.Security.Permissions;
 
 namespace VirtoCommerce.ReturnModule.Tests;
 
@@ -195,26 +196,19 @@ public class ReturnAuthorizationHandlerTests
         Assert.False(context.HasSucceeded);
     }
 
-    [Fact]
-    public async Task OrganizationViewerSwitchedToAnotherOrganization_Fails()
+    [Theory]
+    [InlineData("org-2")]
+    [InlineData(null)]
+    public async Task OrganizationViewer_FollowsTheReturnsOrganization_NotTheSelectedOne(string selectedOrganizationId)
     {
-        // A contact of two organizations, allowed to read both, who has switched to the other one:
-        // the photos follow the organization the list shows, as the return itself does.
-        var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Read, selectedOrganizationId: "org-2");
+        // A contact of two organizations who may read the return's one opens its photos whichever
+        // organization they have selected, as the return itself opens and as the organization list
+        // takes any of their organizations.
+        var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Read, selectedOrganizationId: selectedOrganizationId);
 
         await CreateHandler(OtherId, organizationViewer: true).HandleAsync(context);
 
-        Assert.False(context.HasSucceeded);
-    }
-
-    [Fact]
-    public async Task OrganizationViewerWithNoOrganizationSelected_Fails()
-    {
-        var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Read, selectedOrganizationId: null);
-
-        await CreateHandler(OtherId, organizationViewer: true).HandleAsync(context);
-
-        Assert.False(context.HasSucceeded);
+        Assert.True(context.HasSucceeded);
     }
 
     [Fact]
@@ -325,19 +319,25 @@ public class ReturnAuthorizationHandlerTests
             .Setup(x => x.IsOwnedBy(It.IsAny<Return>(), It.IsAny<string>()))
             .ReturnsAsync((Return x, string customerId) => x.CustomerId == customerId);
 
-        // The real visibility rule; only the membership lookup is stood in for, and it answers the
-        // same for every organization so that the organization compared is the one selected.
-        var organizationAccessService = new Mock<ReturnOrganizationAccessService>(
+        // The real draft rule; only the organization rule is stood in for, and it answers for the
+        // caller and the return's own organization only, so the handler has to ask about exactly those.
+        var accessService = new Mock<ReturnAccessService>(
+            Mock.Of<IUserManagerCore>(),
             Mock.Of<IMemberService>(),
-            (Func<UserManager<ApplicationUser>>)(() => null))
+            Mock.Of<IOrganizationMembershipSearchService>(),
+            (Func<UserManager<ApplicationUser>>)(() => null),
+            (Func<RoleManager<Role>>)(() => null))
         {
             CallBase = true,
         };
-        organizationAccessService
-            .Setup(x => x.CanViewAsync(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()))
+        accessService
+            .Setup(x => x.CanViewOrganizationAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(false);
+        accessService
+            .Setup(x => x.CanViewOrganizationAsync(OtherId, "org-1"))
             .ReturnsAsync(organizationViewer);
 
-        return ScopeFactoryFor(returnService.Object, flowService.Object, organizationAccessService.Object);
+        return ScopeFactoryFor(returnService.Object, flowService.Object, accessService.Object);
     }
 
     // The handler is a singleton and resolves the return services per check, so the test has to
@@ -345,12 +345,12 @@ public class ReturnAuthorizationHandlerTests
     private static IServiceScopeFactory ScopeFactoryFor(
         IReturnService returnService,
         IReturnFlowService flowService,
-        IReturnOrganizationAccessService organizationAccessService)
+        IReturnAccessService accessService)
     {
         var provider = new ServiceCollection()
             .AddSingleton(returnService)
             .AddSingleton(flowService)
-            .AddSingleton(organizationAccessService)
+            .AddSingleton(accessService)
             .BuildServiceProvider();
 
         return provider.GetRequiredService<IServiceScopeFactory>();

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
-using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
@@ -18,79 +17,67 @@ public class ReturnQueryHandlerTests
     private const string OwnerId = "buyer-1";
     private const string ColleagueId = "buyer-2";
 
+    private readonly Mock<IReturnAccessService> _accessService = new();
+
     [Fact]
     public async Task OwnReturn_IsFound()
     {
         var result = await Handle(new ReturnQuery { Id = ReturnId, CustomerId = OwnerId });
 
         Assert.Equal(ReturnId, result?.Id);
-    }
-
-    [Fact]
-    public async Task ColleaguesReturn_WithoutOrganizationAccess_IsNotFound()
-    {
-        var result = await Handle(new ReturnQuery { Id = ReturnId, CustomerId = ColleagueId });
-
-        Assert.Null(result);
-    }
-
-    [Fact]
-    public async Task ColleaguesReturn_InTheViewableOrganization_IsFound()
-    {
-        var result = await Handle(new ReturnQuery { Id = ReturnId, CustomerId = ColleagueId, OrganizationId = "org-1" });
-
-        Assert.Equal(ReturnId, result?.Id);
-    }
-
-    [Fact]
-    public async Task ColleaguesReturn_InAnotherOrganization_IsNotFound()
-    {
-        var result = await Handle(new ReturnQuery { Id = ReturnId, CustomerId = ColleagueId, OrganizationId = "org-2" });
-
-        Assert.Null(result);
-    }
-
-    [Fact]
-    public async Task ReturnWithoutOrganization_IsNotOpenedByTheOrganizationScope()
-    {
-        var result = await Handle(
-            new ReturnQuery { Id = ReturnId, CustomerId = ColleagueId, OrganizationId = "org-1" },
-            new Return { Id = ReturnId, CustomerId = OwnerId });
-
-        Assert.Null(result);
-    }
-
-    [Fact]
-    public async Task ColleaguesDraft_InTheViewableOrganization_IsNotFound()
-    {
-        var result = await Handle(
-            new ReturnQuery { Id = ReturnId, CustomerId = ColleagueId, OrganizationId = "org-1" },
-            new Return { Id = ReturnId, CustomerId = OwnerId, OrganizationId = "org-1", Status = ReturnStatus.Draft });
-
-        Assert.Null(result);
+        // Its own buyer never needs the organization's permission.
+        _accessService.Verify(x => x.CanViewReturnAsync(It.IsAny<string>(), It.IsAny<Return>()), Times.Never);
     }
 
     [Fact]
     public async Task OwnDraft_IsFound()
     {
         var result = await Handle(
-            new ReturnQuery { Id = ReturnId, CustomerId = OwnerId, OrganizationId = "org-1" },
+            new ReturnQuery { Id = ReturnId, CustomerId = OwnerId },
             new Return { Id = ReturnId, CustomerId = OwnerId, OrganizationId = "org-1", Status = ReturnStatus.Draft });
 
         Assert.Equal(ReturnId, result?.Id);
     }
 
     [Fact]
-    public async Task MissingReturn_IsNotFound()
+    public async Task ColleaguesReturn_TheOrganizationRuleAllows_IsFound()
     {
-        var result = await Handle(new ReturnQuery { Id = "gone", CustomerId = OwnerId, OrganizationId = "org-1" });
+        // The rule is asked about the caller and the return as stored, so it judges the return's own
+        // organization rather than one the caller names.
+        _accessService
+            .Setup(x => x.CanViewReturnAsync(ColleagueId, It.Is<Return>(r => r.Id == ReturnId && r.OrganizationId == "org-1")))
+            .ReturnsAsync(true);
+
+        var result = await Handle(new ReturnQuery { Id = ReturnId, CustomerId = ColleagueId });
+
+        Assert.Equal(ReturnId, result?.Id);
+    }
+
+    [Fact]
+    public async Task ColleaguesReturn_TheOrganizationRuleRefuses_IsNotFound()
+    {
+        // The same answer an unknown id gets, so a refusal tells nobody the return exists.
+        _accessService
+            .Setup(x => x.CanViewReturnAsync(It.IsAny<string>(), It.IsAny<Return>()))
+            .ReturnsAsync(false);
+
+        var result = await Handle(new ReturnQuery { Id = ReturnId, CustomerId = ColleagueId });
 
         Assert.Null(result);
     }
 
-    private static Task<Return> Handle(ReturnQuery query, Return stored = null)
+    [Fact]
+    public async Task MissingReturn_IsNotFound()
     {
-        stored ??= new Return { Id = ReturnId, CustomerId = OwnerId, OrganizationId = "org-1" };
+        var result = await Handle(new ReturnQuery { Id = "gone", CustomerId = OwnerId });
+
+        Assert.Null(result);
+        _accessService.Verify(x => x.CanViewReturnAsync(It.IsAny<string>(), It.IsAny<Return>()), Times.Never);
+    }
+
+    private Task<Return> Handle(ReturnQuery query, Return stored = null)
+    {
+        stored ??= new Return { Id = ReturnId, CustomerId = OwnerId, OrganizationId = "org-1", Status = ReturnStatus.Requested };
 
         var returnService = new Mock<IReturnService>();
         returnService
@@ -103,10 +90,6 @@ public class ReturnQueryHandlerTests
             .Setup(x => x.IsOwnedBy(It.IsAny<Return>(), It.IsAny<string>()))
             .ReturnsAsync((Return x, string customerId) => x.CustomerId == customerId);
 
-        // The real visibility rule. Whether the caller may read the organization at all is the
-        // builder's question, answered before the handler runs and passed on as OrganizationId.
-        var organizationAccessService = new ReturnOrganizationAccessService(Mock.Of<IMemberService>(), () => null);
-
-        return new ReturnQueryHandler(returnService.Object, flowService.Object, organizationAccessService).Handle(query, CancellationToken.None);
+        return new ReturnQueryHandler(returnService.Object, flowService.Object, _accessService.Object).Handle(query, CancellationToken.None);
     }
 }
