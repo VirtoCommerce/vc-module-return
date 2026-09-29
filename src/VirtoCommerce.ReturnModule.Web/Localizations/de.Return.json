@@ -68,7 +68,7 @@
     "return:read": "Rückgabedaten anzeigen",
     "return:update": "Rückgabedaten aktualisieren",
     "return:delete": "Rückgabedaten löschen",
-    "return:authorize": "Rücksendungen genehmigen und ablehnen"
+    "return:authorize": "Rückgaben genehmigen und ablehnen"
   },
   "settings": {
     "Return": {
@@ -85,19 +85,19 @@
         "description": "Verwenden Sie diese Vorlage, um neue Bestellrückgaben zu generieren"
       },
       "WindowDays": {
-        "title": "Rücksendefrist, Tage",
+        "title": "Rückgabefrist, Tage",
         "description": "Wie lange eine Position nach der Lieferung zurückgesendet werden kann. Pro Position ab dem letzten Lieferdatum gezählt."
       },
       "AllowedOrderStatuses": {
-        "title": "Bestellstatus mit erlaubter Rücksendung",
-        "description": "Kommagetrennte Bestellstatus, aus denen eine Rücksendung beantragt werden darf. Leer erlaubt nichts."
+        "title": "Bestellstatus mit erlaubter Rückgabe",
+        "description": "Kommagetrennte Bestellstatus, aus denen eine Rückgabe beantragt werden darf. Leer erlaubt nichts."
       },
       "AllowedShipmentStatuses": {
         "title": "Als geliefert geltende Sendungsstatus",
         "description": "Kommagetrennte Sendungsstatus, die als geliefert gelten. Leer akzeptiert jeden Status, die Lieferung wird dann dem Lieferdatum der Sendung entnommen."
       },
       "Reasons": {
-        "title": "Rücksendegründe",
+        "title": "Rückgabegründe",
         "description": "Gründe, die der Käufer je Position wählt. Lokalisierbar."
       },
       "ReasonsRequiringComment": {
@@ -109,11 +109,11 @@
         "description": "Mindestens eine Datei je zurückgesendeter Position verlangen."
       },
       "SendNotifications": {
-        "title": "E-Mail-Benachrichtigungen zu Rücksendungen",
-        "description": "Den Käufer per E-Mail benachrichtigen, wenn eine Rücksendung registriert, genehmigt, teilweise genehmigt, abgelehnt oder storniert wird."
+        "title": "E-Mail-Benachrichtigungen zu Rückgaben",
+        "description": "Den Käufer per E-Mail benachrichtigen, wenn eine Rückgabe registriert, genehmigt, teilweise genehmigt, abgelehnt oder storniert wird."
       },
       "SendPushNotifications": {
-        "title": "Push-Benachrichtigungen zu Rücksendungen",
+        "title": "Push-Benachrichtigungen zu Rückgaben",
         "description": "Bei denselben Ereignissen zusätzlich eine In-App-Push-Nachricht senden. Erfordert das Modul Push Messages."
       }
     },
@@ -132,7 +132,7 @@
       "Cancelled": "Storniert"
     },
     "Return.Reasons": {
-      "title": "Rücksendegründe",
+      "title": "Rückgabegründe",
       "description": "Gründe, die der Käufer je Position wählt",
       "FaultyOnArrival": "Bei Lieferung defekt",
       "DamagedInTransit": "Transportschaden",
@@ -143,24 +143,24 @@
   },
   "notificationTypes": {
     "ReturnRegisteredEmailNotification": {
-      "displayName": "Rücksendung registriert",
-      "description": "Der Käufer erhält eine E-Mail, wenn seine Rücksendeanfrage registriert wurde und auf Prüfung wartet"
+      "displayName": "Rückgabe registriert",
+      "description": "Der Käufer erhält eine E-Mail, wenn seine Rückgabeanfrage registriert wurde und auf Prüfung wartet"
     },
     "ReturnApprovedEmailNotification": {
-      "displayName": "Rücksendung genehmigt",
-      "description": "Der Käufer erhält eine E-Mail, wenn jede Position seiner Rücksendung vollständig genehmigt wurde"
+      "displayName": "Rückgabe genehmigt",
+      "description": "Der Käufer erhält eine E-Mail, wenn jede Position seiner Rückgabe vollständig genehmigt wurde"
     },
     "ReturnPartiallyApprovedEmailNotification": {
-      "displayName": "Rücksendung teilweise genehmigt",
+      "displayName": "Rückgabe teilweise genehmigt",
       "description": "Der Käufer erhält eine E-Mail, wenn ein Teil der angefragten Mengen genehmigt wurde und ein Teil nicht"
     },
     "ReturnRejectedEmailNotification": {
-      "displayName": "Rücksendung abgelehnt",
+      "displayName": "Rückgabe abgelehnt",
       "description": "Der Käufer erhält eine E-Mail, wenn keine der angefragten Mengen genehmigt wurde"
     },
     "ReturnCancelledEmailNotification": {
-      "displayName": "Rücksendung storniert",
-      "description": "Der Käufer erhält eine E-Mail, wenn seine Rücksendeanfrage storniert wurde und nicht mehr auf Prüfung wartet"
+      "displayName": "Rückgabe storniert",
+      "description": "Der Käufer erhält eine E-Mail, wenn seine Rückgabeanfrage storniert wurde und nicht mehr auf Prüfung wartet"
     }
   }
 }

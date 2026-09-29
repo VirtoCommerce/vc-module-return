@@ -96,18 +96,18 @@ public class ReturnControllerTests
     }
 
     [Fact]
-    public async Task UpdateReturn_DecidedLine_KeepsTheQuantityItWasDecidedOn()
+    public async Task UpdateReturn_DecidedLineQuantityChanged_IsRefused()
     {
+        // It used to be put back silently, so a REST caller got a 200 for a change that never happened.
         _storedReturn = NewReturn(ReturnStatus.Approved, approvedQuantity: 2, itemState: ReturnItemState.Approved);
 
         var edited = NewReturn(ReturnStatus.Approved, approvedQuantity: 2, itemState: ReturnItemState.Approved);
         edited.LineItems.Single().Quantity = 1;
 
-        await _controller.UpdateReturn(edited);
+        var result = await _controller.UpdateReturn(edited);
 
-        var lineItem = Assert.Single(Assert.Single(_saved).LineItems);
-        Assert.Equal(2, lineItem.Quantity);
-        Assert.Equal(2, lineItem.ApprovedQuantity);
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Empty(_saved);
     }
 
     [Fact]
@@ -129,12 +129,84 @@ public class ReturnControllerTests
         _storedReturn = NewReturn(ReturnStatus.Approved, approvedQuantity: 2, itemState: ReturnItemState.Approved);
 
         var edited = NewReturn(ReturnStatus.Approved, approvedQuantity: 2, itemState: ReturnItemState.Approved);
+        edited.LineItems.Add(new ReturnLineItem { OrderLineItemId = "order-line-2", Quantity = 1 });
+
+        var result = await _controller.UpdateReturn(edited);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Empty(_saved);
+    }
+
+    [Fact]
+    public async Task UpdateReturn_SecondLineForTheSameOrderLine_IsRefused()
+    {
+        // 2 of 2 held, plus a line of 1 for the same order line: each line used to be measured against
+        // what is left as if the other did not exist, and the return ended up holding 3 of 2.
+        _storedReturn = NewReturn(ReturnStatus.Requested, itemState: ReturnItemState.Requested);
+
+        var edited = NewReturn(ReturnStatus.Requested, itemState: ReturnItemState.Requested);
         edited.LineItems.Add(new ReturnLineItem { OrderLineItemId = OrderLineItemId, Quantity = 1 });
 
         var result = await _controller.UpdateReturn(edited);
 
         Assert.IsType<BadRequestObjectResult>(result);
         Assert.Empty(_saved);
+    }
+
+    [Fact]
+    public async Task UpdateReturn_SecondLineForTheSameOrderLine_IsRefusedEvenWhenTheTotalFits()
+    {
+        // One line per order line, as the storefront asks: the module finds a line by its order line.
+        var created = NewReturn(ReturnStatus.New);
+        created.Id = null;
+        created.LineItems.Single().Id = null;
+        created.LineItems.Single().Quantity = 1;
+        created.LineItems.Add(new ReturnLineItem { OrderLineItemId = OrderLineItemId, Quantity = 1 });
+
+        var result = await _controller.UpdateReturn(created);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Empty(_saved);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task UpdateReturn_WithoutLines_IsABadRequest(bool emptyList)
+    {
+        // A missing list failed with a 500 on the first check that read it; an empty one saved a return with no lines.
+        _storedReturn = NewReturn(ReturnStatus.New);
+
+        var edited = NewReturn(ReturnStatus.New);
+        edited.LineItems = emptyList ? [] : null;
+
+        var result = await _controller.UpdateReturn(edited);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Empty(_saved);
+    }
+
+    [Fact]
+    public async Task UpdateReturn_EmptyLine_IsABadRequest()
+    {
+        _storedReturn = NewReturn(ReturnStatus.New);
+
+        var edited = NewReturn(ReturnStatus.New);
+        edited.LineItems.Add(null);
+
+        Assert.IsType<BadRequestObjectResult>(await _controller.UpdateReturn(edited));
+        Assert.Empty(_saved);
+    }
+
+    [Fact]
+    public async Task UpdateReturn_OldSpellingOfCancelled_IsStillAccepted()
+    {
+        // Only the status list offers a single spelling; a client that sends the old one keeps working.
+        _storedReturn = NewReturn(ReturnStatus.New);
+
+        var result = await _controller.UpdateReturn(NewReturn(ReturnStatus.LegacyCancelled));
+
+        Assert.IsType<OkObjectResult>(result);
     }
 
     [Fact]
@@ -369,6 +441,38 @@ public class ReturnControllerTests
     }
 
     [Fact]
+    public async Task GetAvailableStatuses_OpenReturn_OffersCancelledOnce()
+    {
+        // The dictionary has both spellings, which read as the same word in every language but English.
+        _storedReturn = NewReturn(ReturnStatus.New);
+
+        var statuses = await GetAvailableStatuses();
+
+        Assert.Equal([ReturnStatus.New, ReturnStatus.Completed, ReturnStatus.Cancelled, ReturnStatus.Processing], statuses);
+    }
+
+    [Fact]
+    public async Task GetAvailableStatuses_ReturnStoredWithTheOldSpelling_OffersItsOwn()
+    {
+        // The selector can show the return's status only if it is one of the options.
+        _storedReturn = NewReturn(ReturnStatus.LegacyCancelled);
+
+        Assert.Equal([ReturnStatus.LegacyCancelled], await GetAvailableStatuses());
+    }
+
+    [Fact]
+    public async Task GetAvailableStatuses_DictionaryWithOnlyTheOldSpelling_StillOffersIt()
+    {
+        // A dictionary edited before Cancelled shipped keeps its own list: the stored one replaces the shipped one.
+        _settingsManager
+            .Setup(x => x.GetObjectSettingAsync(ModuleConstants.Settings.General.OrderStatus.Name, null, null))
+            .ReturnsAsync(new ObjectSettingEntry(ModuleConstants.Settings.General.OrderStatus) { AllowedValues = [ReturnStatus.New, ReturnStatus.LegacyCancelled] });
+        _storedReturn = NewReturn(ReturnStatus.New);
+
+        Assert.Equal([ReturnStatus.New, ReturnStatus.LegacyCancelled], await GetAvailableStatuses());
+    }
+
+    [Fact]
     public async Task GetAvailableStatuses_MissingReturn_IsNotFound()
     {
         Assert.IsType<NotFoundResult>((await _controller.GetAvailableStatuses("gone")).Result);
@@ -406,6 +510,13 @@ public class ReturnControllerTests
         var result = await _controller.AuthorizeReturn(ReturnId, new ReturnAuthorizationRequest());
 
         Assert.IsType(expected, result.Result);
+    }
+
+    private async Task<string[]> GetAvailableStatuses()
+    {
+        var result = await _controller.GetAvailableStatuses(ReturnId);
+
+        return Assert.IsType<string[]>(Assert.IsType<OkObjectResult>(result.Result).Value);
     }
 
     private static Return NewReturn(string status, int approvedQuantity = 0, string itemState = null)

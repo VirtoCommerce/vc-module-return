@@ -96,7 +96,9 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
                 return NotFound();
             }
 
-            return Ok((await GetEditableStatusesAsync(orderReturn)).ToArray());
+            var statuses = await GetEditableStatusesAsync(orderReturn);
+
+            return Ok(OfferOneSpelling(statuses, orderReturn.Status).ToArray());
         }
 
         /// <summary>
@@ -112,6 +114,13 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             if (orderReturn == null)
             {
                 return BadRequest();
+            }
+
+            var lineErrors = ValidateLines(orderReturn).ToList();
+
+            if (lineErrors.Count > 0)
+            {
+                return BadRequest(lineErrors);
             }
 
             var storedReturn = string.IsNullOrEmpty(orderReturn.Id)
@@ -196,6 +205,33 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             return Ok(await GetAvailableQuantitiesAsync(order, excludeReturnId: null));
         }
 
+        // Ahead of the other checks, which read every line: a body without them failed with a 500. One line
+        // per order line, as the storefront asks: the module finds a line by its order line, and each line
+        // used to be measured against what is left as if the others did not exist.
+        private static IEnumerable<string> ValidateLines(Return orderReturn)
+        {
+            if (orderReturn.LineItems.IsNullOrEmpty())
+            {
+                yield return "A return needs at least one line.";
+                yield break;
+            }
+
+            if (orderReturn.LineItems.Any(x => x == null))
+            {
+                yield return "A return line is empty.";
+                yield break;
+            }
+
+            var duplicate = orderReturn.LineItems
+                .GroupBy(x => x.OrderLineItemId ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                .FirstOrDefault(x => x.Count() > 1);
+
+            if (duplicate != null)
+            {
+                yield return $"Order line item '{duplicate.Key}' is listed more than once. Ask for the total on a single line.";
+            }
+        }
+
         private async Task<IEnumerable<string>> ValidateReturn(Return orderReturn, Return storedReturn)
         {
             // The order as stored, not as posted: the body could carry any quantities it likes.
@@ -261,8 +297,21 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
                 .ToList();
         }
 
+        // The dictionary keeps both spellings of cancelled so that returns stored with either keep their
+        // label, but only one is offered: the one the return has, else the one the flow writes.
+        private static IEnumerable<string> OfferOneSpelling(IEnumerable<string> statuses, string currentStatus)
+        {
+            return statuses
+                .GroupBy(ReturnStatus.Normalize, StringComparer.OrdinalIgnoreCase)
+                .Select(spellings =>
+                    spellings.FirstOrDefault(x => x.EqualsIgnoreCase(currentStatus)) ??
+                    spellings.FirstOrDefault(x => x.EqualsIgnoreCase(spellings.Key)) ??
+                    spellings.First());
+        }
+
         // A decided return is the set of lines the decision was made on: a line added afterwards would
-        // hold stock nobody approved, and a line dropped would take its decision with it.
+        // hold stock nobody approved, a line dropped would take its decision with it, and a decided line
+        // keeps the quantity the decision was measured against.
         private IEnumerable<string> ValidateLineChanges(Return storedReturn, Return orderReturn)
         {
             if (storedReturn == null || !storedReturn.LineItems.Any(_stateProvider.IsDecided))
@@ -277,11 +326,19 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             {
                 yield return $"Return '{storedReturn.Number}' has been approved or declined, so its lines cannot be added or removed.";
             }
+
+            var changedLineItem = storedReturn.LineItems
+                .Where(_stateProvider.IsDecided)
+                .FirstOrDefault(stored => orderReturn.LineItems.Any(x => x.Id.EqualsIgnoreCase(stored.Id) && x.Quantity != stored.Quantity));
+
+            if (changedLineItem != null)
+            {
+                yield return $"Line '{changedLineItem.Id}' has been approved or declined, so its quantity cannot be changed.";
+            }
         }
 
-        // The decision is recorded by authorizing the return; an edit keeps whatever was decided,
-        // including the requested quantity the approved one was measured against.
-        private void KeepDecisions(Return orderReturn, Return storedReturn)
+        // The decision is recorded by authorizing the return; an edit keeps whatever was decided.
+        private static void KeepDecisions(Return orderReturn, Return storedReturn)
         {
             orderReturn.RejectReason = storedReturn?.RejectReason;
 
@@ -292,11 +349,6 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
                 lineItem.ApprovedQuantity = storedLineItem?.ApprovedQuantity ?? 0;
                 lineItem.RejectReason = storedLineItem?.RejectReason;
                 lineItem.ItemState = storedLineItem?.ItemState;
-
-                if (storedLineItem != null && _stateProvider.IsDecided(storedLineItem))
-                {
-                    lineItem.Quantity = storedLineItem.Quantity;
-                }
             }
         }
     }

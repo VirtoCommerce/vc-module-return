@@ -53,7 +53,7 @@ public class ReturnDraftTests
     public async Task CreateDraft_SnapshotsTheCultureTheBuyerIsUsing()
     {
         // The status emails are written in it later, whatever language the order was placed in.
-        await CreateDraft(new ReturnFlowService(_orderService.Object, _returnService.Object, _eligibilityService.Object, _attachmentService.Object, new ReturnStateProvider(), _settingsService.Object, new ReturnRequestValidator()), "de-DE");
+        await CreateDraft(new ReturnFlowService(_orderService.Object, _returnService.Object, _eligibilityService.Object, _attachmentService.Object, new ReturnStateProvider(), _settingsService.Object, new ReturnRequestValidator(), Mock.Of<IReturnQuantityService>()), "de-DE");
 
         Assert.Equal("de-DE", Assert.Single(_saved).LanguageCode);
     }
@@ -61,7 +61,7 @@ public class ReturnDraftTests
     [Fact]
     public async Task CreateDraft_CultureLongerThanItsColumn_IsRefused()
     {
-        var service = new ReturnFlowService(_orderService.Object, _returnService.Object, _eligibilityService.Object, _attachmentService.Object, new ReturnStateProvider(), _settingsService.Object, new ReturnRequestValidator());
+        var service = new ReturnFlowService(_orderService.Object, _returnService.Object, _eligibilityService.Object, _attachmentService.Object, new ReturnStateProvider(), _settingsService.Object, new ReturnRequestValidator(), Mock.Of<IReturnQuantityService>());
 
         var exception = await Assert.ThrowsAsync<ReturnFlowException>(() => CreateDraft(service, "en-US-x-a-very-long-subtag"));
 
@@ -90,7 +90,7 @@ public class ReturnDraftTests
             IReturnEligibilityService eligibilityService,
             IReturnAttachmentService attachmentService,
             IReturnSettingsService settingsService)
-            : base(orderService, returnService, eligibilityService, attachmentService, new ReturnStateProvider(), settingsService, new ReturnRequestValidator())
+            : base(orderService, returnService, eligibilityService, attachmentService, new ReturnStateProvider(), settingsService, new ReturnRequestValidator(), quantityService: null)
         {
         }
 

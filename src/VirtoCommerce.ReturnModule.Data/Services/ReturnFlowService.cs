@@ -23,6 +23,7 @@ public class ReturnFlowService : IReturnFlowService
     private readonly IReturnStateProvider _stateProvider;
     private readonly IReturnSettingsService _settingsService;
     private readonly AbstractValidator<ReturnRequestValidationContext> _requestValidator;
+    private readonly IReturnQuantityService _quantityService;
 
     public ReturnFlowService(
         ICustomerOrderService orderService,
@@ -31,7 +32,8 @@ public class ReturnFlowService : IReturnFlowService
         IReturnAttachmentService attachmentService,
         IReturnStateProvider stateProvider,
         IReturnSettingsService settingsService,
-        AbstractValidator<ReturnRequestValidationContext> requestValidator)
+        AbstractValidator<ReturnRequestValidationContext> requestValidator,
+        IReturnQuantityService quantityService)
     {
         _orderService = orderService;
         _returnService = returnService;
@@ -40,6 +42,20 @@ public class ReturnFlowService : IReturnFlowService
         _stateProvider = stateProvider;
         _settingsService = settingsService;
         _requestValidator = requestValidator;
+        _quantityService = quantityService;
+    }
+
+    [Obsolete("Use the constructor that takes IReturnQuantityService. Without it, Authorize does not check the approved quantities against what the order has left.", DiagnosticId = "VC0016", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
+    public ReturnFlowService(
+        ICustomerOrderService orderService,
+        IReturnService returnService,
+        IReturnEligibilityService eligibilityService,
+        IReturnAttachmentService attachmentService,
+        IReturnStateProvider stateProvider,
+        IReturnSettingsService settingsService,
+        AbstractValidator<ReturnRequestValidationContext> requestValidator)
+        : this(orderService, returnService, eligibilityService, attachmentService, stateProvider, settingsService, requestValidator, quantityService: null)
+    {
     }
 
     public virtual async Task<Return> CreateDraft(CreateReturnRequest request, ReturnFlowContext context, CancellationToken cancellationToken = default)
@@ -314,6 +330,8 @@ public class ReturnFlowService : IReturnFlowService
             lineItem.ItemState = decision.ApprovedQuantity > 0 ? ReturnItemState.Approved : ReturnItemState.Rejected;
         }
 
+        await ValidateApprovedQuantitiesAsync(orderReturn);
+
         orderReturn.Status = GetAuthorizedStatus(orderReturn);
         orderReturn.RejectReason = orderReturn.Status.EqualsIgnoreCase(ReturnStatus.Approved) ? null : request.RejectReason.EmptyToNull();
 
@@ -382,6 +400,42 @@ public class ReturnFlowService : IReturnFlowService
         }
 
         return result;
+    }
+
+    // What is approved has to be left on the order line. Approving only lowers what a return holds, so this
+    // refuses only rows that already claim too much: written before PUT counted lines per order line,
+    // submitted at the same moment as another return, or raised on an order line reduced since. Declining
+    // needs no order, and orderless lines are not measured.
+    protected virtual async Task ValidateApprovedQuantitiesAsync(Return orderReturn)
+    {
+        var approvedByOrderLine = orderReturn.LineItems
+            .Where(x => x.ApprovedQuantity > 0)
+            .GroupBy(x => x.OrderLineItemId ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(x => x.Key, x => x.Sum(y => y.ApprovedQuantity), StringComparer.OrdinalIgnoreCase);
+
+        if (approvedByOrderLine.Count == 0 || _quantityService == null || string.IsNullOrEmpty(orderReturn.OrderId))
+        {
+            return;
+        }
+
+        var order = await _orderService.GetNoCloneAsync(orderReturn.OrderId);
+        var heldQuantities = await _quantityService.GetHeldQuantities(orderReturn.OrderId, orderReturn.Id);
+
+        foreach (var (orderLineItemId, approved) in approvedByOrderLine)
+        {
+            var ordered = order?.Items?.FirstOrDefault(x => x.Id.EqualsIgnoreCase(orderLineItemId))?.Quantity ?? 0;
+            var available = Math.Max(0, ordered - (heldQuantities.TryGetValue(orderLineItemId, out var held) ? held : 0));
+
+            if (approved > available)
+            {
+                throw new ReturnFlowException(
+                        ReturnFlowError.QuantityUnavailable,
+                        $"Line item '{orderLineItemId}': {approved} approved, {available} available.")
+                    .WithValue(ReturnFlowErrorValue.OrderLineItemId, orderLineItemId)
+                    .WithValue(ReturnFlowErrorValue.RequestedQuantity, approved)
+                    .WithValue(ReturnFlowErrorValue.AvailableQuantity, available);
+            }
+        }
     }
 
     protected virtual string GetAuthorizedStatus(Return orderReturn)
