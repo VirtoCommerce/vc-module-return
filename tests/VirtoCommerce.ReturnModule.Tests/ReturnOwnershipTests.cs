@@ -39,7 +39,7 @@ public class ReturnOwnershipTests
 
         // Ownership is decided before anything else is reached, so the lookup and the transition
         // table are all the flow needs here.
-        _service = new ReturnFlowService(null, _returnService.Object, null, null, new ReturnStateProvider(), null, new ReturnRequestValidator());
+        _service = new ReturnFlowService(null, _returnService.Object, null, null, new ReturnStateProvider(), null, new ReturnRequestValidator(), quantityService: null);
     }
 
     [Fact]

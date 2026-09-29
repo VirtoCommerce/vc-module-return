@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using VirtoCommerce.NotificationsModule.Core.Extensions;
 using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
+using VirtoCommerce.Platform.Caching;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Events;
 using VirtoCommerce.ReturnModule.Core;
@@ -103,9 +104,17 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
 
     protected virtual async Task<IList<PreparedReturnNotification>> PrepareAsync(IList<ReturnNotificationJobArgument> jobArguments)
     {
-        var returnsById = (await _returnService.GetAsync(
-                jobArguments.Select(x => x.ReturnId).Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
-                ReturnResponseGroup.None.ToString()))
+        var returnIds = jobArguments.Select(x => x.ReturnId).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+        // A copy this instance cached can predate the change being announced: cached before another instance
+        // saved it, or put back by a read that raced the save. Judged on that copy, a decision looked out of
+        // date and the buyer heard nothing.
+        foreach (var returnId in returnIds)
+        {
+            GenericCachingRegion<Return>.ExpireTokenForKey(returnId, propagate: false);
+        }
+
+        var returnsById = (await _returnService.GetAsync(returnIds, ReturnResponseGroup.None.ToString()))
             .ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
 
         var result = new List<PreparedReturnNotification>();

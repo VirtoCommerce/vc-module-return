@@ -12,6 +12,7 @@ using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.OrdersModule.Core.Model;
 using VirtoCommerce.OrdersModule.Core.Services;
+using VirtoCommerce.Platform.Caching;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Events;
@@ -309,6 +310,26 @@ public class ReturnNotificationHandlerTests
         _orderReturn.Status = ReturnStatus.Completed;
         await handler.SendNotificationsAsync([.. handler.Enqueued]);
 
+        Assert.Equal(nameof(ReturnApprovedEmailNotification), Assert.Single(_sent).Type);
+    }
+
+    [Fact]
+    public async Task Job_DropsTheCopyThisInstanceCached_BeforeReadingTheReturn()
+    {
+        // A copy cached before the decision - by an instance that never heard of the save, or put back by
+        // a read that raced it - made the decision look out of date, and the buyer heard nothing.
+        _orderReturn.Id = "return-cached-before-the-decision";
+        var cachedCopy = GenericCachingRegion<Return>.CreateChangeTokenForKey(_orderReturn.Id);
+        var droppedBeforeTheRead = false;
+
+        _returnService
+            .Setup(x => x.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
+            .Callback(() => droppedBeforeTheRead = cachedCopy.HasChanged)
+            .ReturnsAsync(() => [_orderReturn]);
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        Assert.True(droppedBeforeTheRead);
         Assert.Equal(nameof(ReturnApprovedEmailNotification), Assert.Single(_sent).Type);
     }
 

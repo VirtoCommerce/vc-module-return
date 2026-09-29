@@ -307,19 +307,24 @@ the whole return goes underneath. **Approve / decline** records the decision in 
 }
 ```
 
-Every line needs a decision, from 0 up to the requested quantity. The status follows from the numbers:
+Every line needs a decision, from 0 up to the requested quantity, and what is approved has to be left on
+the order line: its quantity less what the order's other returns hold. Approving only lowers what a
+return holds, so this refuses (`RETURN_QUANTITY_UNAVAILABLE`) only a return that already claims too much —
+two returns submitted for the same units at the same moment, say — and the agent approves less. Declining
+is always possible. The status follows from the numbers:
 `Approved` when every line is approved in full, `Rejected` when nothing is, `PartiallyApproved`
 otherwise. Each line is marked as decided, so the return goes on holding only the approved units,
 whatever status it moves on to — what was not approved can be requested again straight away, on the
 storefront and in the admin alike.
 
 The decision is written only this way. An edit through `PUT /api/return` keeps the approved quantities
-and decline reasons already stored, and once a line is decided also its requested quantity; lines
-cannot be added to or removed from a decided return. A quantity being written must fit what the order
-has left, whatever the status; one already stored is checked by what its line holds, so a return stays
-editable after the units it released have been requested again. The status an edit may set is limited
-too. It has to be in the `Return.Status` dictionary — keeping the one the return already has is always
-fine — and:
+and decline reasons already stored, and it is refused if it changes the requested quantity of a decided
+line or adds lines to or removes them from a decided return. Every return needs at least one line, and
+an order line appears on it once: ask for the total on a single line, as the storefront does. A
+quantity being written must fit what the order has left, whatever the status; one already stored is
+checked by what its line holds, so a return stays editable after the units it released have been
+requested again. The status an edit may set is limited too. It has to be in the `Return.Status`
+dictionary — keeping the one the return already has is always fine — and:
 
 * never `Draft`, `Requested`, `Approved`, `PartiallyApproved` or `Rejected` — only submitting and
   authorizing set those;
@@ -330,8 +335,12 @@ fine — and:
   shipped dictionary, so add them to it to use them;
 * otherwise any status in the dictionary, so a `New` return can still be cancelled.
 
-The status list in the return's details offers exactly the statuses an edit would accept, as
-`GET /api/return/{id}/available-statuses` reports them.
+The status list in the return's details offers the statuses an edit would accept, as
+`GET /api/return/{id}/available-statuses` reports them. The dictionary has both spellings of cancelled —
+`Canceled`, which the module shipped with, and `Cancelled`, which the flow writes — so that returns stored
+with either keep their label, but the list offers one: the return's own, otherwise `Cancelled`. The
+filter of the returns list does the same, and searching for either finds both. An edit that sends
+`Canceled` is still accepted.
 
 # Permissions
 

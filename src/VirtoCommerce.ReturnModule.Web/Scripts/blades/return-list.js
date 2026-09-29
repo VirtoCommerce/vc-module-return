@@ -9,8 +9,12 @@ angular.module('virtoCommerce.returnModule')
             blade.title = 'return.blades.return-list.title';
             blade.headIcon = 'fa fa-exchange';
 
+            // Canceled is the spelling the module shipped with: it stays in the dictionary for the returns stored
+            // with it, and the search finds both spellings, so it is offered only where Cancelled is missing.
             settings.getValues({ id: 'Return.Status' }, (data) => {
-                blade.statuses = data.map(x => ({ key: x, value: $filter('returnStatusTranslate')(x) }));
+                blade.statuses = data
+                    .filter(x => x !== 'Canceled' || !data.includes('Cancelled'))
+                    .map(x => ({ key: x, value: $filter('returnStatusTranslate')(x) }));
             });
 
             blade.refresh = () => {
