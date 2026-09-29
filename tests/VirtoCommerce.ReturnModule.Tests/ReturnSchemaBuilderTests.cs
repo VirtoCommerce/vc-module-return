@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using GraphQL;
@@ -9,7 +10,6 @@ using Moq;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.ReturnModule.ExperienceApi;
 using VirtoCommerce.ReturnModule.ExperienceApi.Authorization;
-using VirtoCommerce.ReturnModule.ExperienceApi.Commands;
 using VirtoCommerce.ReturnModule.ExperienceApi.Queries;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Security.Authorization;
@@ -29,36 +29,35 @@ public class ReturnSchemaBuilderTests
         ClaimsPrincipalExtensions.UserIdClaimTypes = [ClaimTypes.NameIdentifier];
     }
 
-    [Fact]
-    public void EveryBuilder_ChecksTheAccountFirst()
+    [Theory]
+    [MemberData(nameof(SignedInBuilders))]
+    public async Task EveryBuilder_RefusesAnUnusableAccountBeforeAnythingElse(Type builderType)
     {
-        // A check in a base class protects only what inherits it, and the next builder is the one that
-        // forgets. returnStatuses is a settings dictionary served through X-API's own base.
-        var ungated = typeof(AssemblyMarker).Assembly.GetTypes()
-            .Where(x => !x.IsAbstract && typeof(ISchemaBuilder).IsAssignableFrom(x))
-            .Where(x => x != typeof(ReturnStatusesQueryBuilder))
-            .Where(x => !IsGated(x))
-            .Select(x => x.Name)
-            .ToList();
-
-        Assert.Empty(ungated);
-    }
-
-    [Fact]
-    public async Task UnusableAccount_IsRefusedBeforeTheBuilderRuns()
-    {
-        // A locked account's token is still valid for up to 30 minutes; the builder must not get as far as
-        // stamping the caller onto the command.
+        // A locked account's token is still valid for up to 30 minutes. A check in a base class protects
+        // only what inherits it and calls it first, and the next builder is the one that forgets. The
+        // context offers the access service alone, so a builder that reached for any other service first
+        // would fail with another error, and one that stamped the caller first would leave its id behind.
         _accessService
             .Setup(x => x.CheckUserStateAsync(It.IsAny<IResolveFieldContext>()))
             .ThrowsAsync(AuthorizationError.UserLocked());
 
-        var command = new SubmitReturnCommand { ReturnId = "return-1" };
+        var builder = Activator.CreateInstance(builderType, Mock.Of<IAuthorizationService>());
+        var beforeMediatorSend = builderType.GetMethod("BeforeMediatorSend", BindingFlags.Instance | BindingFlags.NonPublic);
+        var request = Activator.CreateInstance(beforeMediatorSend.GetParameters()[1].ParameterType);
 
-        var error = await Assert.ThrowsAsync<AuthorizationError>(() => new TestSubmitReturnCommandBuilder().Run(CreateContext(), command));
+        var error = await Assert.ThrowsAsync<AuthorizationError>(() => (Task)beforeMediatorSend.Invoke(builder, [CreateContext(), request]));
 
         Assert.Equal(AuthorizationError.UserLocked().Code, error.Code);
-        Assert.Null(command.CustomerId);
+        Assert.Null(request.GetType().GetProperty("CustomerId")?.GetValue(request));
+    }
+
+    // Found rather than listed, so a new builder is covered the day it is added. returnStatuses is a public
+    // settings dictionary served through X-API's own base, the one builder that answers anyone.
+    public static TheoryData<Type> SignedInBuilders()
+    {
+        return new TheoryData<Type>(typeof(AssemblyMarker).Assembly.GetTypes()
+            .Where(x => !x.IsAbstract && typeof(ISchemaBuilder).IsAssignableFrom(x))
+            .Where(x => x != typeof(ReturnStatusesQueryBuilder)));
     }
 
     [Fact]
@@ -89,21 +88,6 @@ public class ReturnSchemaBuilderTests
         _accessService.Verify(x => x.CanViewOrganizationAsync(CallerId, "org-1"), Times.Once);
     }
 
-    private static bool IsGated(Type type)
-    {
-        Type[] gatedBases = [typeof(ReturnQueryBuilderBase<,,>), typeof(ReturnSearchQueryBuilderBase<,,,>), typeof(ReturnCommandBuilderBase<,,,>)];
-
-        for (var current = type.BaseType; current != null; current = current.BaseType)
-        {
-            if (current.IsGenericType && gatedBases.Contains(current.GetGenericTypeDefinition()))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private IResolveFieldContext<object> CreateContext()
     {
         var services = new ServiceCollection()
@@ -117,16 +101,6 @@ public class ReturnSchemaBuilderTests
         context.SetupGet(x => x.UserContext).Returns(new GraphQLUserContext(principal));
 
         return context.Object;
-    }
-
-    private sealed class TestSubmitReturnCommandBuilder : SubmitReturnCommandBuilder
-    {
-        public TestSubmitReturnCommandBuilder()
-            : base(Mock.Of<IAuthorizationService>())
-        {
-        }
-
-        public Task Run(IResolveFieldContext<object> context, SubmitReturnCommand command) => BeforeMediatorSend(context, command);
     }
 
     private sealed class TestOrganizationReturnsQueryBuilder : OrganizationReturnsQueryBuilder

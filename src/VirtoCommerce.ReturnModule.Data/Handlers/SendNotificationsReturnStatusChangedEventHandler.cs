@@ -19,7 +19,6 @@ public class SendNotificationsReturnStatusChangedEventHandler : ReturnStatusNoti
 {
     private readonly INotificationSender _notificationSender;
     private readonly ICustomerOrderService _orderService;
-    private readonly IReturnSettingsService _settingsService;
     private readonly IMemberService _memberService;
 
     public SendNotificationsReturnStatusChangedEventHandler(
@@ -36,7 +35,6 @@ public class SendNotificationsReturnStatusChangedEventHandler : ReturnStatusNoti
     {
         _notificationSender = notificationSender;
         _orderService = orderService;
-        _settingsService = settingsService;
         _memberService = memberService;
     }
 
@@ -93,7 +91,7 @@ public class SendNotificationsReturnStatusChangedEventHandler : ReturnStatusNoti
             return;
         }
 
-        var rules = await _settingsService.GetRulesAsync(orderReturn.StoreId);
+        var rules = await SettingsService.GetRulesAsync(orderReturn.StoreId);
 
         if (!rules.NotifyOrganizationEmail)
         {
@@ -117,7 +115,16 @@ public class SendNotificationsReturnStatusChangedEventHandler : ReturnStatusNoti
             return;
         }
 
-        await ScheduleAsync(prepared, prepared.Notification.CloneTyped(), organizationEmail);
+        var copy = prepared.Notification.CloneTyped();
+
+        // The recipients an admin added to the notification were already sent the buyer's email.
+        if (!string.IsNullOrEmpty(buyerEmail))
+        {
+            copy.CC = [];
+            copy.BCC = [];
+        }
+
+        await ScheduleAsync(prepared, copy, organizationEmail);
     }
 
     protected virtual async Task<string> GetOrganizationEmailAsync(string organizationId)

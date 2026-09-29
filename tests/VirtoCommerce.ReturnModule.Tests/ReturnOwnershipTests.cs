@@ -11,7 +11,7 @@ using Xunit;
 namespace VirtoCommerce.ReturnModule.Tests;
 
 /// <summary>
-/// A colleague who may read a return through the organization scope still may not change it: every
+/// A colleague who may read a return through the organization still may not change it: every
 /// mutation finds the return by its buyer, and the organization never takes part in that lookup.
 /// </summary>
 public class ReturnOwnershipTests

@@ -147,7 +147,8 @@ public class ReturnAuthorizationHandlerTests
     [Fact]
     public async Task SignedInUserWithoutReturnReadOpeningAFile_Fails()
     {
-        // The control for the two above: being signed in opens nothing, the permission does.
+        // The control for the back-office tests above and the organization tests below: being signed in
+        // opens nothing, the permission or the organization's rule does.
         var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Read);
 
         await CreateHandler(OtherId).HandleAsync(context);
@@ -171,16 +172,6 @@ public class ReturnAuthorizationHandlerTests
         var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Delete);
 
         await CreateHandler(OtherId, organizationViewer: true).HandleAsync(context);
-
-        Assert.False(context.HasSucceeded);
-    }
-
-    [Fact]
-    public async Task ColleagueWithoutOrganizationAccessReadingAFile_Fails()
-    {
-        var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Read);
-
-        await CreateHandler(OtherId).HandleAsync(context);
 
         Assert.False(context.HasSucceeded);
     }

@@ -19,7 +19,7 @@ public class ReturnTypeTests
     [Fact]
     public async Task ColleaguesReturn_OffersNoAction()
     {
-        // Read through the organization scope: every mutation would refuse the caller, so offering a
+        // Read through the organization: every mutation would refuse the caller, so offering a
         // button would only lead to an error.
         var actions = await ResolveAvailableActions(isOwner: false);
 

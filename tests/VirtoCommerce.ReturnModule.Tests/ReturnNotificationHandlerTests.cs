@@ -55,6 +55,9 @@ public class ReturnNotificationHandlerTests
     // File-loaded templates carry no language and match any.
     private string _templateLanguageCode;
     private bool _notificationIsActive = true;
+    // Recipients an admin added to the notification itself.
+    private string[] _notificationCc;
+    private string[] _notificationBcc;
 
     public ReturnNotificationHandlerTests()
     {
@@ -471,6 +474,52 @@ public class ReturnNotificationHandlerTests
     }
 
     [Fact]
+    public async Task OrganizationCopy_LeavesTheNotificationsCcAndBccToTheBuyersEmail()
+    {
+        // The copy is the buyer's notification cloned, CC and BCC included; the people an admin added
+        // there already got the buyer's email and must not get the organization's too.
+        _rules.NotifyOrganizationEmail = true;
+        _orderReturn.OrganizationId = OrganizationId;
+        _notificationCc = ["returns-desk@aras.example"];
+        _notificationBcc = ["audit@aras.example"];
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        Assert.Equal(2, _sent.Count);
+        var buyersEmail = (EmailNotification)_sent[0];
+        var copy = (EmailNotification)_sent[1];
+        Assert.Equal(["returns-desk@aras.example"], buyersEmail.CC);
+        Assert.Equal(["audit@aras.example"], buyersEmail.BCC);
+        Assert.Equal("purchasing@aras.example", copy.To);
+        Assert.Empty(copy.CC);
+        Assert.Empty(copy.BCC);
+    }
+
+    [Fact]
+    public async Task BuyerWithoutEmail_CopyStillReachesTheNotificationsCcAndBcc()
+    {
+        // The control for the test above: with no buyer's email sent, the copy is the only message,
+        // so it is the one that carries them.
+        _rules.NotifyOrganizationEmail = true;
+        _orderReturn.OrganizationId = OrganizationId;
+        _notificationCc = ["returns-desk@aras.example"];
+        _notificationBcc = ["audit@aras.example"];
+        _userManager
+            .Setup(x => x.FindByIdAsync(CustomerId))
+            .ReturnsAsync(new ApplicationUser { Id = CustomerId, MemberId = ContactId });
+        _memberService
+            .Setup(x => x.GetByIdAsync(ContactId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Contact { Id = ContactId, Name = "Jan de Vries", Emails = [] });
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        var copy = (EmailNotification)Assert.Single(_sent);
+        Assert.Equal("purchasing@aras.example", copy.To);
+        Assert.Equal(["returns-desk@aras.example"], copy.CC);
+        Assert.Equal(["audit@aras.example"], copy.BCC);
+    }
+
+    [Fact]
     public async Task OrganizationWithoutEmail_SendsOnlyToTheBuyer()
     {
         _rules.NotifyOrganizationEmail = true;
@@ -537,6 +586,12 @@ public class ReturnNotificationHandlerTests
 
         result.IsActive = _notificationIsActive;
         result.Templates.Add(new EmailNotificationTemplate { LanguageCode = _templateLanguageCode, Subject = "Return {{ return.number }}" });
+
+        if (result is EmailNotification emailNotification)
+        {
+            emailNotification.CC = _notificationCc;
+            emailNotification.BCC = _notificationBcc;
+        }
 
         return result;
     }

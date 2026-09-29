@@ -280,11 +280,12 @@ A notification switched off in the admin sends neither the email nor the push me
 
 ### Organization copies
 
-A third store setting, `Return.NotifyOrganizationEmail`, is off by default. With it on, every email the
-buyer gets about a return also goes to the first email address of the organization the return was
-raised for. The copy is the buyer's own email, not a separate template, so purchasing sees exactly what
-the buyer was told. No copy is sent when that address is the one the buyer's email went to. Push
-messages stay with the buyer.
+A third store setting, `Return.NotifyOrganizationEmail`, is off by default. With it on, every email
+meant for the buyer about a return also goes to the first email address of the organization the return
+was raised for, even when the buyer has no address to send it to. The copy is the buyer's own email, not
+a separate template, so purchasing sees exactly what the buyer was told. No copy is sent when that
+address is the one the buyer's email went to, and the CC and BCC recipients set on the notification
+still get it once. Push messages stay with the buyer.
 
 ## Approving and declining
 
@@ -353,8 +354,9 @@ No role holds `xapi:my_organization:return:view` out of the box. Grant it under 
 role your organization maintainers have — **Organization maintainer** in the sample data — or give a
 contact such a role in one organization only.
 
-Every storefront query and mutation of returns also refuses an account that can no longer be used —
-locked, deleted, or with its password expired — even while its token is still valid.
+Every storefront query and mutation of returns, except the public `returnStatuses` dictionary, also
+refuses an account that can no longer be used — locked, deleted, or with its password expired — even
+while its token is still valid.
 
 Returns raised before the organization was recorded on them are filled in from their order when the
 module is upgraded, provided the Orders tables are in the same database.

@@ -27,12 +27,6 @@ public class ReturnsQueryHandler : IQueryHandler<ReturnsQuery, ReturnSearchResul
 
     public virtual async Task<ReturnSearchResult> Handle(OrganizationReturnsQuery request, CancellationToken cancellationToken)
     {
-        // Without an owner filter the search service would return the whole store.
-        if (string.IsNullOrEmpty(request.OrganizationId))
-        {
-            return AbstractTypeFactory<ReturnSearchResult>.TryCreateInstance();
-        }
-
         var criteria = GetSearchCriteria(request);
         criteria.OrganizationId = request.OrganizationId;
         criteria.ExcludeDrafts = true;

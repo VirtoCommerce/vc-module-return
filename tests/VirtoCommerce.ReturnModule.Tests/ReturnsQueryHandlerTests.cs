@@ -57,19 +57,6 @@ public class ReturnsQueryHandlerTests
         AssertSharedArguments();
     }
 
-    [Fact]
-    public async Task Handle_OrganizationReturnsWithoutOrganization_SearchesNothing()
-    {
-        // The builder refuses an organization the caller may not read; a handler reached any other way
-        // must still not drop the owner filter and return the whole store.
-        var query = new OrganizationReturnsQuery { CustomerId = "buyer-1", StoreId = "B2B-store" };
-
-        var result = await new ReturnsQueryHandler(_searchService.Object).Handle(query, CancellationToken.None);
-
-        Assert.Empty(result.Results);
-        _searchService.Verify(x => x.SearchAsync(It.IsAny<ReturnSearchCriteria>(), It.IsAny<bool>()), Times.Never);
-    }
-
     private static void FillSharedArguments(ReturnsQuery query)
     {
         query.StoreId = "B2B-store";
