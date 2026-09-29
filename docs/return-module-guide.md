@@ -308,8 +308,9 @@ storefront and in the admin alike.
 The decision is written only this way. An edit through `PUT /api/return` keeps the approved quantities
 and decline reasons already stored, and it is refused if it changes the requested quantity of a decided
 line or adds lines to or removes them from a decided return. Every return needs at least one line, and
-an order line appears on it once: ask for the total on a single line, as the storefront does. A
-quantity being written must fit what the order has left, whatever the status; one already stored is
+an order line appears on it once: ask for the total on a single line, as the storefront does. A line
+that carries an id must be one of the return's own lines; a new line comes without one. A new return
+needs a status. A quantity being written must fit what the order has left, whatever the status; one already stored is
 checked by what its line holds, so a return stays editable after the units it released have been
 requested again. The status an edit may set is limited too. It has to be in the `Return.Status`
 dictionary — keeping the one the return already has is always fine — and:
