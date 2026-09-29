@@ -104,6 +104,7 @@ public class ReturnFlowService : IReturnFlowService
         result.CustomerId = order.CustomerId;
         result.CustomerName = order.CustomerName ?? context.CustomerName;
         result.CustomerReference = request.CustomerReference ?? order.PurchaseOrderNumber;
+        // Left empty when the caller sends no culture: saving fills in the order's language, for every writer.
         result.LanguageCode = context.LanguageCode;
         result.CustomerComment = request.CustomerComment;
         result.LineItems = request.Items.Select(x => CreateLineItem(x, orderLineItems)).ToList();
