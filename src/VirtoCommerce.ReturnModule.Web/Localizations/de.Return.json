@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Rückgabeliste",
         "placeholders": {
-          "select-filter": "Filter auswählen"
+          "select-filter": "Filter auswählen",
+          "statuses": "Alle Status"
         },
         "labels": {
           "return-number": "Rückgabenummer",
@@ -35,7 +36,13 @@
           "reason": "Rückgabegrund",
           "quantity": "Menge",
           "price": "Preis",
-          "sku": "Artikelnummer"
+          "sku": "Artikelnummer",
+          "approved-quantity": "Genehmigt",
+          "reject-reason": "Ablehnungsgrund",
+          "serial-number": "Seriennummer"
+        },
+        "commands": {
+          "authorize": "Genehmigen / ablehnen"
         }
       },
       "return-details": {
@@ -48,6 +55,8 @@
           "createdBy": "Erstellt von",
           "customer": "Kunde",
           "resolution": "Lösung",
+          "rejectReason": "Grund der Ablehnung",
+          "customerReference": "Referenz des Käufers",
           "status": "Status"
         }
       }
@@ -58,7 +67,8 @@
     "return:create": "Rückgabedaten erstellen",
     "return:read": "Rückgabedaten anzeigen",
     "return:update": "Rückgabedaten aktualisieren",
-    "return:delete": "Rückgabedaten löschen"
+    "return:delete": "Rückgabedaten löschen",
+    "return:authorize": "Rückgaben genehmigen und ablehnen"
   },
   "settings": {
     "Return": {
@@ -75,19 +85,19 @@
         "description": "Verwenden Sie diese Vorlage, um neue Bestellrückgaben zu generieren"
       },
       "WindowDays": {
-        "title": "Rücksendefrist, Tage",
+        "title": "Rückgabefrist, Tage",
         "description": "Wie lange eine Position nach der Lieferung zurückgesendet werden kann. Pro Position ab dem letzten Lieferdatum gezählt."
       },
       "AllowedOrderStatuses": {
-        "title": "Bestellstatus mit erlaubter Rücksendung",
-        "description": "Kommagetrennte Bestellstatus, aus denen eine Rücksendung beantragt werden darf. Leer erlaubt nichts."
+        "title": "Bestellstatus mit erlaubter Rückgabe",
+        "description": "Kommagetrennte Bestellstatus, aus denen eine Rückgabe beantragt werden darf. Leer erlaubt nichts."
       },
       "AllowedShipmentStatuses": {
         "title": "Als geliefert geltende Sendungsstatus",
         "description": "Kommagetrennte Sendungsstatus, die als geliefert gelten. Leer akzeptiert jeden Status, die Lieferung wird dann dem Lieferdatum der Sendung entnommen."
       },
       "Reasons": {
-        "title": "Rücksendegründe",
+        "title": "Rückgabegründe",
         "description": "Gründe, die der Käufer je Position wählt. Lokalisierbar."
       },
       "ReasonsRequiringComment": {
@@ -97,6 +107,14 @@
       "AttachmentsRequired": {
         "title": "Fotos oder Dokumente erforderlich",
         "description": "Mindestens eine Datei je zurückgesendeter Position verlangen."
+      },
+      "SendNotifications": {
+        "title": "E-Mail-Benachrichtigungen zu Rückgaben",
+        "description": "Den Käufer per E-Mail benachrichtigen, wenn eine Rückgabe registriert, genehmigt, teilweise genehmigt, abgelehnt oder storniert wird."
+      },
+      "SendPushNotifications": {
+        "title": "Push-Benachrichtigungen zu Rückgaben",
+        "description": "Bei denselben Ereignissen zusätzlich eine In-App-Push-Nachricht senden. Erfordert das Modul Push Messages."
       }
     },
     "Return.Status": {
@@ -114,13 +132,35 @@
       "Cancelled": "Storniert"
     },
     "Return.Reasons": {
-      "title": "Rücksendegründe",
+      "title": "Rückgabegründe",
       "description": "Gründe, die der Käufer je Position wählt",
       "FaultyOnArrival": "Bei Lieferung defekt",
       "DamagedInTransit": "Transportschaden",
       "WrongItemDelivered": "Falscher Artikel geliefert",
       "OrderedByMistake": "Versehentlich bestellt",
       "NoLongerNeeded": "Nicht mehr benötigt"
+    }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Rückgabe registriert",
+      "description": "Der Käufer erhält eine E-Mail, wenn seine Rückgabeanfrage registriert wurde und auf Prüfung wartet"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Rückgabe genehmigt",
+      "description": "Der Käufer erhält eine E-Mail, wenn jede Position seiner Rückgabe vollständig genehmigt wurde"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Rückgabe teilweise genehmigt",
+      "description": "Der Käufer erhält eine E-Mail, wenn ein Teil der angefragten Mengen genehmigt wurde und ein Teil nicht"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Rückgabe abgelehnt",
+      "description": "Der Käufer erhält eine E-Mail, wenn keine der angefragten Mengen genehmigt wurde"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Rückgabe storniert",
+      "description": "Der Käufer erhält eine E-Mail, wenn seine Rückgabeanfrage storniert wurde und nicht mehr auf Prüfung wartet"
     }
   }
 }

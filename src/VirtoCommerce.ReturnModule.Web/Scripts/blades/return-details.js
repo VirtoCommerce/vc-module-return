@@ -1,21 +1,19 @@
 angular.module('virtoCommerce.returnModule')
-    .controller('virtoCommerce.returnModule.returnDetailsController', ['$scope', '$translate', 'platformWebApp.bladeNavigationService', 'platformWebApp.dialogService', 'platformWebApp.settings', 'virtoCommerce.customerModule.members', 'virtoCommerce.customerModule.memberTypesResolverService', 'virtoCommerce.orderModule.statusTranslationService', 'platformWebApp.accounts', 'platformWebApp.objCompareService', 'virtoCommerce.returnModule.returns',
-        ($scope, $translate, bladeNavigationService, dialogService, settings, members, memberTypesResolverService, statusTranslationService, accounts, objCompareService, returns) => {
+    .controller('virtoCommerce.returnModule.returnDetailsController', ['$scope', '$translate', '$filter', 'platformWebApp.bladeNavigationService', 'platformWebApp.dialogService', 'virtoCommerce.customerModule.members', 'virtoCommerce.customerModule.memberTypesResolverService', 'platformWebApp.accounts', 'platformWebApp.objCompareService', 'virtoCommerce.returnModule.returns',
+        ($scope, $translate, $filter, bladeNavigationService, dialogService, members, memberTypesResolverService, accounts, objCompareService, returns) => {
 
             var blade = $scope.blade;
 
             $scope.saveChanges = () => {
-                angular.copy(blade.currentEntity, blade.originalEntity);
-
                 returns.update(blade.currentEntity,
                     (data) => {
+                        angular.copy(blade.currentEntity, blade.originalEntity);
+                        refreshAvailableStatuses();
                         if (blade.listRefresh) {
                             blade.listRefresh();
                         }
                     });
             };
-            
-            settings.getValues({ id: 'Return.Status' }, translateBladeStatuses);
 
             blade.refresh = () => {
                 returns.get({ id: blade.currentEntityId },
@@ -29,6 +27,8 @@ angular.module('virtoCommerce.returnModule')
 
                         blade.isLoading = false;
                     });
+
+                refreshAvailableStatuses();
             };
 
             blade.metaFields = [
@@ -72,9 +72,22 @@ angular.module('virtoCommerce.returnModule')
                     templateUrl: 'statusSelector.html'
                 },
                 {
+                    name: 'customerReference',
+                    isReadOnly: true,
+                    title: "return.blades.return-details.labels.customerReference",
+                    valueType: "ShortText"
+                },
+                {
                     name: 'resolution',
                     isRequired: false,
                     title: "return.blades.return-details.labels.resolution",
+                    valueType: "LongText"
+                },
+                {
+                    name: 'rejectReason',
+                    isReadOnly: true,
+                    isRequired: false,
+                    title: "return.blades.return-details.labels.rejectReason",
                     valueType: "LongText"
                 }
             ];
@@ -107,7 +120,7 @@ angular.module('virtoCommerce.returnModule')
                     id: 'settingDetailChild',
                     isApiSave: true,
                     currentEntityId: 'Return.Status',
-                    parentRefresh: translateBladeStatuses,
+                    parentRefresh: refreshAvailableStatuses,
                     controller: 'platformWebApp.settingDictionaryController',
                     template: '$(Platform)/Scripts/app/settings/blades/setting-dictionary.tpl.html'
                 };
@@ -135,8 +148,11 @@ angular.module('virtoCommerce.returnModule')
 
             };
 
-            function translateBladeStatuses(data) {
-                blade.statuses = statusTranslationService.translateStatuses(data, 'return');
+            // What an edit accepts depends on the return's decision as well as its status, so the server says.
+            function refreshAvailableStatuses() {
+                returns.availableStatuses({ id: blade.currentEntityId }, (data) => {
+                    blade.statuses = data.map(x => ({ key: x, value: $filter('returnStatusTranslate')(x) }));
+                });
             }
 
             function canSave() {

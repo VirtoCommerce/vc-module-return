@@ -110,6 +110,10 @@ namespace VirtoCommerce.ReturnModule.DataData.SqlServer.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
+                    b.Property<string>("LanguageCode")
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");

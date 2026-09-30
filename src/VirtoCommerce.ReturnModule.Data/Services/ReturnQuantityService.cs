@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -62,20 +62,21 @@ public class ReturnQuantityService : IReturnQuantityService
             .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity), StringComparer.OrdinalIgnoreCase);
     }
 
+    int IReturnQuantityService.GetHeldQuantity(Return orderReturn, ReturnLineItem lineItem)
+    {
+        return GetHeldQuantity(orderReturn, lineItem);
+    }
+
     protected virtual int GetHeldQuantity(Return orderReturn, ReturnLineItem lineItem)
     {
-        var status = orderReturn.Status ?? string.Empty;
-
-        if (NonHoldingStatuses.Contains(status))
+        if (NonHoldingStatuses.Contains(orderReturn.Status ?? string.Empty))
         {
             return 0;
         }
 
-        // "Approved" is also a legacy Return.Status value, and nothing writes ApprovedQuantity until
-        // the agent side lands, so an admin-approved return would otherwise report zero held.
-        return ApprovedStatuses.Contains(status) && IsDecided(lineItem)
-            ? lineItem.ApprovedQuantity
-            : lineItem.Quantity;
+        // Keyed on the line, not the status: a decided return moves on to Completed and the like, and
+        // "Approved" is also a legacy status set without any decision.
+        return IsDecided(lineItem) ? lineItem.ApprovedQuantity : lineItem.Quantity;
     }
 
     protected virtual ISet<string> NonHoldingStatuses { get; } =
@@ -83,7 +84,7 @@ public class ReturnQuantityService : IReturnQuantityService
         {
             ReturnStatus.Draft,
             ReturnStatus.Cancelled,
-            "Canceled", // legacy dictionary spelling
+            ReturnStatus.LegacyCancelled,
             ReturnStatus.Rejected,
         };
 
@@ -99,6 +100,7 @@ public class ReturnQuantityService : IReturnQuantityService
             ReturnItemState.Rejected,
         };
 
+    [Obsolete("Not used: a decided line holds its approved quantity whatever the status.", DiagnosticId = "VC0016", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
     protected virtual ISet<string> ApprovedStatuses { get; } =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {

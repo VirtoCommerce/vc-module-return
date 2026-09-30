@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace VirtoCommerce.ReturnModule.Core;
@@ -48,6 +48,7 @@ public class ReturnFlowException : Exception
 public static class ReturnFlowErrorValue
 {
     public const string OrderLineItemId = "orderLineItemId";
+    public const string LineItemId = "lineItemId";
     public const string RequestedQuantity = "requestedQuantity";
     public const string AvailableQuantity = "availableQuantity";
     public const string IneligibilityReason = "ineligibilityReason";

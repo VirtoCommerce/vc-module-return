@@ -1,6 +1,6 @@
 angular.module('virtoCommerce.returnModule')
-    .controller('virtoCommerce.returnModule.returnListController', ['$scope', 'virtoCommerce.returnModule.returns', 'platformWebApp.bladeUtils', 'platformWebApp.uiGridHelper', 'platformWebApp.ui-grid.extension',
-        ($scope, returns, bladeUtils, uiGridHelper, gridOptionExtension) => {
+    .controller('virtoCommerce.returnModule.returnListController', ['$scope', 'virtoCommerce.returnModule.returns', 'platformWebApp.bladeUtils', 'platformWebApp.uiGridHelper', 'platformWebApp.ui-grid.extension', 'platformWebApp.settings', '$filter',
+        ($scope, returns, bladeUtils, uiGridHelper, gridOptionExtension, settings, $filter) => {
             $scope.uiGridConstants = uiGridHelper.uiGridConstants;
 
             var blade = $scope.blade;
@@ -8,6 +8,14 @@ angular.module('virtoCommerce.returnModule')
 
             blade.title = 'return.blades.return-list.title';
             blade.headIcon = 'fa fa-exchange';
+
+            // Canceled is the spelling the module shipped with: it stays in the dictionary for the returns stored
+            // with it, and the search finds both spellings, so it is offered only where Cancelled is missing.
+            settings.getValues({ id: 'Return.Status' }, (data) => {
+                blade.statuses = data
+                    .filter(x => x !== 'Canceled' || !data.includes('Cancelled'))
+                    .map(x => ({ key: x, value: $filter('returnStatusTranslate')(x) }));
+            });
 
             blade.refresh = () => {
                 blade.isLoading = true;
@@ -92,7 +100,15 @@ angular.module('virtoCommerce.returnModule')
 
             $scope.clearKeyword = () => {
                 blade.searchKeyword = null;
-                blade.refresh();
+                $scope.criteriaChanged();
+            };
+
+            $scope.criteriaChanged = () => {
+                if ($scope.pageSettings.currentPage > 1) {
+                    $scope.pageSettings.currentPage = 1;
+                } else {
+                    blade.refresh();
+                }
             };
 
             $scope.selectNode = (node) => {
@@ -132,6 +148,7 @@ angular.module('virtoCommerce.returnModule')
             function getSearchCriteria() {
                 return {
                     keyword: blade.searchKeyword,
+                    statuses: blade.statusFilter ? [blade.statusFilter] : null,
                     responseGroup: "WithOrders",
                     sort: uiGridHelper.getSortExpression($scope),
                     skip: ($scope.pageSettings.currentPage - 1) * $scope.pageSettings.itemsPerPageCount,

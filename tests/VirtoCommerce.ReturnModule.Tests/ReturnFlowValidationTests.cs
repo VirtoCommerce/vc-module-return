@@ -255,7 +255,7 @@ public class ReturnFlowValidationTests
         public TestableReturnFlowService(
             IReturnEligibilityService eligibilityService,
             IReturnSettingsService settingsService = null)
-            : base(null, null, eligibilityService, null, null, settingsService, new ReturnRequestValidator())
+            : base(null, null, eligibilityService, null, null, settingsService, new ReturnRequestValidator(), quantityService: null)
         {
         }
 

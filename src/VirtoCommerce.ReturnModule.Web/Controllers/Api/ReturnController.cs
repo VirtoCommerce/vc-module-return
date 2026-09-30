@@ -1,9 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VirtoCommerce.OrdersModule.Core.Model;
+using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Models.Search;
@@ -16,11 +20,28 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
     {
         private readonly IReturnSearchService _returnSearchService;
         private readonly IReturnService _returnService;
+        private readonly IReturnFlowService _returnFlowService;
+        private readonly IReturnStateProvider _stateProvider;
+        private readonly IReturnQuantityService _quantityService;
+        private readonly ICustomerOrderService _orderService;
+        private readonly ISettingsManager _settingsManager;
 
-        public ReturnController(IReturnSearchService returnSearchService, IReturnService returnService)
+        public ReturnController(
+            IReturnSearchService returnSearchService,
+            IReturnService returnService,
+            IReturnFlowService returnFlowService,
+            IReturnStateProvider stateProvider,
+            IReturnQuantityService quantityService,
+            ICustomerOrderService orderService,
+            ISettingsManager settingsManager)
         {
             _returnSearchService = returnSearchService;
             _returnService = returnService;
+            _returnFlowService = returnFlowService;
+            _stateProvider = stateProvider;
+            _quantityService = quantityService;
+            _orderService = orderService;
+            _settingsManager = settingsManager;
         }
 
         /// <summary>
@@ -45,15 +66,39 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         {
             var result = await _returnService.GetByIdAsync(id);
 
-            var availableQuantities = await _returnService.GetItemsAvailableQuantities(result.Order, id);
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            var availableQuantities = await GetAvailableQuantitiesAsync(result.Order, id);
 
             foreach (var lineItem in result.LineItems)
             {
-                lineItem.AvailableQuantity =
-                    availableQuantities.FirstOrDefault(x => x.Key == lineItem.OrderLineItemId).Value;
+                lineItem.AvailableQuantity = availableQuantities.GetValueOrDefault(lineItem.OrderLineItemId ?? string.Empty);
             }
 
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Statuses an edit can give the return
+        /// </summary>
+        [HttpGet]
+        [Route("{id}/available-statuses")]
+        [Authorize(ModuleConstants.Security.Permissions.Read)]
+        public async Task<ActionResult<string[]>> GetAvailableStatuses(string id)
+        {
+            var orderReturn = await _returnService.GetByIdAsync(id, ReturnResponseGroup.None.ToString());
+
+            if (orderReturn == null)
+            {
+                return NotFound();
+            }
+
+            var statuses = await GetEditableStatusesAsync(orderReturn);
+
+            return Ok(OfferOneSpelling(statuses, orderReturn.Status).ToArray());
         }
 
         /// <summary>
@@ -66,9 +111,34 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         [Authorize(ModuleConstants.Security.Permissions.Update)]
         public async Task<ActionResult> UpdateReturn([FromBody] Return orderReturn)
         {
-            var errors = await ValidateReturn(orderReturn);
+            if (orderReturn == null)
+            {
+                return BadRequest();
+            }
 
-            if (errors.Any())
+            var lineErrors = ValidateLines(orderReturn).ToList();
+
+            if (lineErrors.Count > 0)
+            {
+                return BadRequest(lineErrors);
+            }
+
+            var storedReturn = string.IsNullOrEmpty(orderReturn.Id)
+                ? null
+                : await _returnService.GetByIdAsync(orderReturn.Id, ReturnResponseGroup.None.ToString());
+
+            var errors = (await ValidateStatusChangeAsync(storedReturn, orderReturn))
+                .Concat(ValidateLineIds(storedReturn, orderReturn))
+                .Concat(ValidateLineChanges(storedReturn, orderReturn))
+                .ToList();
+
+            if (errors.Count == 0)
+            {
+                KeepDecisions(orderReturn, storedReturn);
+                errors.AddRange(await ValidateReturn(orderReturn, storedReturn));
+            }
+
+            if (errors.Count > 0)
             {
                 return BadRequest(errors);
             }
@@ -76,6 +146,35 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             await _returnService.SaveChangesAsync(new[] { orderReturn });
 
             return Ok(new { orderReturn.Id });
+        }
+
+        /// <summary>
+        /// Approve, partly approve or decline a return, line by line
+        /// </summary>
+        [HttpPost]
+        [Route("{id}/authorize")]
+        [Authorize(ModuleConstants.Security.Permissions.Authorize)]
+        public async Task<ActionResult<Return>> AuthorizeReturn(string id, [FromBody] ReturnAuthorizationRequest request)
+        {
+            if (request == null)
+            {
+                return BadRequest();
+            }
+
+            request.ReturnId = id;
+
+            try
+            {
+                return Ok(await _returnFlowService.Authorize(request));
+            }
+            catch (ReturnFlowException ex) when (ex.Code == ReturnFlowError.ReturnNotFound)
+            {
+                return NotFound();
+            }
+            catch (ReturnFlowException ex)
+            {
+                return BadRequest(new { ex.Code, ex.Message });
+            }
         }
 
         /// <summary>
@@ -102,21 +201,174 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
         [Authorize(ModuleConstants.Security.Permissions.Read)]
         public async Task<ActionResult<Dictionary<string, int>>> GetAvailableQuantities(string orderId)
         {
-            var result = await _returnService.GetItemsAvailableQuantities(orderId);
+            var order = await _orderService.GetNoCloneAsync(orderId);
 
-            return Ok(result);
+            return Ok(await GetAvailableQuantitiesAsync(order, excludeReturnId: null));
         }
 
-        private async Task<IEnumerable<string>> ValidateReturn(Return orderReturn)
+        // Ahead of the other checks, which read every line: a body without them failed with a 500. One line
+        // per order line, as the storefront asks: the module finds a line by its order line, and each line
+        // used to be measured against what is left as if the others did not exist.
+        private static IEnumerable<string> ValidateLines(Return orderReturn)
         {
-            var availableQuantities = orderReturn.Order == null
-                ? await _returnService.GetItemsAvailableQuantities(orderReturn.OrderId)
-                : await _returnService.GetItemsAvailableQuantities(orderReturn.Order, orderReturn.Id);
+            if (orderReturn.LineItems.IsNullOrEmpty())
+            {
+                yield return "A return needs at least one line.";
+                yield break;
+            }
+
+            if (orderReturn.LineItems.Any(x => x == null))
+            {
+                yield return "A return line is empty.";
+                yield break;
+            }
+
+            var duplicate = orderReturn.LineItems
+                .GroupBy(x => x.OrderLineItemId ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                .FirstOrDefault(x => x.Count() > 1);
+
+            if (duplicate != null)
+            {
+                yield return $"Order line item '{duplicate.Key}' is listed more than once. Ask for the total on a single line.";
+            }
+        }
+
+        // A line is saved by its id, so an id the return does not have is inserted as a new row: under the key of
+        // another return's line, the database refused it with a 500. A new line comes without an id.
+        private static IEnumerable<string> ValidateLineIds(Return storedReturn, Return orderReturn)
+        {
+            var foreignLineItem = orderReturn.LineItems.FirstOrDefault(x =>
+                !string.IsNullOrEmpty(x.Id) && storedReturn?.LineItems.Any(stored => stored.Id.EqualsIgnoreCase(x.Id)) != true);
+
+            if (foreignLineItem != null)
+            {
+                yield return $"Line '{foreignLineItem.Id}' is not a line of this return.";
+            }
+        }
+
+        private async Task<IEnumerable<string>> ValidateReturn(Return orderReturn, Return storedReturn)
+        {
+            // The order as stored, not as posted: the body could carry any quantities it likes.
+            var order = string.IsNullOrEmpty(orderReturn.OrderId) ? null : await _orderService.GetNoCloneAsync(orderReturn.OrderId);
+            var availableQuantities = await GetAvailableQuantitiesAsync(order, orderReturn.Id);
 
             return orderReturn.LineItems
                 .Where(item => item.Quantity < 1 ||
-                               item.Quantity > availableQuantities[item.OrderLineItemId])
-                .Select(x => $"LineItem {x.OrderLineItemId} has incorrect quantity");
+                               GetMeasuredQuantity(orderReturn, storedReturn, item) > availableQuantities.GetValueOrDefault(item.OrderLineItemId ?? string.Empty))
+                .Select(x => $"LineItem {x.OrderLineItemId} has incorrect quantity")
+                .ToList();
+        }
+
+        // A quantity being written is measured as asked, whatever the status, so a return saved straight into
+        // one that holds nothing still cannot ask for more than is left. One already stored is measured by what
+        // the line holds, so a return stays editable after the units it released are requested again.
+        private int GetMeasuredQuantity(Return orderReturn, Return storedReturn, ReturnLineItem lineItem)
+        {
+            var storedLineItem = storedReturn?.LineItems.FirstOrDefault(x => x.Id.EqualsIgnoreCase(lineItem.Id));
+
+            return storedLineItem == null || storedLineItem.Quantity != lineItem.Quantity
+                ? lineItem.Quantity
+                : _quantityService.GetHeldQuantity(orderReturn, lineItem);
+        }
+
+        // The ordered quantity less what the order's other returns hold, so a line approved in part frees the
+        // rest. The storefront counts from the delivered quantity instead, which is all a buyer can send back.
+        private async Task<Dictionary<string, int>> GetAvailableQuantitiesAsync(CustomerOrder order, string excludeReturnId)
+        {
+            if (order == null)
+            {
+                return new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            var heldQuantities = await _quantityService.GetHeldQuantities(order.Id, excludeReturnId);
+
+            return order.Items.ToDictionary(
+                x => x.Id,
+                x => Math.Max(0, x.Quantity - (heldQuantities.TryGetValue(x.Id, out var held) ? held : 0)),
+                StringComparer.OrdinalIgnoreCase);
+        }
+
+        // Kept as it is, or moved to a status the dictionary offers and an edit may set - the same list the
+        // admin's status selector shows. A new return has no status to keep, so an empty one would pass as kept.
+        private async Task<IList<string>> ValidateStatusChangeAsync(Return storedReturn, Return orderReturn)
+        {
+            if (storedReturn == null && string.IsNullOrEmpty(orderReturn.Status))
+            {
+                return ["A return needs a status."];
+            }
+
+            if (ReturnStatus.Normalize(storedReturn?.Status).EqualsIgnoreCase(ReturnStatus.Normalize(orderReturn.Status)) ||
+                (await GetEditableStatusesAsync(storedReturn)).Contains(orderReturn.Status, StringComparer.OrdinalIgnoreCase))
+            {
+                return [];
+            }
+
+            return [$"Status '{storedReturn?.Status}' cannot be changed to '{orderReturn.Status}' by an edit."];
+        }
+
+        private async Task<IList<string>> GetEditableStatusesAsync(Return storedReturn)
+        {
+            var setting = await _settingsManager.GetObjectSettingAsync(ModuleConstants.Settings.General.OrderStatus.Name);
+
+            return (setting?.AllowedValues ?? [])
+                .OfType<string>()
+                .Where(x => _stateProvider.CanSetStatus(storedReturn, x))
+                .ToList();
+        }
+
+        // The dictionary keeps both spellings of cancelled so that returns stored with either keep their
+        // label, but only one is offered: the one the return has, else the one the flow writes.
+        private static IEnumerable<string> OfferOneSpelling(IEnumerable<string> statuses, string currentStatus)
+        {
+            return statuses
+                .GroupBy(ReturnStatus.Normalize, StringComparer.OrdinalIgnoreCase)
+                .Select(spellings =>
+                    spellings.FirstOrDefault(x => x.EqualsIgnoreCase(currentStatus)) ??
+                    spellings.FirstOrDefault(x => x.EqualsIgnoreCase(spellings.Key)) ??
+                    spellings.First());
+        }
+
+        // A decided return is the set of lines the decision was made on: a line added afterwards would
+        // hold stock nobody approved, a line dropped would take its decision with it, and a decided line
+        // keeps the quantity the decision was measured against.
+        private IEnumerable<string> ValidateLineChanges(Return storedReturn, Return orderReturn)
+        {
+            if (storedReturn == null || !storedReturn.LineItems.Any(_stateProvider.IsDecided))
+            {
+                yield break;
+            }
+
+            var storedIds = storedReturn.LineItems.Select(x => x.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var newIds = orderReturn.LineItems.Select(x => x.Id ?? string.Empty).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            if (!storedIds.SetEquals(newIds))
+            {
+                yield return $"Return '{storedReturn.Number}' has been approved or declined, so its lines cannot be added or removed.";
+            }
+
+            var changedLineItem = storedReturn.LineItems
+                .Where(_stateProvider.IsDecided)
+                .FirstOrDefault(stored => orderReturn.LineItems.Any(x => x.Id.EqualsIgnoreCase(stored.Id) && x.Quantity != stored.Quantity));
+
+            if (changedLineItem != null)
+            {
+                yield return $"Line '{changedLineItem.Id}' has been approved or declined, so its quantity cannot be changed.";
+            }
+        }
+
+        // The decision is recorded by authorizing the return; an edit keeps whatever was decided.
+        private static void KeepDecisions(Return orderReturn, Return storedReturn)
+        {
+            orderReturn.RejectReason = storedReturn?.RejectReason;
+
+            foreach (var lineItem in orderReturn.LineItems)
+            {
+                var storedLineItem = storedReturn?.LineItems.FirstOrDefault(x => x.Id.EqualsIgnoreCase(lineItem.Id));
+
+                lineItem.ApprovedQuantity = storedLineItem?.ApprovedQuantity ?? 0;
+                lineItem.RejectReason = storedLineItem?.RejectReason;
+                lineItem.ItemState = storedLineItem?.ItemState;
+            }
         }
     }
 }

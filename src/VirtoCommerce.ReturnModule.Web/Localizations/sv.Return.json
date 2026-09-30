@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Returöversikt",
         "placeholders": {
-          "select-filter": "Välj ett filter"
+          "select-filter": "Välj ett filter",
+          "statuses": "Alla statusar"
         },
         "labels": {
           "return-number": "Returnummer",
@@ -35,7 +36,13 @@
           "reason": "Returskäl",
           "quantity": "Antal",
           "price": "Pris",
-          "sku": "Artikelnummer"
+          "sku": "Artikelnummer",
+          "approved-quantity": "Godkänt",
+          "reject-reason": "Orsak till avslag",
+          "serial-number": "Serienummer"
+        },
+        "commands": {
+          "authorize": "Godkänn / avslå"
         }
       },
       "return-details": {
@@ -48,6 +55,8 @@
           "createdBy": "Skapad av",
           "customer": "Kund",
           "resolution": "Lösning",
+          "rejectReason": "Orsak till avslag",
+          "customerReference": "Köparens referens",
           "status": "Status"
         }
       }
@@ -58,7 +67,8 @@
     "return:create": "Skapa returdata",
     "return:read": "Visa returdata",
     "return:update": "Uppdatera returdata",
-    "return:delete": "Radera returdata"
+    "return:delete": "Radera returdata",
+    "return:authorize": "Godkänna och avslå returer"
   },
   "settings": {
     "Return": {
@@ -97,6 +107,14 @@
       "AttachmentsRequired": {
         "title": "Foton eller dokument krävs",
         "description": "Kräv minst en fil på varje returnerad rad."
+      },
+      "SendNotifications": {
+        "title": "E-postaviseringar om returer",
+        "description": "Skicka e-post till köparen när en retur registreras, godkänns, delvis godkänns, avslås eller avbryts."
+      },
+      "SendPushNotifications": {
+        "title": "Push-aviseringar om returer",
+        "description": "Skicka även ett push-meddelande i appen vid samma händelser. Kräver modulen Push Messages."
       }
     },
     "Return.Status": {
@@ -121,6 +139,28 @@
       "WrongItemDelivered": "Fel vara levererad",
       "OrderedByMistake": "Beställd av misstag",
       "NoLongerNeeded": "Behövs inte längre"
+    }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Retur registrerad",
+      "description": "Köparen får ett e-postmeddelande när returförfrågan har registrerats och väntar på granskning"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Retur godkänd",
+      "description": "Köparen får ett e-postmeddelande när varje rad i returen godkänns i sin helhet"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Retur delvis godkänd",
+      "description": "Köparen får ett e-postmeddelande när en del av de begärda kvantiteterna godkänns och en del inte"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Retur avslagen",
+      "description": "Köparen får ett e-postmeddelande när ingen av de begärda kvantiteterna godkänns"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Retur annullerad",
+      "description": "Köparen får ett e-postmeddelande när returförfrågan annulleras och inte längre väntar på granskning"
     }
   }
 }

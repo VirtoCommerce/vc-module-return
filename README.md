@@ -2,11 +2,20 @@
 
 The Returns module by Virto Commerce gives you an opportunity to view and manage all return operations. Once a customer returns an item to your store, this information will appear on the Return screen, where you can view and sort the return list.
 
-This module has a direct dependency on the Order and Customer modules, so make sure to have them installed before you proceed to installing the Return module.
-
 ## Functional requirements
 
-As noted above, apart from the core Virto Commerce platform, you need to have the Customer and Order modules installed.
+Apart from the core Virto Commerce platform, the module needs these modules installed:
+
+* Assets
+* Customer
+* File Experience API
+* Notifications
+* Orders
+* Store
+* Xapi
+* XOrder
+
+Push Messages is optional: when it is installed, buyers get an in-app message alongside each return status email.
 
 ## Documentation
 

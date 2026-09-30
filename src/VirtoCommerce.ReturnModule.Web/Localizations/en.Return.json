@@ -5,7 +5,8 @@
       "return-list": {
         "title": "Return list",
         "placeholders": {
-          "select-filter": "Select a filter"
+          "select-filter": "Select a filter",
+          "statuses": "All statuses"
         },
         "labels": {
           "return-number": "Return number",
@@ -35,7 +36,13 @@
           "reason": "Return reason",
           "quantity": "Quantity",
           "price": "Price",
-          "sku": "SKU"
+          "sku": "SKU",
+          "approved-quantity": "Approved",
+          "reject-reason": "Decline reason",
+          "serial-number": "Serial number"
+        },
+        "commands": {
+          "authorize": "Approve / decline"
         }
       },
       "return-details": {
@@ -48,6 +55,8 @@
           "createdBy": "Created by",
           "customer": "Customer",
           "resolution": "Resolution",
+          "rejectReason": "Reason for decline",
+          "customerReference": "Buyer's reference",
           "status": "Status"
         }
       }
@@ -58,7 +67,8 @@
     "return:create": "Create return data",
     "return:read": "View return data",
     "return:update": "Update return data",
-    "return:delete": "Delete return data"
+    "return:delete": "Delete return data",
+    "return:authorize": "Approve and decline returns"
   },
   "settings": {
     "Return": {
@@ -97,6 +107,14 @@
       "AttachmentsRequired": {
         "title": "Photos or documents required",
         "description": "Require at least one file on every returned line."
+      },
+      "SendNotifications": {
+        "title": "Return email notifications",
+        "description": "Email the buyer when a return is registered, approved, partly approved, declined or cancelled."
+      },
+      "SendPushNotifications": {
+        "title": "Return push notifications",
+        "description": "Also send an in-app push message on the same events. Requires the Push Messages module."
       }
     },
     "Return.Status": {
@@ -121,6 +139,28 @@
       "WrongItemDelivered": "Wrong item delivered",
       "OrderedByMistake": "Ordered by mistake",
       "NoLongerNeeded": "No longer needed"
+    }
+  },
+  "notificationTypes": {
+    "ReturnRegisteredEmailNotification": {
+      "displayName": "Return registered",
+      "description": "The buyer gets an email when their return request is registered and waiting to be reviewed"
+    },
+    "ReturnApprovedEmailNotification": {
+      "displayName": "Return approved",
+      "description": "The buyer gets an email when every line of their return is approved in full"
+    },
+    "ReturnPartiallyApprovedEmailNotification": {
+      "displayName": "Return partly approved",
+      "description": "The buyer gets an email when some of the requested quantities are approved and some are not"
+    },
+    "ReturnRejectedEmailNotification": {
+      "displayName": "Return declined",
+      "description": "The buyer gets an email when none of the requested quantities are approved"
+    },
+    "ReturnCancelledEmailNotification": {
+      "displayName": "Return cancelled",
+      "description": "The buyer gets an email when their return request is cancelled and no longer waiting to be reviewed"
     }
   }
 }

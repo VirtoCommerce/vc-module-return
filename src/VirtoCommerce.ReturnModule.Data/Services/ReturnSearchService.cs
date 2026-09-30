@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -117,12 +117,9 @@ namespace VirtoCommerce.ReturnModule.Data.Services
         {
             var result = new List<string>(statuses);
 
-            foreach (var group in StatusSynonyms)
+            foreach (var group in StatusSynonyms.Where(g => result.Any(x => g.Contains(x, StringComparer.OrdinalIgnoreCase))))
             {
-                if (result.Any(x => group.Contains(x, StringComparer.OrdinalIgnoreCase)))
-                {
-                    result.AddRange(group.Except(result, StringComparer.OrdinalIgnoreCase));
-                }
+                result.AddRange(group.Except(result, StringComparer.OrdinalIgnoreCase));
             }
 
             return result;
@@ -130,7 +127,7 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
         protected virtual IList<string[]> StatusSynonyms { get; } =
         [
-            [ReturnStatus.Cancelled, "Canceled"],
+            [ReturnStatus.Cancelled, ReturnStatus.LegacyCancelled],
         ];
 
         protected virtual Expression<Func<ReturnEntity, bool>> GetKeywordPredicate(ReturnSearchCriteria criteria)

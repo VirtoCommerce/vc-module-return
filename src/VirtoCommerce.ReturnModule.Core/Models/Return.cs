@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using VirtoCommerce.OrdersModule.Core.Model;
@@ -21,6 +21,9 @@ namespace VirtoCommerce.ReturnModule.Core.Models
         public string OrderNumber { get; set; }
 
         public string CustomerReference { get; set; }
+
+        // A snapshot: the return's notifications speak the culture it was raised in, whatever the buyer uses now.
+        public string LanguageCode { get; set; }
 
         public string Status { get; set; }
 

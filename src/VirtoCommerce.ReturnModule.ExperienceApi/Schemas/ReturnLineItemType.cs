@@ -18,7 +18,7 @@ public class ReturnLineItemType : ExtendableGraphType<ReturnLineItem>
         Field(x => x.MeasureUnit, nullable: true);
         Field(x => x.OrderedQuantity, nullable: false).Description("Quantity on the order line when the return was raised.");
         Field(x => x.Quantity, nullable: false).Description("Quantity the buyer asked to return.");
-        Field(x => x.ApprovedQuantity, nullable: false).Description("Quantity an agent authorized; 0 means the line was rejected.");
+        Field(x => x.ApprovedQuantity, nullable: false).Description("Quantity the agent approved once the line is decided (see itemState); 0 until then, and when it is declined.");
         Field(x => x.ItemState, nullable: true);
         Field(x => x.ReasonCode, nullable: true);
         Field(x => x.ReasonComment, nullable: true);

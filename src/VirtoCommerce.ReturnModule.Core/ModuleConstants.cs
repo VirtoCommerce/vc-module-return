@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using VirtoCommerce.Platform.Core.Settings;
 
 namespace VirtoCommerce.ReturnModule.Core
@@ -17,7 +17,10 @@ namespace VirtoCommerce.ReturnModule.Core
                 public const string Update = "return:update";
                 public const string Delete = "return:delete";
 
-                public static string[] AllPermissions { get; } = { Read, Create, Access, Update, Delete };
+                // A decision about money and stock rather than an edit, so it is granted on its own.
+                public const string Authorize = "return:authorize";
+
+                public static string[] AllPermissions { get; } = { Read, Create, Access, Update, Delete, Authorize };
             }
         }
 
@@ -34,7 +37,7 @@ namespace VirtoCommerce.ReturnModule.Core
                     GroupName = "Return|Return",
                     IsDictionary = true,
                     IsLocalizable = true,
-                    DefaultValue = "New",
+                    DefaultValue = ReturnStatus.New,
                     // The first five shipped with the module. Of the rest, the buyer flow writes Draft,
                     // Requested and Cancelled; PartiallyApproved and Rejected are agent-side and land
                     // with step 2. Cancelled is this module's spelling, Canceled the shipped one, and
@@ -43,7 +46,7 @@ namespace VirtoCommerce.ReturnModule.Core
                     // and from the locale files.
                     AllowedValues = new[]
                     {
-                        "New", "Approved", "Completed", "Canceled", "Processing",
+                        ReturnStatus.New, ReturnStatus.Approved, ReturnStatus.Completed, ReturnStatus.LegacyCancelled, ReturnStatus.Processing,
                         ReturnStatus.Draft, ReturnStatus.Requested, ReturnStatus.PartiallyApproved,
                         ReturnStatus.Rejected, ReturnStatus.Cancelled,
                     }
@@ -131,6 +134,24 @@ namespace VirtoCommerce.ReturnModule.Core
                     IsPublic = true
                 };
 
+                // On by default: off, a store that upgrades would silently stop telling its buyers anything.
+                public static SettingDescriptor ReturnSendNotifications { get; } = new SettingDescriptor
+                {
+                    Name = "Return.SendNotifications",
+                    ValueType = SettingValueType.Boolean,
+                    GroupName = "Return|Notifications",
+                    DefaultValue = true
+                };
+
+                // Follows the emails: the pushes piling up in the Push Messages admin list was agreed to be fine.
+                public static SettingDescriptor ReturnSendPushNotifications { get; } = new SettingDescriptor
+                {
+                    Name = "Return.SendPushNotifications",
+                    ValueType = SettingValueType.Boolean,
+                    GroupName = "Return|Notifications",
+                    DefaultValue = true
+                };
+
                 public static IEnumerable<SettingDescriptor> AllSettings
                 {
                     get
@@ -144,6 +165,8 @@ namespace VirtoCommerce.ReturnModule.Core
                         yield return ReturnReasons;
                         yield return ReturnReasonsRequiringComment;
                         yield return ReturnAttachmentsRequired;
+                        yield return ReturnSendNotifications;
+                        yield return ReturnSendPushNotifications;
                         yield return OrderStatus;
                     }
                 }
@@ -169,6 +192,8 @@ namespace VirtoCommerce.ReturnModule.Core
                     yield return General.ReturnReasons;
                     yield return General.ReturnReasonsRequiringComment;
                     yield return General.ReturnAttachmentsRequired;
+                    yield return General.ReturnSendNotifications;
+                    yield return General.ReturnSendPushNotifications;
                 }
             }
         }

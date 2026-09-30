@@ -30,7 +30,7 @@ You can also sort the return operations (both ascending and descending, if appli
 
 ![Return list sorted by number, ascending](media/05-return-list-sorted-by-number-ascending.png)
 
-Finally, you can use the search box to type a keyword or key phrase and thus filter only the relevant items. The search covers the return number, the order number, the customer reference and the SKU and name of any returned line item:
+Finally, you can use the search box to type a keyword or key phrase and thus filter only the relevant items. The search covers the return number, the order number, the customer reference and the SKU and name of any returned line item. The status filter next to it narrows the list to one status — `Requested`, for instance, lists the returns waiting for a decision:
 
 ![Using the search feature](media/06-return-list-search-new-only.png) 
 
@@ -54,7 +54,7 @@ The other way to create a return is using the _Create Return_ button in the orde
 ![Creating returns from order](media/09-return-from-order.png)
 
 ## Editing Returns
-You can edit any return by clicking it in the list, while newly created returns get opened for editing automatically. On the main return screen, you can edit both status and reason, with the status list being editable. To open the list of line items, click the widget with item count and its total price on the bottom part of the screen. It works similar to the creating process, apart from there being no checkboxes and no option to enter zero quantity.
+You can edit any return by clicking it in the list, while newly created returns get opened for editing automatically. On the main return screen, you can edit both status and reason, with the status list being editable. To open the list of line items, click the widget with item count and its total price on the bottom part of the screen. It works similar to the creating process, apart from there being no checkboxes and no option to enter zero quantity. Each line shows why the buyer is returning it: the reason, their comment, the serial number and the files they attached.
 
 > ***Note:*** *You can neither add nor remove line items for an existing return.*
 
@@ -72,7 +72,7 @@ The chart below shows how the return lifetime basically works:
 
 > ***Notes:***
 >
-> *1. Once created, the return cannot be deleted, while you can switch statuses in any way with no restrictions.*
+> *1. Once created, the return cannot be deleted, and its status changes as described under Approving and declining.*
 >
 > *2. You can change the number of line items within available value.*
 >
@@ -168,7 +168,7 @@ The API has the following URL:
 
 It receives _Order ID_ as a parameter and returns a quantity available for return for each order's line item considering all existing returns for the order in question.
 
-***Note:*** *this endpoint counts every return regardless of its status, so a cancelled or rejected one still consumes quantity. The storefront does not use it; `returnableItems` in the xAPI applies the status rules described under Quantities.*
+***Note:*** *this endpoint counts what the order's returns hold, the same way `returnableItems` does in the xAPI: nothing for a draft, a cancelled or a declined return, the approved quantity for a line that has been decided, and the requested quantity otherwise.*
 Here is a response example:
 
 ```json
@@ -212,6 +212,9 @@ it would refuse every submit for a file the buyer has no way to upload.
 A buyer may only attach files they uploaded themselves and that no other return has claimed. Dropping
 a line releases its files, and a released file that no return refers to any more is deleted.
 
+The buyer can open and delete the files of their return. In the back office, anyone with `return:read`
+can open them from the return's line items; deleting them stays with the buyer and administrators.
+
 ## When the rules are applied
 
 A draft is saved on every edit, so a half-filled line has to be allowed to persist: while drafting,
@@ -222,8 +225,115 @@ Submit runs the same checks and additionally requires a reason on every line, so
 draft as it stands, whoever wrote it — a draft written through `PUT /api/return` is held to the same
 rules as one built in the storefront.
 
+## Notifications
+
+The buyer is told when their return is registered, approved, partly approved, declined or cancelled.
+Each of these has its own email notification — `ReturnRegisteredEmailNotification`,
+`ReturnApprovedEmailNotification`, `ReturnPartiallyApprovedEmailNotification`,
+`ReturnRejectedEmailNotification` and `ReturnCancelledEmailNotification` — whose templates can be edited
+and translated in the admin like any other notification. Nothing is sent for a draft, for a draft
+that is abandoned before it is submitted, or for a return that is created already cancelled — the buyer
+never heard of it.
+
+Two store settings control this:
+
+* `Return.SendNotifications` — email the buyer.
+* `Return.SendPushNotifications` — also create an in-app push message. The text is the subject of the
+  matching email template. This needs the optional Push Messages module; without it the setting has no
+  effect.
+
+**Both are on by default.** A store that already runs the module starts telling its buyers as soon as
+this version is installed, without anyone switching anything on. The settings do not exist before the
+upgrade, so they cannot be switched off in the store beforehand. To start with them off, override
+their defaults in the platform configuration before upgrading — for every store:
+
+```json
+{
+  "VirtoCommerce": {
+    "Settings": {
+      "Override": {
+        "DefaultValue": {
+          "Global": {
+            "Return.SendNotifications": false,
+            "Return.SendPushNotifications": false
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+or for one store under `DefaultValue:Tenants:Store:{storeId}`. The alternative is to switch them off in
+the store right after upgrading, before any return changes status.
+
+Sending happens in a Hangfire background job, so a mail server that is slow or down never fails the
+save. Emails go through the Notifications module and need an email sender (SMTP or SendGrid) configured
+on the platform. It goes where the order's own emails went: the email on the order's addresses first,
+then the buyer's contact, then their login. The email is written in the culture the buyer was using when
+they raised the return (`cultureName` on `createReturn`, which the storefront sends), falling back to the
+order's language and then to the store's default language; a language without a template of its own gets
+the default one, which ships with the module.
+
+A notification switched off in the admin sends neither the email nor the push message.
+
+## Approving and declining
+
+A submitted return (`Requested`) waits for an agent's decision, and so does one created in the admin
+(`New`). Open the return, then its line items,
+enter how much of each line is approved and, for anything not approved, why; an optional reason for
+the whole return goes underneath. **Approve / decline** records the decision in one step, through
+`POST /api/return/{id}/authorize`:
+
+```json
+{
+  "rejectReason": "Two units were used",
+  "items": [
+    { "lineItemId": "…", "approvedQuantity": 3, "rejectReason": "Used" },
+    { "lineItemId": "…", "approvedQuantity": 2 }
+  ]
+}
+```
+
+Every line needs a decision, from 0 up to the requested quantity, and what is approved has to be left on
+the order line: its quantity less what the order's other returns hold. Approving only lowers what a
+return holds, so this refuses (`RETURN_QUANTITY_UNAVAILABLE`) only a return that already claims too much —
+two returns submitted for the same units at the same moment, say — and the agent approves less. Declining
+is always possible. The status follows from the numbers:
+`Approved` when every line is approved in full, `Rejected` when nothing is, `PartiallyApproved`
+otherwise. Each line is marked as decided, so the return goes on holding only the approved units,
+whatever status it moves on to — what was not approved can be requested again straight away, on the
+storefront and in the admin alike.
+
+The decision is written only this way. An edit through `PUT /api/return` keeps the approved quantities
+and decline reasons already stored, and it is refused if it changes the requested quantity of a decided
+line or adds lines to or removes them from a decided return. Every return needs at least one line, and
+an order line appears on it once: ask for the total on a single line, as the storefront does. A line
+that carries an id must be one of the return's own lines; a new line comes without one. A new return
+needs a status. A quantity being written must fit what the order has left, whatever the status; one already stored is
+checked by what its line holds, so a return stays editable after the units it released have been
+requested again. The status an edit may set is limited too. It has to be in the `Return.Status`
+dictionary — keeping the one the return already has is always fine — and:
+
+* never `Draft`, `Requested`, `Approved`, `PartiallyApproved` or `Rejected` — only submitting and
+  authorizing set those;
+* never away from `Draft` or `Requested`, which are the buyer's, or from `Rejected` or `Cancelled`,
+  which are closed;
+* once a return is decided, only on to `AwaitingDelivery`, `Received`, `Processing` or `Completed` —
+  a decision cannot be cancelled or undone by an edit. `AwaitingDelivery` and `Received` are not in the
+  shipped dictionary, so add them to it to use them;
+* otherwise any status in the dictionary, so a `New` return can still be cancelled.
+
+The status list in the return's details offers the statuses an edit would accept, as
+`GET /api/return/{id}/available-statuses` reports them. The dictionary has both spellings of cancelled —
+`Canceled`, which the module shipped with, and `Cancelled`, which the flow writes — so that returns stored
+with either keep their label, but the list offers one: the return's own, otherwise `Cancelled`. The
+filter of the returns list does the same, and searching for either finds both. An edit that sends
+`Canceled` is still accepted.
+
 # Permissions
 
-The Return module provides a standard set of permissions: access, create, read, delete, and update.
+The Return module provides a standard set of permissions: access, create, read, delete, and update,
+plus `return:authorize` to approve and decline returns. Editing a return does not include deciding on it.
 
 ![Settings template](media/14-permissions.png)

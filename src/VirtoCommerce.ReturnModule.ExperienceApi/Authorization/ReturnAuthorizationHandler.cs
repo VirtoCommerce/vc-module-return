@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.FileExperienceApi.Core.Extensions;
@@ -6,13 +6,17 @@ using VirtoCommerce.FileExperienceApi.Core.Models;
 using VirtoCommerce.Platform.Core;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Security;
+using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
+using FileExperienceApiModuleConstants = VirtoCommerce.FileExperienceApi.Core.ModuleConstants;
 
 namespace VirtoCommerce.ReturnModule.ExperienceApi.Authorization;
 
 public class ReturnAuthorizationRequirement : IAuthorizationRequirement
 {
+    // What the caller wants to do with the file, as the file module names it.
+    public string Permission { get; set; }
 }
 
 public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizationRequirement>
@@ -30,7 +34,7 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
 
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, ReturnAuthorizationRequirement requirement)
     {
-        if (await IsAllowedAsync(context))
+        if (await IsAllowedAsync(context, requirement))
         {
             context.Succeed(requirement);
         }
@@ -38,6 +42,20 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
         {
             context.Fail();
         }
+    }
+
+    protected virtual async Task<bool> IsAllowedAsync(AuthorizationHandlerContext context, ReturnAuthorizationRequirement requirement)
+    {
+        if (await IsAllowedAsync(context))
+        {
+            return true;
+        }
+
+        // The back office decides on a return from its photos, so whoever may read returns may open
+        // them too, but not delete them.
+        return requirement.Permission.EqualsIgnoreCase(FileExperienceApiModuleConstants.Security.Permissions.Read) &&
+            context.User.HasGlobalPermission(ModuleConstants.Security.Permissions.Read) &&
+            await GetReturnAsync(context) != null;
     }
 
     protected virtual async Task<bool> IsAllowedAsync(AuthorizationHandlerContext context)
@@ -66,19 +84,32 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
             return true;
         }
 
-        if (!file.OwnerEntityType.EqualsIgnoreCase(nameof(Return)))
+        var orderReturn = await GetReturnAsync(context);
+
+        if (orderReturn == null)
         {
             return false;
         }
 
         using var scope = _scopeFactory.CreateScope();
 
-        var returnService = scope.ServiceProvider.GetRequiredService<IReturnService>();
         var flowService = scope.ServiceProvider.GetRequiredService<IReturnFlowService>();
 
-        var orderReturn = await returnService.GetNoCloneAsync(file.OwnerEntityId, ReturnResponseGroup.None.ToString());
+        return await flowService.IsOwnedBy(orderReturn, GetUserId(context));
+    }
 
-        return orderReturn != null && await flowService.IsOwnedBy(orderReturn, GetUserId(context));
+    protected virtual async Task<Return> GetReturnAsync(AuthorizationHandlerContext context)
+    {
+        if (context.Resource is not File file || file.OwnerIsEmpty() || !file.OwnerEntityType.EqualsIgnoreCase(nameof(Return)))
+        {
+            return null;
+        }
+
+        using var scope = _scopeFactory.CreateScope();
+
+        var returnService = scope.ServiceProvider.GetRequiredService<IReturnService>();
+
+        return await returnService.GetNoCloneAsync(file.OwnerEntityId, ReturnResponseGroup.None.ToString());
     }
 
     protected virtual string GetUserId(AuthorizationHandlerContext context)
