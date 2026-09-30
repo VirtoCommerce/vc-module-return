@@ -135,6 +135,14 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("varchar(64)");
 
+                    b.Property<string>("OrganizationId")
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
+
+                    b.Property<string>("OrganizationName")
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
+
                     b.Property<string>("RejectReason")
                         .HasMaxLength(2048)
                         .HasColumnType("varchar(2048)");
@@ -156,6 +164,8 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
                     b.HasIndex("OrderId");
 
                     b.HasIndex("CustomerId", "StoreId", "CreatedDate");
+
+                    b.HasIndex("OrganizationId", "StoreId", "CreatedDate");
 
                     b.ToTable("Return", (string)null);
                 });

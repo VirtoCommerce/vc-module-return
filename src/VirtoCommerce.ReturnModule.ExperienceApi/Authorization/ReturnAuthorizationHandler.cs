@@ -51,11 +51,30 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
             return true;
         }
 
-        // The back office decides on a return from its photos, so whoever may read returns may open
-        // them too, but not delete them.
-        return requirement.Permission.EqualsIgnoreCase(FileExperienceApiModuleConstants.Security.Permissions.Read) &&
-            context.User.HasGlobalPermission(ModuleConstants.Security.Permissions.Read) &&
-            await GetReturnAsync(context) != null;
+        // Anyone else may open the photos but never delete them: the back office, which decides on a
+        // return from them, and a colleague who may read the return through the organization.
+        if (!requirement.Permission.EqualsIgnoreCase(FileExperienceApiModuleConstants.Security.Permissions.Read))
+        {
+            return false;
+        }
+
+        var orderReturn = await GetReturnAsync(context);
+
+        if (orderReturn == null)
+        {
+            return false;
+        }
+
+        if (context.User.HasGlobalPermission(ModuleConstants.Security.Permissions.Read))
+        {
+            return true;
+        }
+
+        using var scope = _scopeFactory.CreateScope();
+
+        var accessService = scope.ServiceProvider.GetRequiredService<IReturnAccessService>();
+
+        return await accessService.CanViewReturnAsync(GetUserId(context), orderReturn);
     }
 
     protected virtual async Task<bool> IsAllowedAsync(AuthorizationHandlerContext context)

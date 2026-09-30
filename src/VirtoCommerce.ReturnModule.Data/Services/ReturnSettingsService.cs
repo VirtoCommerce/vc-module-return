@@ -36,6 +36,7 @@ public class ReturnSettingsService : IReturnSettingsService
         result.AttachmentsRequired = settings.GetValue<bool>(ModuleConstants.Settings.General.ReturnAttachmentsRequired);
         result.SendNotifications = settings.GetValue<bool>(ModuleConstants.Settings.General.ReturnSendNotifications);
         result.SendPushNotifications = settings.GetValue<bool>(ModuleConstants.Settings.General.ReturnSendPushNotifications);
+        result.NotifyOrganizationEmail = settings.GetValue<bool>(ModuleConstants.Settings.General.ReturnNotifyOrganizationEmail);
 
         return result;
     }

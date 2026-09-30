@@ -2,11 +2,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Hangfire;
 using Microsoft.Extensions.Logging;
+using VirtoCommerce.CustomerModule.Core.Model;
+using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.OrdersModule.Core.Model;
 using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.ReturnModule.Core.Models;
+using VirtoCommerce.ReturnModule.Core.Notifications;
 using VirtoCommerce.ReturnModule.Core.Services;
 using VirtoCommerce.StoreModule.Core.Services;
 
@@ -16,6 +19,7 @@ public class SendNotificationsReturnStatusChangedEventHandler : ReturnStatusNoti
 {
     private readonly INotificationSender _notificationSender;
     private readonly ICustomerOrderService _orderService;
+    private readonly IMemberService _memberService;
 
     public SendNotificationsReturnStatusChangedEventHandler(
         INotificationSearchService notificationSearchService,
@@ -25,11 +29,13 @@ public class SendNotificationsReturnStatusChangedEventHandler : ReturnStatusNoti
         IReturnSettingsService settingsService,
         IStoreService storeService,
         IReturnBuyerResolver buyerResolver,
+        IMemberService memberService,
         ILogger<SendNotificationsReturnStatusChangedEventHandler> logger)
         : base(notificationSearchService, returnService, settingsService, storeService, buyerResolver, logger)
     {
         _notificationSender = notificationSender;
         _orderService = orderService;
+        _memberService = memberService;
     }
 
     protected override bool IsEnabled(ReturnStoreRules rules)
@@ -53,17 +59,13 @@ public class SendNotificationsReturnStatusChangedEventHandler : ReturnStatusNoti
                 Logger.LogWarning(
                     "No email address for customer {CustomerId}, return {ReturnNumber} was not announced to the buyer.",
                     prepared.Return.CustomerId, prepared.Return.Number);
-
-                continue;
+            }
+            else
+            {
+                await ScheduleAsync(prepared, prepared.Notification, email);
             }
 
-            var notification = prepared.Notification;
-
-            notification.From = prepared.Store?.EmailWithName;
-            notification.To = email;
-            notification.TenantIdentity = new TenantIdentity(prepared.Return.Id, nameof(Return));
-
-            await _notificationSender.ScheduleSendNotificationAsync(notification);
+            await SendOrganizationCopyAsync(prepared, email);
         }
     }
 
@@ -78,5 +80,66 @@ public class SendNotificationsReturnStatusChangedEventHandler : ReturnStatusNoti
         var orderEmail = order?.Addresses?.Select(x => x.Email).FirstOrDefault(x => !string.IsNullOrEmpty(x));
 
         return orderEmail ?? prepared.Buyer?.Email;
+    }
+
+    protected virtual async Task SendOrganizationCopyAsync(PreparedReturnNotification prepared, string buyerEmail)
+    {
+        var orderReturn = prepared.Return;
+
+        if (string.IsNullOrEmpty(orderReturn.OrganizationId))
+        {
+            return;
+        }
+
+        var rules = await SettingsService.GetRulesAsync(orderReturn.StoreId);
+
+        if (!rules.NotifyOrganizationEmail)
+        {
+            return;
+        }
+
+        var organizationEmail = await GetOrganizationEmailAsync(orderReturn.OrganizationId);
+
+        if (string.IsNullOrEmpty(organizationEmail))
+        {
+            Logger.LogWarning(
+                "No email address for organization {OrganizationId}, return {ReturnNumber} was not copied to it.",
+                orderReturn.OrganizationId, orderReturn.Number);
+
+            return;
+        }
+
+        // A buyer whose own address is the organization's would get the same email twice.
+        if (organizationEmail.EqualsIgnoreCase(buyerEmail))
+        {
+            return;
+        }
+
+        var copy = prepared.Notification.CloneTyped();
+
+        // The recipients an admin added to the notification were already sent the buyer's email.
+        if (!string.IsNullOrEmpty(buyerEmail))
+        {
+            copy.CC = [];
+            copy.BCC = [];
+        }
+
+        await ScheduleAsync(prepared, copy, organizationEmail);
+    }
+
+    protected virtual async Task<string> GetOrganizationEmailAsync(string organizationId)
+    {
+        var organization = await _memberService.GetByIdAsync(organizationId, MemberResponseGroup.WithEmails.ToString());
+
+        return organization?.Emails?.FirstOrDefault(x => !string.IsNullOrEmpty(x));
+    }
+
+    protected virtual Task ScheduleAsync(PreparedReturnNotification prepared, ReturnEmailNotificationBase notification, string email)
+    {
+        notification.From = prepared.Store?.EmailWithName;
+        notification.To = email;
+        notification.TenantIdentity = new TenantIdentity(prepared.Return.Id, nameof(Return));
+
+        return _notificationSender.ScheduleSendNotificationAsync(notification);
     }
 }

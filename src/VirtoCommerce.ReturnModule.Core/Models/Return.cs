@@ -16,6 +16,10 @@ namespace VirtoCommerce.ReturnModule.Core.Models
 
         public string CustomerName { get; set; }
 
+        public string OrganizationId { get; set; }
+
+        public string OrganizationName { get; set; }
+
         public string OrderId { get; set; }
 
         public string OrderNumber { get; set; }

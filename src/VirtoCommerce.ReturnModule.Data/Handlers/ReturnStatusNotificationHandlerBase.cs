@@ -24,7 +24,6 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
 {
     private readonly INotificationSearchService _notificationSearchService;
     private readonly IReturnService _returnService;
-    private readonly IReturnSettingsService _settingsService;
     private readonly IStoreService _storeService;
     private readonly IReturnBuyerResolver _buyerResolver;
 
@@ -38,13 +37,15 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
     {
         _notificationSearchService = notificationSearchService;
         _returnService = returnService;
-        _settingsService = settingsService;
+        SettingsService = settingsService;
         _storeService = storeService;
         _buyerResolver = buyerResolver;
         Logger = logger;
     }
 
     protected ILogger Logger { get; }
+
+    protected IReturnSettingsService SettingsService { get; }
 
     public virtual async Task Handle(ReturnStatusChangedEvent message)
     {
@@ -57,7 +58,7 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
             return;
         }
 
-        var rules = await _settingsService.GetRulesAsync(orderReturn.StoreId);
+        var rules = await SettingsService.GetRulesAsync(orderReturn.StoreId);
 
         if (!IsEnabled(rules))
         {
