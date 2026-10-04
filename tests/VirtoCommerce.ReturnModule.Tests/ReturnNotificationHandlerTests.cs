@@ -456,8 +456,8 @@ public class ReturnNotificationHandlerTests
         };
     }
 
-    // Hangfire needs a configured storage to enqueue, and what matters here is what would have been
-    // enqueued rather than that Hangfire works.
+    // The job engine needs a configured storage to enqueue, and what matters here is what would have been
+    // enqueued rather than that the engine works.
     private sealed class TestableHandler : SendNotificationsReturnStatusChangedEventHandler
     {
         public TestableHandler(
@@ -475,9 +475,10 @@ public class ReturnNotificationHandlerTests
 
         public List<ReturnNotificationJobArgument> Enqueued { get; } = [];
 
-        protected override void EnqueueSending(ReturnNotificationJobArgument argument)
+        protected override Task EnqueueSending(ReturnNotificationJobArgument argument)
         {
             Enqueued.Add(argument);
+            return Task.CompletedTask;
         }
     }
 }

@@ -355,9 +355,10 @@ public class ReturnPushMessageHandlerTests
 
         public List<ReturnNotificationJobArgument> Enqueued { get; } = [];
 
-        protected override void EnqueueSending(ReturnNotificationJobArgument argument)
+        protected override Task EnqueueSending(ReturnNotificationJobArgument argument)
         {
             Enqueued.Add(argument);
+            return Task.CompletedTask;
         }
     }
 }

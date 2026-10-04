@@ -11,6 +11,7 @@ using VirtoCommerce.FileExperienceApi.Core.Authorization;
 using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.NotificationsModule.TemplateLoader.FileSystem;
 using VirtoCommerce.Platform.Core.Events;
+using VirtoCommerce.Platform.Core.Jobs;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Settings;
@@ -22,6 +23,7 @@ using VirtoCommerce.ReturnModule.Core.Events;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Notifications;
 using VirtoCommerce.ReturnModule.Core.Services;
+using VirtoCommerce.ReturnModule.Data.BackgroundJobs;
 using VirtoCommerce.ReturnModule.Data.Handlers;
 using VirtoCommerce.ReturnModule.Data.MySql;
 using VirtoCommerce.ReturnModule.Data.PostgreSql;
@@ -134,12 +136,14 @@ namespace VirtoCommerce.ReturnModule.Web
         {
             serviceCollection.AddTransient<ReturnStatusChangedEventPublisher>();
             serviceCollection.AddTransient<SendNotificationsReturnStatusChangedEventHandler>();
+            serviceCollection.AddBackgroundJob<SendReturnNotificationsJobHandler, ReturnNotificationJobArgument>(triggerable: false);
 
             // The handler names IPushMessageService, so resolving it at all would load an assembly
             // that is not there when the optional module is not installed.
             if (withPushMessages)
             {
                 serviceCollection.AddTransient<SendPushMessagesReturnStatusChangedEventHandler>();
+                serviceCollection.AddBackgroundJob<SendReturnPushMessagesJobHandler, ReturnNotificationJobArgument>(triggerable: false);
             }
         }
 
