@@ -80,7 +80,7 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
         argument.StoreId = orderReturn.StoreId;
         argument.NotificationTypeName = notificationTypeName;
 
-        EnqueueSending(argument);
+        await EnqueueSending(argument);
     }
 
     protected abstract bool IsEnabled(ReturnStoreRules rules);
@@ -100,7 +100,7 @@ public abstract class ReturnStatusNotificationHandlerBase : IEventHandler<Return
 
     // Out of the save path: a mail server or a push fan-out that is slow or down must not fail the
     // save that a buyer or an agent is waiting on.
-    protected abstract void EnqueueSending(ReturnNotificationJobArgument argument);
+    protected abstract Task EnqueueSending(ReturnNotificationJobArgument argument);
 
     protected virtual async Task<IList<PreparedReturnNotification>> PrepareAsync(IList<ReturnNotificationJobArgument> jobArguments)
     {

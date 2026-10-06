@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Hangfire;
 using Microsoft.Extensions.Logging;
 using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.Jobs;
 using VirtoCommerce.PushMessages.Core.Models;
 using VirtoCommerce.PushMessages.Core.Services;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Services;
+using VirtoCommerce.ReturnModule.Data.BackgroundJobs;
 using VirtoCommerce.StoreModule.Core.Services;
 
 namespace VirtoCommerce.ReturnModule.Data.Handlers;
@@ -43,10 +44,14 @@ public class SendPushMessagesReturnStatusChangedEventHandler : ReturnStatusNotif
         return rules.SendPushNotifications;
     }
 
-    protected override void EnqueueSending(ReturnNotificationJobArgument argument)
+    // The static facade, not an injected IBackgroundJob: RegisterEventHandler resolves this handler once from
+    // the root provider and holds it for the process lifetime, so it must not capture a Scoped dependency.
+    protected override Task EnqueueSending(ReturnNotificationJobArgument argument)
     {
-        BackgroundJob.Enqueue<SendPushMessagesReturnStatusChangedEventHandler>(x => x.SendPushMessagesAsync(new[] { argument }));
+        return BackgroundJob.Enqueue<SendReturnPushMessagesJobHandler>(argument);
     }
+
+    // Also the target of jobs Hangfire queued before the move to the Platform.Core job API: keep the signature.
 
     public virtual async Task SendPushMessagesAsync(ReturnNotificationJobArgument[] jobArguments)
     {
