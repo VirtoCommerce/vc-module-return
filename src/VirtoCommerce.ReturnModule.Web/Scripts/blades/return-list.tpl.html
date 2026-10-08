@@ -15,6 +15,8 @@
 <div class="blade-static __bottom" ng-if="pageSettings.itemsPerPageCount < pageSettings.totalItems" ng-include="'pagerTemplate.html'"></div>
 <div class="blade-content __xxlarge-wide">
   <div class="blade-inner">
+    <!-- minWidth fits each header with its sort arrow; the last one also clears the grid menu button.
+         The audit columns start hidden: with every column shown, the headers cannot fit the blade. -->
     <div class="inner-block" ng-init="setGridOptions('returnlist-grid', {
                     useExternalSorting: true,
                     data: 'listEntries',
@@ -22,15 +24,15 @@
                     rowHeight: 61,
                     columnDefs: [
                                 { name: 'actions', displayName: '', enableColumnResizing: false, enableSorting: false, width: 30, cellTemplate: 'return-list-actions.cell.html', pinnedLeft: true, displayAlways: true },
-                                { name: 'number', displayName: 'return.blades.return-list.labels.return-number', sort: { direction: uiGridConstants.ASC } },
-                                { name: 'orderNumber', displayName: 'return.blades.return-list.labels.order-number', enableSorting: false },
-                                { name: 'customerName', displayName: 'return.blades.return-list.labels.customer-name', enableSorting: false },
-                                { name: 'organizationName', displayName: 'return.blades.return-list.labels.organization-name' },
-                                { name: 'status', displayName: 'return.blades.return-list.labels.return-status', cellFilter: 'returnStatusTranslate' },
-                                { name: 'createdDate', displayName: 'return.blades.return-list.labels.created-date'},
-                                { name: 'modifiedDate', displayName: 'return.blades.return-list.labels.modified-date'},
-                                { name: 'createdBy', displayName: 'return.blades.return-list.labels.created-by'},
-                                { name: 'itemsCount', displayName: 'return.blades.return-list.labels.items-count', enableSorting: false }
+                                { name: 'number', displayName: 'return.blades.return-list.labels.return-number', minWidth: 135, sort: { direction: uiGridConstants.ASC } },
+                                { name: 'orderNumber', displayName: 'return.blades.return-list.labels.order-number', minWidth: 128, enableSorting: false },
+                                { name: 'customerName', displayName: 'return.blades.return-list.labels.customer-name', minWidth: 105, enableSorting: false },
+                                { name: 'organizationName', displayName: 'return.blades.return-list.labels.organization-name', minWidth: 122 },
+                                { name: 'status', displayName: 'return.blades.return-list.labels.return-status', minWidth: 126, cellFilter: 'returnStatusTranslate' },
+                                { name: 'createdDate', displayName: 'return.blades.return-list.labels.created-date', minWidth: 114 },
+                                { name: 'modifiedDate', displayName: 'return.blades.return-list.labels.modified-date', minWidth: 117, visible: false },
+                                { name: 'createdBy', displayName: 'return.blades.return-list.labels.created-by', minWidth: 110, visible: false },
+                                { name: 'itemsCount', displayName: 'return.blades.return-list.labels.items-count', minWidth: 140, enableSorting: false }
                         ]})">
       <div class="note" ng-if="!listEntries.length">{{ 'platform.list.no-data' | translate }}</div>
       <div class="table-wrapper" ng-if="listEntries.length">
