@@ -38,7 +38,7 @@ public class ReturnsQueryHandlerTests
         AssertSharedArguments();
         Assert.Null(_criteria.OrganizationId);
         // The buyer's own list is where their drafts are continued, so it keeps them.
-        Assert.False(_criteria.ExcludeDrafts);
+        Assert.False(_criteria.SubmittedOnly);
     }
 
     [Fact]
@@ -51,8 +51,9 @@ public class ReturnsQueryHandlerTests
 
         Assert.Equal("org-1", _criteria.OrganizationId);
         Assert.Null(_criteria.CustomerId);
-        // Read-only, so no drafts at all - the caller's own included, which stay in their own list.
-        Assert.True(_criteria.ExcludeDrafts);
+        // Read-only, so nothing that was never submitted - the caller's own drafts included, which stay in
+        // their own list.
+        Assert.True(_criteria.SubmittedOnly);
         // Both lists answer the same filters, sorting and paging.
         AssertSharedArguments();
     }

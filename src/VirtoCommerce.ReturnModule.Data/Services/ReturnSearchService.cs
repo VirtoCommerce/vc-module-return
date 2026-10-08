@@ -74,9 +74,10 @@ namespace VirtoCommerce.ReturnModule.Data.Services
                 query = query.Where(x => x.OrganizationId == criteria.OrganizationId);
             }
 
-            if (criteria.ExcludeDrafts)
+            if (criteria.SubmittedOnly)
             {
-                query = query.Where(x => x.Status != ReturnStatus.Draft);
+                // Not the status: a draft cancelled before submit is Cancelled too.
+                query = query.Where(x => x.SubmittedDate != null);
             }
 
             if (!string.IsNullOrEmpty(criteria.StoreId))

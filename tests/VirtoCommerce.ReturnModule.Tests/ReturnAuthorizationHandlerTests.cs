@@ -187,6 +187,17 @@ public class ReturnAuthorizationHandlerTests
         Assert.False(context.HasSucceeded);
     }
 
+    [Fact]
+    public async Task OrganizationViewerReadingAFileOfADraftCancelledBeforeSubmit_Fails()
+    {
+        // Cancelled, but never sent: its photos stay the buyer's, like the rest of it (VCST-6226).
+        var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Read);
+
+        await CreateHandler(OtherId, organizationViewer: true, status: ReturnStatus.Cancelled, submitted: false).HandleAsync(context);
+
+        Assert.False(context.HasSucceeded);
+    }
+
     [Theory]
     [InlineData("org-2")]
     [InlineData(null)]
@@ -290,14 +301,22 @@ public class ReturnAuthorizationHandlerTests
         protected override Task<bool> IsAllowedAsync(AuthorizationHandlerContext context) => Task.FromResult(true);
     }
 
-    private static ReturnAuthorizationHandler CreateHandler(string userId = OwnerId, bool organizationViewer = false, string status = ReturnStatus.Requested)
+    private static ReturnAuthorizationHandler CreateHandler(string userId = OwnerId, bool organizationViewer = false, string status = ReturnStatus.Requested, bool? submitted = null)
     {
-        return new TestHandler(DefaultScopeFactory(organizationViewer, status), userId);
+        return new TestHandler(DefaultScopeFactory(organizationViewer, status, submitted), userId);
     }
 
-    private static IServiceScopeFactory DefaultScopeFactory(bool organizationViewer = false, string status = ReturnStatus.Requested)
+    // As saving leaves it: submitted unless still a draft, unless the test says otherwise.
+    private static IServiceScopeFactory DefaultScopeFactory(bool organizationViewer = false, string status = ReturnStatus.Requested, bool? submitted = null)
     {
-        var orderReturn = new Return { Id = ReturnId, CustomerId = OwnerId, OrganizationId = "org-1", Status = status };
+        var orderReturn = new Return
+        {
+            Id = ReturnId,
+            CustomerId = OwnerId,
+            OrganizationId = "org-1",
+            Status = status,
+            SubmittedDate = (submitted ?? status != ReturnStatus.Draft) ? new DateTime(2026, 10, 1, 9, 0, 0, DateTimeKind.Utc) : null,
+        };
 
         var returnService = new Mock<IReturnService>();
         returnService
@@ -310,7 +329,7 @@ public class ReturnAuthorizationHandlerTests
             .Setup(x => x.IsOwnedBy(It.IsAny<Return>(), It.IsAny<string>()))
             .ReturnsAsync((Return x, string customerId) => x.CustomerId == customerId);
 
-        // The real draft rule; only the organization rule is stood in for, and it answers for the
+        // The real submit rule; only the organization rule is stood in for, and it answers for the
         // caller and the return's own organization only, so the handler has to ask about exactly those.
         var accessService = new Mock<ReturnAccessService>(
             Mock.Of<IUserManagerCore>(),

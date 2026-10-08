@@ -46,6 +46,8 @@ namespace VirtoCommerce.ReturnModule.Data.Models
         [StringLength(Length64)]
         public string Status { get; set; }
 
+        public DateTime? SubmittedDate { get; set; }
+
         [StringLength(Length2048)]
         public string Resolution { get; set; }
 
@@ -85,6 +87,7 @@ namespace VirtoCommerce.ReturnModule.Data.Models
             model.CustomerReference = CustomerReference;
             model.LanguageCode = LanguageCode;
             model.Status = Status;
+            model.SubmittedDate = SubmittedDate;
             model.Resolution = Resolution;
             model.CustomerComment = CustomerComment;
             model.Comment = Comment;
@@ -120,6 +123,7 @@ namespace VirtoCommerce.ReturnModule.Data.Models
             CustomerReference = model.CustomerReference;
             LanguageCode = model.LanguageCode;
             Status = model.Status;
+            SubmittedDate = model.SubmittedDate;
             Resolution = model.Resolution;
             CustomerComment = model.CustomerComment;
             Comment = model.Comment;
@@ -152,6 +156,8 @@ namespace VirtoCommerce.ReturnModule.Data.Models
             target.CustomerReference = CustomerReference;
             target.LanguageCode = LanguageCode;
             target.Status = Status;
+            // Recorded once: a writer that leaves it out, or sends another date, changes nothing.
+            target.SubmittedDate ??= SubmittedDate;
             target.Resolution = Resolution;
             target.CustomerComment = CustomerComment;
             target.Comment = Comment;

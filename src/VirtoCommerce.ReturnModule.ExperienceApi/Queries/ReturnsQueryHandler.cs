@@ -29,7 +29,7 @@ public class ReturnsQueryHandler : IQueryHandler<ReturnsQuery, ReturnSearchResul
     {
         var criteria = GetSearchCriteria(request);
         criteria.OrganizationId = request.OrganizationId;
-        criteria.ExcludeDrafts = true;
+        criteria.SubmittedOnly = true;
 
         return await _returnSearchService.SearchNoCloneAsync(criteria);
     }

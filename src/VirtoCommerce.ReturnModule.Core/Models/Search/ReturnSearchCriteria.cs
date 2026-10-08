@@ -14,7 +14,7 @@ namespace VirtoCommerce.ReturnModule.Core.Models.Search
 
         public string OrganizationId { get; set; }
 
-        public bool ExcludeDrafts { get; set; }
+        public bool SubmittedOnly { get; set; }
 
         public string StoreId { get; set; }
 

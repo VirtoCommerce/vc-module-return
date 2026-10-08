@@ -94,7 +94,7 @@ POST /api/return/search
   "customerId": "<some_guid>",
   "storeId": "<some_store>",
   "organizationId": "<some_organization_id>",
-  "excludeDrafts": true,
+  "submittedOnly": true,
   "statuses": [
     "Requested"
   ],
@@ -106,7 +106,7 @@ POST /api/return/search
   "take": 0
 }
 ```
-`startDate` and `endDate` both match the `createdDate` inclusively, down to the instant rather than the day. When `sort` is omitted, results come back newest first. `organizationId` keeps the returns raised for one organization, and `excludeDrafts` leaves drafts out, as the storefront's organization list does; `organizationName` can be sorted on too.
+`startDate` and `endDate` both match the `createdDate` inclusively, down to the instant rather than the day. When `sort` is omitted, results come back newest first. `organizationId` keeps the returns raised for one organization, and `submittedOnly` keeps those that were submitted — the ones with a `submittedDate`, so no draft, and no draft its buyer cancelled before submitting — as the storefront's organization list does; `organizationName` can be sorted on too.
 
 Here is an example of search response:
 
@@ -118,6 +118,7 @@ Here is an example of search response:
       "number": "RET220314-00001",
       "orderId": "e3ede9031a61421b924bda2fbadf6aef",
       "status": "Approved",
+      "submittedDate": "2022-03-14T07:17:08.0586692Z",
       "resolution": "Some resolution",
       "order": {
 		  //customer order fields
@@ -356,8 +357,10 @@ Two storefront permissions are granted to contacts through their role:
   to, with `organizationReturns(organizationId: …)`, and open them. It counts in an organization when
   a role holding it is assigned to the user globally or in that organization, and only while that
   membership is active: not locked, and not invited, rejected or removed. Asking for an organization
-  the contact may not read is refused, not narrowed to their own returns. Drafts stay out of it, the
-  contact's own included: a draft is the buyer's work in progress and stays in their own list. A
+  the contact may not read is refused, not narrowed to their own returns. Only submitted returns are
+  in it, the contact's own included: a draft is the buyer's work in progress and stays in their own
+  list, and so does a draft its buyer cancels before submitting. A return cancelled before version
+  3.1005.0 stays out as well, since whether it had been submitted was not recorded then. A
   colleague's return is read-only: its actions come back unavailable, every mutation still requires
   the buyer who raised it, and its attachments can be opened but not deleted.
 * `xapi:my_organization:return:submit` is registered but not checked yet.

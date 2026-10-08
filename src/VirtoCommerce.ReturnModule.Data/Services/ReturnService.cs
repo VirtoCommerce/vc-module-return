@@ -118,6 +118,26 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
             await EnsureEachReturnHasNumber(returns, ordersById);
             FillMissingSnapshots(returns, ordersById);
+            RecordSubmit(returns);
+        }
+
+        // Out of the buyer's hands means visible to their organization: submitted from the storefront, or
+        // created by the admin in a later status. A draft the buyer cancels never qualifies (VCST-6226).
+        protected virtual bool IsSubmittedStatus(string status)
+        {
+            status = ReturnStatus.Normalize(status);
+
+            return !string.IsNullOrEmpty(status) &&
+                !status.EqualsIgnoreCase(ReturnStatus.Draft) &&
+                !status.EqualsIgnoreCase(ReturnStatus.Cancelled);
+        }
+
+        private void RecordSubmit(IEnumerable<Return> returns)
+        {
+            foreach (var orderReturn in returns.Where(x => x.SubmittedDate == null && IsSubmittedStatus(x.Status)))
+            {
+                orderReturn.SubmittedDate = DateTime.UtcNow;
+            }
         }
 
         private async Task EnsureEachReturnHasNumber(IEnumerable<Return> returns, IDictionary<string, CustomerOrder> ordersById)

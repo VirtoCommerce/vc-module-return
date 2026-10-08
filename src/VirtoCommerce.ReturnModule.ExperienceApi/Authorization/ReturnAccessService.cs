@@ -74,9 +74,9 @@ public class ReturnAccessService : IReturnAccessService
 
     public virtual async Task<bool> CanViewReturnAsync(string userId, Return orderReturn)
     {
-        // A draft is the buyer's own work in progress, not yet something the organization is waiting on.
-        return orderReturn != null &&
-            !orderReturn.Status.EqualsIgnoreCase(ReturnStatus.Draft) &&
+        // A draft is the buyer's own work in progress, not yet something the organization is waiting on, and a
+        // draft the buyer cancels stays theirs: only a return that was submitted is the organization's.
+        return orderReturn?.SubmittedDate != null &&
             await CanViewOrganizationAsync(userId, orderReturn.OrganizationId);
     }
 

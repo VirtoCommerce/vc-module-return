@@ -31,6 +31,9 @@ namespace VirtoCommerce.ReturnModule.Core.Models
 
         public string Status { get; set; }
 
+        // When the return first left the buyer's hands. A draft has none, and keeps none if the buyer cancels it.
+        public DateTime? SubmittedDate { get; set; }
+
         public string Resolution { get; set; }
 
         public string CustomerComment { get; set; }

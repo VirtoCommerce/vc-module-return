@@ -148,18 +148,30 @@ public class ReturnSearchServiceTests
     }
 
     [Fact]
-    public void ExcludeDrafts_HidesEveryDraft()
+    public void SubmittedOnly_HidesEveryDraft()
     {
         // The draft belongs to the same buyer as every other return here: being their own does not
         // bring it back.
-        var found = Search(new ReturnSearchCriteria { ExcludeDrafts = true });
+        var found = Search(new ReturnSearchCriteria { SubmittedOnly = true });
 
         Assert.DoesNotContain(found, x => x.Status == ReturnStatus.Draft);
         Assert.Equal(3, found.Count);
     }
 
     [Fact]
-    public void ExcludeDraftsNotSet_KeepsDrafts()
+    public void SubmittedOnly_HidesADraftCancelledBeforeSubmit_KeepsAReturnCancelledAfter()
+    {
+        // Both are Cancelled now; only one was ever sent (VCST-6226).
+        var found = Search(
+            new ReturnSearchCriteria { SubmittedOnly = true },
+            MakeReturn("cancelled-draft", ReturnStatus.Cancelled, _created, submitted: false),
+            MakeReturn("cancelled-request", ReturnStatus.Cancelled, _created));
+
+        Assert.Equal("cancelled-request", Assert.Single(found).Id);
+    }
+
+    [Fact]
+    public void SubmittedOnlyNotSet_KeepsDrafts()
     {
         var found = Search(new ReturnSearchCriteria());
 
@@ -168,9 +180,9 @@ public class ReturnSearchServiceTests
     }
 
     [Fact]
-    public void OrganizationWithOnlyADraft_ShowsNothingWhenDraftsAreExcluded()
+    public void OrganizationWithOnlyADraft_ShowsNothingWhenSubmittedOnly()
     {
-        var found = Search(new ReturnSearchCriteria { OrganizationId = "org-2", ExcludeDrafts = true });
+        var found = Search(new ReturnSearchCriteria { OrganizationId = "org-2", SubmittedOnly = true });
 
         Assert.Empty(found);
     }
@@ -216,9 +228,9 @@ public class ReturnSearchServiceTests
         Assert.Equal(SortDirection.Descending, sortInfo.SortDirection);
     }
 
-    private static IList<ReturnEntity> Search(ReturnSearchCriteria criteria)
+    private static IList<ReturnEntity> Search(ReturnSearchCriteria criteria, params ReturnEntity[] entities)
     {
-        var service = CreateService();
+        var service = entities.Length > 0 ? CreateService(entities) : CreateService();
 
         return service.Query(criteria).ToList();
     }
@@ -227,15 +239,18 @@ public class ReturnSearchServiceTests
     {
         // Every searched column must be set: NULL simply fails to match in SQL, but in
         // LINQ-to-objects null.Contains() throws.
-        var entities = new List<ReturnEntity>
-        {
+        return CreateService(
             MakeReturn("r1", ReturnStatus.Requested, _created,
                 number: "RET-42", orderNumber: "SO-2026-04417", customerReference: "PO-7788",
                 sku: "ARS-P3265LV", name: "Access control panel", customerName: "Jan de Vries"),
-            MakeReturn("r2", ReturnStatus.Draft, _created.AddDays(-1), organizationId: "org-2"),
+            MakeReturn("r2", ReturnStatus.Draft, _created.AddDays(-1), organizationId: "org-2", submitted: false),
             MakeReturn("r3", ReturnStatus.Cancelled, _created.AddDays(1)),
-            MakeReturn("r4", "Canceled", _created.AddDays(2)),
-        }.BuildMock();
+            MakeReturn("r4", "Canceled", _created.AddDays(2)));
+    }
+
+    private static TestableReturnSearchService CreateService(params ReturnEntity[] returns)
+    {
+        var entities = returns.ToList().BuildMock();
 
         var repository = new Mock<IReturnRepository>();
         repository.Setup(x => x.Returns).Returns(entities);
@@ -253,12 +268,14 @@ public class ReturnSearchServiceTests
         string sku = "SKU-000",
         string name = "Item",
         string organizationId = "org-1",
-        string customerName = "Buyer")
+        string customerName = "Buyer",
+        bool submitted = true)
     {
         return new ReturnEntity
         {
             Id = id,
             Status = status,
+            SubmittedDate = submitted ? createdDate : null,
             CreatedDate = createdDate,
             Number = number,
             OrderNumber = orderNumber,

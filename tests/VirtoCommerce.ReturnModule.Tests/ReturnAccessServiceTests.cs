@@ -258,7 +258,24 @@ public class ReturnAccessServiceTests
         // Not through the organization, whoever reads it: its own buyer reaches it as the owner.
         _user.Roles = [NewRole(ViewerRoleId, XapiPermissions.MyOrganizationReturnView)];
 
-        Assert.False(await CreateService().CanViewReturnAsync(UserId, NewReturn(ReturnStatus.Draft, OrganizationId)));
+        Assert.False(await CreateService().CanViewReturnAsync(UserId, NewReturn(ReturnStatus.Draft, OrganizationId, submitted: false)));
+    }
+
+    [Fact]
+    public async Task DraftCancelledBeforeSubmit_IsNotVisible()
+    {
+        // Cancelled like any withdrawn request, but the organization never had it (VCST-6226).
+        _user.Roles = [NewRole(ViewerRoleId, XapiPermissions.MyOrganizationReturnView)];
+
+        Assert.False(await CreateService().CanViewReturnAsync(UserId, NewReturn(ReturnStatus.Cancelled, OrganizationId, submitted: false)));
+    }
+
+    [Fact]
+    public async Task ReturnCancelledAfterSubmit_IsVisible()
+    {
+        _user.Roles = [NewRole(ViewerRoleId, XapiPermissions.MyOrganizationReturnView)];
+
+        Assert.True(await CreateService().CanViewReturnAsync(UserId, NewReturn(ReturnStatus.Cancelled, OrganizationId)));
     }
 
     [Fact]
@@ -320,9 +337,16 @@ public class ReturnAccessServiceTests
         return new Role { Id = id, Name = id, Permissions = [new Permission { Name = permission }] };
     }
 
-    private static Return NewReturn(string status, string organizationId)
+    private static Return NewReturn(string status, string organizationId, bool submitted = true)
     {
-        return new Return { Id = "return-1", CustomerId = "user-2", OrganizationId = organizationId, Status = status };
+        return new Return
+        {
+            Id = "return-1",
+            CustomerId = "user-2",
+            OrganizationId = organizationId,
+            Status = status,
+            SubmittedDate = submitted ? new DateTime(2026, 10, 1, 9, 0, 0, DateTimeKind.Utc) : null,
+        };
     }
 
     private static IResolveFieldContext CreateContext(bool authenticated)
