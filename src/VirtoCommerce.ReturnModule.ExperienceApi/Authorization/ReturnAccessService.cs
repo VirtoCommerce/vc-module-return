@@ -8,7 +8,6 @@ using VirtoCommerce.CustomerModule.Core.Model;
 using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Security;
-using VirtoCommerce.ReturnModule.Core;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Security.Authorization;
@@ -74,8 +73,7 @@ public class ReturnAccessService : IReturnAccessService
 
     public virtual async Task<bool> CanViewReturnAsync(string userId, Return orderReturn)
     {
-        // A draft is the buyer's own work in progress, not yet something the organization is waiting on, and a
-        // draft the buyer cancels stays theirs: only a return that was submitted is the organization's.
+        // Only a submitted return is the organization's: a draft, cancelled or not, stays with its buyer.
         return orderReturn?.SubmittedDate != null &&
             await CanViewOrganizationAsync(userId, orderReturn.OrganizationId);
     }

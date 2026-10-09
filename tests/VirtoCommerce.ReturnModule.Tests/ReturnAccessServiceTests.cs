@@ -244,38 +244,25 @@ public class ReturnAccessServiceTests
         Assert.False(await CreateService().CanViewOrganizationAsync(UserId, OrganizationId));
     }
 
-    [Fact]
-    public async Task SubmittedReturnOfAViewableOrganization_IsVisible()
+    [Theory]
+    [InlineData(ReturnStatus.Requested)]
+    [InlineData(ReturnStatus.Cancelled)] // withdrawn after its submit: still the organization's
+    public async Task SubmittedReturnOfAViewableOrganization_IsVisible(string status)
     {
         _user.Roles = [NewRole(ViewerRoleId, XapiPermissions.MyOrganizationReturnView)];
 
-        Assert.True(await CreateService().CanViewReturnAsync(UserId, NewReturn(ReturnStatus.Requested, OrganizationId)));
+        Assert.True(await CreateService().CanViewReturnAsync(UserId, NewReturn(status, OrganizationId)));
     }
 
-    [Fact]
-    public async Task Draft_IsNotVisible()
+    [Theory]
+    [InlineData(ReturnStatus.Draft)]
+    [InlineData(ReturnStatus.Cancelled)] // a draft its buyer cancelled before submitting it (VCST-6226)
+    public async Task Draft_IsNotVisible(string status)
     {
         // Not through the organization, whoever reads it: its own buyer reaches it as the owner.
         _user.Roles = [NewRole(ViewerRoleId, XapiPermissions.MyOrganizationReturnView)];
 
-        Assert.False(await CreateService().CanViewReturnAsync(UserId, NewReturn(ReturnStatus.Draft, OrganizationId, submitted: false)));
-    }
-
-    [Fact]
-    public async Task DraftCancelledBeforeSubmit_IsNotVisible()
-    {
-        // Cancelled like any withdrawn request, but the organization never had it (VCST-6226).
-        _user.Roles = [NewRole(ViewerRoleId, XapiPermissions.MyOrganizationReturnView)];
-
-        Assert.False(await CreateService().CanViewReturnAsync(UserId, NewReturn(ReturnStatus.Cancelled, OrganizationId, submitted: false)));
-    }
-
-    [Fact]
-    public async Task ReturnCancelledAfterSubmit_IsVisible()
-    {
-        _user.Roles = [NewRole(ViewerRoleId, XapiPermissions.MyOrganizationReturnView)];
-
-        Assert.True(await CreateService().CanViewReturnAsync(UserId, NewReturn(ReturnStatus.Cancelled, OrganizationId)));
+        Assert.False(await CreateService().CanViewReturnAsync(UserId, NewReturn(status, OrganizationId, submitted: false)));
     }
 
     [Fact]

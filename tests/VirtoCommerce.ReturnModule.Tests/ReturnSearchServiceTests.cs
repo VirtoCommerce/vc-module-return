@@ -162,10 +162,11 @@ public class ReturnSearchServiceTests
     public void SubmittedOnly_HidesADraftCancelledBeforeSubmit_KeepsAReturnCancelledAfter()
     {
         // Both are Cancelled now; only one was ever sent (VCST-6226).
-        var found = Search(
-            new ReturnSearchCriteria { SubmittedOnly = true },
-            MakeReturn("cancelled-draft", ReturnStatus.Cancelled, _created, submitted: false),
-            MakeReturn("cancelled-request", ReturnStatus.Cancelled, _created));
+        var found = CreateService(
+                MakeReturn("cancelled-draft", ReturnStatus.Cancelled, _created, submitted: false),
+                MakeReturn("cancelled-request", ReturnStatus.Cancelled, _created))
+            .Query(new ReturnSearchCriteria { SubmittedOnly = true })
+            .ToList();
 
         Assert.Equal("cancelled-request", Assert.Single(found).Id);
     }
@@ -228,9 +229,9 @@ public class ReturnSearchServiceTests
         Assert.Equal(SortDirection.Descending, sortInfo.SortDirection);
     }
 
-    private static IList<ReturnEntity> Search(ReturnSearchCriteria criteria, params ReturnEntity[] entities)
+    private static IList<ReturnEntity> Search(ReturnSearchCriteria criteria)
     {
-        var service = entities.Length > 0 ? CreateService(entities) : CreateService();
+        var service = CreateService();
 
         return service.Query(criteria).ToList();
     }

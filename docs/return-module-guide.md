@@ -106,7 +106,7 @@ POST /api/return/search
   "take": 0
 }
 ```
-`startDate` and `endDate` both match the `createdDate` inclusively, down to the instant rather than the day. When `sort` is omitted, results come back newest first. `organizationId` keeps the returns raised for one organization, and `submittedOnly` keeps those that were submitted — the ones with a `submittedDate`, so no draft, and no draft its buyer cancelled before submitting — as the storefront's organization list does; `organizationName` can be sorted on too.
+`startDate` and `endDate` both match the `createdDate` inclusively, down to the instant rather than the day. When `sort` is omitted, results come back newest first. `organizationId` keeps the returns raised for one organization, and `submittedOnly` keeps only returns with a `submittedDate` (no drafts, cancelled or not), as the storefront's organization list does; `organizationName` can be sorted on too.
 
 Here is an example of search response:
 

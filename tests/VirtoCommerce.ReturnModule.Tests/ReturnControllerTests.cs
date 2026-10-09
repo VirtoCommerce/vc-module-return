@@ -96,6 +96,21 @@ public class ReturnControllerTests
     }
 
     [Fact]
+    public async Task UpdateReturn_SubmittedDateSent_IsNotTaken()
+    {
+        // Only a save records the submit: a date sent with a draft would hand the draft to its buyer's organization.
+        _storedReturn = NewReturn(ReturnStatus.Draft);
+
+        var edited = NewReturn(ReturnStatus.Draft);
+        edited.SubmittedDate = new DateTime(2026, 10, 1, 9, 0, 0, DateTimeKind.Utc);
+
+        var result = await _controller.UpdateReturn(edited);
+
+        Assert.IsType<OkObjectResult>(result);
+        Assert.Null(Assert.Single(_saved).SubmittedDate);
+    }
+
+    [Fact]
     public async Task UpdateReturn_DecidedLineQuantityChanged_IsRefused()
     {
         // It used to be put back silently, so a REST caller got a 200 for a change that never happened.

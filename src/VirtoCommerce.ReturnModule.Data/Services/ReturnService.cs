@@ -121,8 +121,9 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             RecordSubmit(returns);
         }
 
-        // Out of the buyer's hands means visible to their organization: submitted from the storefront, or
-        // created by the admin in a later status. A draft the buyer cancels never qualifies (VCST-6226).
+        // A return reaches its organization once it leaves the buyer's hands: submitted from the storefront, or
+        // saved by the admin in a status past Draft. Cancelled never counts, so a cancelled draft stays the buyer's
+        // (VCST-6226), and so does a return created already cancelled.
         protected virtual bool IsSubmittedStatus(string status)
         {
             status = ReturnStatus.Normalize(status);

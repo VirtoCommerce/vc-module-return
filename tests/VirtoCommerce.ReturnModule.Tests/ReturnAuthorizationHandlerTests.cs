@@ -176,24 +176,15 @@ public class ReturnAuthorizationHandlerTests
         Assert.False(context.HasSucceeded);
     }
 
-    [Fact]
-    public async Task OrganizationViewerReadingAColleaguesDraftFile_Fails()
+    [Theory]
+    [InlineData(ReturnStatus.Draft)]
+    [InlineData(ReturnStatus.Cancelled)] // a draft its buyer cancelled before submitting it (VCST-6226)
+    public async Task OrganizationViewerReadingAColleaguesDraftFile_Fails(string status)
     {
         // A colleague's draft does not open through the organization, so neither do its photos.
         var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Read);
 
-        await CreateHandler(OtherId, organizationViewer: true, status: ReturnStatus.Draft).HandleAsync(context);
-
-        Assert.False(context.HasSucceeded);
-    }
-
-    [Fact]
-    public async Task OrganizationViewerReadingAFileOfADraftCancelledBeforeSubmit_Fails()
-    {
-        // Cancelled, but never sent: its photos stay the buyer's, like the rest of it (VCST-6226).
-        var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Read);
-
-        await CreateHandler(OtherId, organizationViewer: true, status: ReturnStatus.Cancelled, submitted: false).HandleAsync(context);
+        await CreateHandler(OtherId, organizationViewer: true, status: status, submitted: false).HandleAsync(context);
 
         Assert.False(context.HasSucceeded);
     }
@@ -301,13 +292,12 @@ public class ReturnAuthorizationHandlerTests
         protected override Task<bool> IsAllowedAsync(AuthorizationHandlerContext context) => Task.FromResult(true);
     }
 
-    private static ReturnAuthorizationHandler CreateHandler(string userId = OwnerId, bool organizationViewer = false, string status = ReturnStatus.Requested, bool? submitted = null)
+    private static ReturnAuthorizationHandler CreateHandler(string userId = OwnerId, bool organizationViewer = false, string status = ReturnStatus.Requested, bool submitted = true)
     {
         return new TestHandler(DefaultScopeFactory(organizationViewer, status, submitted), userId);
     }
 
-    // As saving leaves it: submitted unless still a draft, unless the test says otherwise.
-    private static IServiceScopeFactory DefaultScopeFactory(bool organizationViewer = false, string status = ReturnStatus.Requested, bool? submitted = null)
+    private static IServiceScopeFactory DefaultScopeFactory(bool organizationViewer = false, string status = ReturnStatus.Requested, bool submitted = true)
     {
         var orderReturn = new Return
         {
@@ -315,7 +305,7 @@ public class ReturnAuthorizationHandlerTests
             CustomerId = OwnerId,
             OrganizationId = "org-1",
             Status = status,
-            SubmittedDate = (submitted ?? status != ReturnStatus.Draft) ? new DateTime(2026, 10, 1, 9, 0, 0, DateTimeKind.Utc) : null,
+            SubmittedDate = submitted ? new DateTime(2026, 10, 1, 9, 0, 0, DateTimeKind.Utc) : null,
         };
 
         var returnService = new Mock<IReturnService>();
