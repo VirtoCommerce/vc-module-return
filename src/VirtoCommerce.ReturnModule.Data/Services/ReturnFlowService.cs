@@ -103,6 +103,8 @@ public class ReturnFlowService : IReturnFlowService
         result.StoreId = order.StoreId;
         result.CustomerId = order.CustomerId;
         result.CustomerName = order.CustomerName ?? context.CustomerName;
+        result.OrganizationId = order.OrganizationId;
+        result.OrganizationName = order.OrganizationName;
         result.CustomerReference = request.CustomerReference ?? order.PurchaseOrderNumber;
         // Left empty when the caller sends no culture: saving fills in the order's language, for every writer.
         result.LanguageCode = context.LanguageCode;

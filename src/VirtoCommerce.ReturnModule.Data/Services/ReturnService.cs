@@ -118,6 +118,26 @@ namespace VirtoCommerce.ReturnModule.Data.Services
 
             await EnsureEachReturnHasNumber(returns, ordersById);
             FillMissingSnapshots(returns, ordersById);
+            RecordSubmit(returns);
+        }
+
+        // Any status but Draft or Cancelled means the return left the buyer's hands. Not Cancelled: a draft
+        // cancelled before submit stays the buyer's (VCST-6226).
+        protected virtual bool IsSubmittedStatus(string status)
+        {
+            status = ReturnStatus.Normalize(status);
+
+            return !string.IsNullOrEmpty(status) &&
+                !status.EqualsIgnoreCase(ReturnStatus.Draft) &&
+                !status.EqualsIgnoreCase(ReturnStatus.Cancelled);
+        }
+
+        private void RecordSubmit(IEnumerable<Return> returns)
+        {
+            foreach (var orderReturn in returns.Where(x => x.SubmittedDate == null && IsSubmittedStatus(x.Status)))
+            {
+                orderReturn.SubmittedDate = DateTime.UtcNow;
+            }
         }
 
         private async Task EnsureEachReturnHasNumber(IEnumerable<Return> returns, IDictionary<string, CustomerOrder> ordersById)
@@ -161,6 +181,8 @@ namespace VirtoCommerce.ReturnModule.Data.Services
                 orderReturn.StoreId = Fill(orderReturn.StoreId, order.StoreId);
                 orderReturn.CustomerId = Fill(orderReturn.CustomerId, order.CustomerId);
                 orderReturn.CustomerName = Fill(orderReturn.CustomerName, order.CustomerName);
+                orderReturn.OrganizationId = Fill(orderReturn.OrganizationId, order.OrganizationId);
+                orderReturn.OrganizationName = Fill(orderReturn.OrganizationName, order.OrganizationName);
                 orderReturn.OrderNumber = Fill(orderReturn.OrderNumber, order.Number);
                 orderReturn.LanguageCode = Fill(orderReturn.LanguageCode, order.LanguageCode);
 

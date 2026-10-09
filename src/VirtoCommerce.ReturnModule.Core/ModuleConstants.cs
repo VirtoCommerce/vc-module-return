@@ -22,6 +22,15 @@ namespace VirtoCommerce.ReturnModule.Core
 
                 public static string[] AllPermissions { get; } = { Read, Create, Access, Update, Delete, Authorize };
             }
+
+            // Storefront permissions, granted to contacts through a role like xAPI's other my_organization ones.
+            public static class XapiPermissions
+            {
+                public const string MyOrganizationReturnView = "xapi:my_organization:return:view";
+                public const string MyOrganizationReturnSubmit = "xapi:my_organization:return:submit";
+
+                public static string[] AllPermissions { get; } = { MyOrganizationReturnView, MyOrganizationReturnSubmit };
+            }
         }
 
         public static class Settings
@@ -152,6 +161,15 @@ namespace VirtoCommerce.ReturnModule.Core
                     DefaultValue = true
                 };
 
+                // Off by default: the organization's address is often a person's, not a shared mailbox.
+                public static SettingDescriptor ReturnNotifyOrganizationEmail { get; } = new SettingDescriptor
+                {
+                    Name = "Return.NotifyOrganizationEmail",
+                    ValueType = SettingValueType.Boolean,
+                    GroupName = "Return|Notifications",
+                    DefaultValue = false
+                };
+
                 public static IEnumerable<SettingDescriptor> AllSettings
                 {
                     get
@@ -167,6 +185,7 @@ namespace VirtoCommerce.ReturnModule.Core
                         yield return ReturnAttachmentsRequired;
                         yield return ReturnSendNotifications;
                         yield return ReturnSendPushNotifications;
+                        yield return ReturnNotifyOrganizationEmail;
                         yield return OrderStatus;
                     }
                 }
@@ -194,6 +213,7 @@ namespace VirtoCommerce.ReturnModule.Core
                     yield return General.ReturnAttachmentsRequired;
                     yield return General.ReturnSendNotifications;
                     yield return General.ReturnSendPushNotifications;
+                    yield return General.ReturnNotifyOrganizationEmail;
                 }
             }
         }

@@ -14,4 +14,6 @@ public class ReturnStoreRules
     public bool SendNotifications { get; set; }
 
     public bool SendPushNotifications { get; set; }
+
+    public bool NotifyOrganizationEmail { get; set; }
 }

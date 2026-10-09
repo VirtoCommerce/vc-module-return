@@ -16,6 +16,10 @@ namespace VirtoCommerce.ReturnModule.Core.Models
 
         public string CustomerName { get; set; }
 
+        public string OrganizationId { get; set; }
+
+        public string OrganizationName { get; set; }
+
         public string OrderId { get; set; }
 
         public string OrderNumber { get; set; }
@@ -26,6 +30,9 @@ namespace VirtoCommerce.ReturnModule.Core.Models
         public string LanguageCode { get; set; }
 
         public string Status { get; set; }
+
+        // Stamped by the first save outside Draft and Cancelled: a draft cancelled before submit has none.
+        public DateTime? SubmittedDate { get; set; }
 
         public string Resolution { get; set; }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using VirtoCommerce.Platform.Core.Common;
 
@@ -11,6 +11,10 @@ namespace VirtoCommerce.ReturnModule.Core.Models.Search
         public IList<string> OrderIds { get; set; }
 
         public string CustomerId { get; set; }
+
+        public string OrganizationId { get; set; }
+
+        public bool SubmittedOnly { get; set; }
 
         public string StoreId { get; set; }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Options;
@@ -28,6 +28,15 @@ public class ReturnSearchServiceTests
     public void Keyword_MatchesNumberOrderNumberReferenceSkuAndName(string keyword)
     {
         var found = Search(new ReturnSearchCriteria { Keyword = keyword });
+
+        Assert.Equal("r1", Assert.Single(found).Id);
+    }
+
+    [Fact]
+    public void Keyword_MatchesTheBuyersName()
+    {
+        // The organization's list is read by people looking for what a colleague sent back.
+        var found = Search(new ReturnSearchCriteria { Keyword = "Jan de" });
 
         Assert.Equal("r1", Assert.Single(found).Id);
     }
@@ -123,6 +132,63 @@ public class ReturnSearchServiceTests
     }
 
     [Fact]
+    public void Organization_FiltersByIt()
+    {
+        var found = Search(new ReturnSearchCriteria { OrganizationId = "org-2" });
+
+        Assert.Equal("r2", Assert.Single(found).Id);
+    }
+
+    [Fact]
+    public void Organization_NoneOfItsReturns_ReturnsNothing()
+    {
+        var found = Search(new ReturnSearchCriteria { OrganizationId = "org-without-returns" });
+
+        Assert.Empty(found);
+    }
+
+    [Fact]
+    public void SubmittedOnly_HidesEveryDraft()
+    {
+        // The draft belongs to the same buyer as every other return here: being their own does not
+        // bring it back.
+        var found = Search(new ReturnSearchCriteria { SubmittedOnly = true });
+
+        Assert.DoesNotContain(found, x => x.Status == ReturnStatus.Draft);
+        Assert.Equal(3, found.Count);
+    }
+
+    [Fact]
+    public void SubmittedOnly_HidesADraftCancelledBeforeSubmit_KeepsAReturnCancelledAfter()
+    {
+        // Both are Cancelled now; only one was ever sent (VCST-6226).
+        var found = CreateService(
+                MakeReturn("cancelled-draft", ReturnStatus.Cancelled, _created, submitted: false),
+                MakeReturn("cancelled-request", ReturnStatus.Cancelled, _created))
+            .Query(new ReturnSearchCriteria { SubmittedOnly = true })
+            .ToList();
+
+        Assert.Equal("cancelled-request", Assert.Single(found).Id);
+    }
+
+    [Fact]
+    public void SubmittedOnlyNotSet_KeepsDrafts()
+    {
+        var found = Search(new ReturnSearchCriteria());
+
+        Assert.Contains(found, x => x.Id == "r2");
+        Assert.Equal(4, found.Count);
+    }
+
+    [Fact]
+    public void OrganizationWithOnlyADraft_ShowsNothingWhenSubmittedOnly()
+    {
+        var found = Search(new ReturnSearchCriteria { OrganizationId = "org-2", SubmittedOnly = true });
+
+        Assert.Empty(found);
+    }
+
+    [Fact]
     public void Sort_NotRequested_FallsBackToNewestFirst()
     {
         var sortInfos = CreateService().Sort(new ReturnSearchCriteria());
@@ -152,6 +218,17 @@ public class ReturnSearchServiceTests
         Assert.Equal(SortDirection.Ascending, sortInfos[1].SortDirection);
     }
 
+    [Fact]
+    public void Sort_Organization_PassesThrough()
+    {
+        // The admin grid sorts by it, and a column missing from SortableColumns is ignored.
+        var sortInfos = CreateService().Sort(new ReturnSearchCriteria { Sort = "organizationName:desc" });
+
+        var sortInfo = Assert.Single(sortInfos);
+        Assert.Equal(nameof(ReturnEntity.OrganizationName), sortInfo.SortColumn, ignoreCase: true);
+        Assert.Equal(SortDirection.Descending, sortInfo.SortDirection);
+    }
+
     private static IList<ReturnEntity> Search(ReturnSearchCriteria criteria)
     {
         var service = CreateService();
@@ -163,15 +240,18 @@ public class ReturnSearchServiceTests
     {
         // Every searched column must be set: NULL simply fails to match in SQL, but in
         // LINQ-to-objects null.Contains() throws.
-        var entities = new List<ReturnEntity>
-        {
+        return CreateService(
             MakeReturn("r1", ReturnStatus.Requested, _created,
                 number: "RET-42", orderNumber: "SO-2026-04417", customerReference: "PO-7788",
-                sku: "ARS-P3265LV", name: "Access control panel"),
-            MakeReturn("r2", ReturnStatus.Draft, _created.AddDays(-1)),
+                sku: "ARS-P3265LV", name: "Access control panel", customerName: "Jan de Vries"),
+            MakeReturn("r2", ReturnStatus.Draft, _created.AddDays(-1), organizationId: "org-2", submitted: false),
             MakeReturn("r3", ReturnStatus.Cancelled, _created.AddDays(1)),
-            MakeReturn("r4", "Canceled", _created.AddDays(2)),
-        }.BuildMock();
+            MakeReturn("r4", "Canceled", _created.AddDays(2)));
+    }
+
+    private static TestableReturnSearchService CreateService(params ReturnEntity[] returns)
+    {
+        var entities = returns.ToList().BuildMock();
 
         var repository = new Mock<IReturnRepository>();
         repository.Setup(x => x.Returns).Returns(entities);
@@ -187,17 +267,23 @@ public class ReturnSearchServiceTests
         string orderNumber = "SO-000",
         string customerReference = "REF-000",
         string sku = "SKU-000",
-        string name = "Item")
+        string name = "Item",
+        string organizationId = "org-1",
+        string customerName = "Buyer",
+        bool submitted = true)
     {
         return new ReturnEntity
         {
             Id = id,
             Status = status,
+            SubmittedDate = submitted ? createdDate : null,
             CreatedDate = createdDate,
             Number = number,
             OrderNumber = orderNumber,
             CustomerReference = customerReference,
             CustomerId = "buyer-1",
+            CustomerName = customerName,
+            OrganizationId = organizationId,
             StoreId = "B2B-store",
             LineItems = [new ReturnLineItemEntity { Sku = sku, Name = name }],
         };

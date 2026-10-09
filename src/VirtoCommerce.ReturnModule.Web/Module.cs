@@ -91,6 +91,7 @@ namespace VirtoCommerce.ReturnModule.Web
                 builder.AddSchema(serviceCollection, typeof(AssemblyMarker));
             });
 
+            serviceCollection.AddTransient<IReturnAccessService, ReturnAccessService>();
             serviceCollection.AddSingleton<IAuthorizationHandler, ReturnAuthorizationHandler>();
             serviceCollection.AddSingleton<IFileAuthorizationRequirementFactory, ReturnFileAuthorizationRequirementFactory>();
             serviceCollection.AddSingleton<ScopedSchemaFactory<AssemblyMarker>>();
@@ -116,6 +117,7 @@ namespace VirtoCommerce.ReturnModule.Web
             // Register permissions
             var permissionsRegistrar = appBuilder.ApplicationServices.GetRequiredService<IPermissionsRegistrar>();
             permissionsRegistrar.RegisterPermissions(ModuleInfo.Id, "Return", ModuleConstants.Security.Permissions.AllPermissions);
+            permissionsRegistrar.RegisterPermissions(ModuleInfo.Id, "XAPI", ModuleConstants.Security.XapiPermissions.AllPermissions);
 
             RegisterEventHandlers(appBuilder, IsPushMessagesAvailable());
 
