@@ -51,8 +51,7 @@ public class ReturnsQueryHandlerTests
 
         Assert.Equal("org-1", _criteria.OrganizationId);
         Assert.Null(_criteria.CustomerId);
-        // Read-only, so nothing that was never submitted - the caller's own drafts included, which stay in
-        // their own list.
+        // Submitted returns only: drafts, the caller's own included, stay in their buyer's list.
         Assert.True(_criteria.SubmittedOnly);
         // Both lists answer the same filters, sorting and paging.
         AssertSharedArguments();

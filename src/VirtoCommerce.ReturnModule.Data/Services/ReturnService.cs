@@ -121,9 +121,8 @@ namespace VirtoCommerce.ReturnModule.Data.Services
             RecordSubmit(returns);
         }
 
-        // A return reaches its organization once it leaves the buyer's hands: submitted from the storefront, or
-        // saved by the admin in a status past Draft. Cancelled never counts, so a cancelled draft stays the buyer's
-        // (VCST-6226), and so does a return created already cancelled.
+        // Any status but Draft or Cancelled means the return left the buyer's hands. Not Cancelled: a draft
+        // cancelled before submit stays the buyer's (VCST-6226).
         protected virtual bool IsSubmittedStatus(string status)
         {
             status = ReturnStatus.Normalize(status);

@@ -17,9 +17,8 @@ namespace VirtoCommerce.ReturnModule.Data.SqlServer.Migrations
                 type: "datetime2",
                 nullable: true);
 
-            // Before this column, nothing kept whether a cancelled return had been sent or was a draft its buyer
-            // dropped (VCST-6226), so cancelled returns stay out of their organization's list, as drafts do. The
-            // rest were submitted; the created date stands in for the submit time, which was not kept either.
+            // Drafts and cancelled returns stay unset: nothing recorded whether a cancelled one had been submitted
+            // (VCST-6226). The rest were; CreatedDate stands in for the submit time, not recorded either.
             migrationBuilder.Sql(@"
 UPDATE [Return] SET [SubmittedDate] = [CreatedDate]
 WHERE LOWER([Status]) NOT IN ('draft', 'cancelled', 'canceled');");

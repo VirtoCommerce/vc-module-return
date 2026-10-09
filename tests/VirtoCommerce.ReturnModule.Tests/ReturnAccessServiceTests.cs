@@ -78,8 +78,7 @@ public class ReturnAccessServiceTests
     [Fact]
     public async Task MemberHoldingThePermissionGlobally_CanView()
     {
-        // A role assigned outside any organization, as the sample data's Organization maintainer is,
-        // counts in every organization the user belongs to.
+        // A global role, like the sample data's Organization maintainer, counts in each of the user's organizations.
         _user.Roles = [NewRole(ViewerRoleId, XapiPermissions.MyOrganizationReturnView)];
 
         Assert.True(await CreateService().CanViewOrganizationAsync(UserId, OrganizationId));
@@ -268,7 +267,7 @@ public class ReturnAccessServiceTests
     [Fact]
     public async Task ReturnOfAnOrganizationTheUserCannotView_IsNotVisible()
     {
-        // The return's own organization decides, not the one the caller happens to have selected.
+        // The return's own organization decides: the permission held in another one does not count.
         _organizationRoles[OrganizationId] = [new OrganizationRole { OrganizationId = OrganizationId, RoleId = ViewerRoleId }];
 
         Assert.False(await CreateService().CanViewReturnAsync(UserId, NewReturn(ReturnStatus.Requested, OtherOrganizationId)));

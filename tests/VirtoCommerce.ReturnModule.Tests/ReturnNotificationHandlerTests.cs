@@ -448,8 +448,7 @@ public class ReturnNotificationHandlerTests
     [Fact]
     public async Task BuyerWithoutEmail_StillCopiesTheOrganization()
     {
-        // Nowhere to reach the buyer - not the order, the contact or the login - yet purchasing still
-        // gets its copy: the buyer's missing address is no reason to keep the organization uninformed.
+        // No address for the buyer on the order, the contact or the login; purchasing still gets its copy.
         _rules.NotifyOrganizationEmail = true;
         _orderReturn.OrganizationId = OrganizationId;
         _userManager
@@ -497,8 +496,7 @@ public class ReturnNotificationHandlerTests
     [Fact]
     public async Task OrganizationCopy_LeavesTheNotificationsCcAndBccToTheBuyersEmail()
     {
-        // The copy is the buyer's notification cloned, CC and BCC included; the people an admin added
-        // there already got the buyer's email and must not get the organization's too.
+        // The copy clones the buyer's notification, CC and BCC included; those already got the buyer's email.
         _rules.NotifyOrganizationEmail = true;
         _orderReturn.OrganizationId = OrganizationId;
         _notificationCc = ["returns-desk@aras.example"];

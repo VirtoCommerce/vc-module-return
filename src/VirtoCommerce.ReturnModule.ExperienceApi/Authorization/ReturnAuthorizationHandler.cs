@@ -51,8 +51,7 @@ public class ReturnAuthorizationHandler : AuthorizationHandler<ReturnAuthorizati
             return true;
         }
 
-        // Anyone else may open the photos but never delete them: the back office, which decides on a
-        // return from them, and a colleague who may read the return through the organization.
+        // Others may only open the photos: back-office readers, and colleagues who may read the return.
         if (!requirement.Permission.EqualsIgnoreCase(FileExperienceApiModuleConstants.Security.Permissions.Read))
         {
             return false;

@@ -24,9 +24,8 @@ namespace VirtoCommerce.ReturnModule.Data.SqlServer.Migrations
                 maxLength: 256,
                 nullable: true);
 
-            // Returns raised before this migration would otherwise never appear in their
-            // organization's list. The orders table lives in the same database unless the Orders
-            // module was given its own connection string, hence the guard.
+            // Older returns take their organization from the order, or they never reach its list. Guarded:
+            // with a connection string of its own, the Orders module keeps its tables in another database.
             migrationBuilder.Sql(@"
 IF OBJECT_ID(N'[CustomerOrder]', N'U') IS NOT NULL
     EXEC(N'UPDATE r SET r.[OrganizationId] = o.[OrganizationId], r.[OrganizationName] = o.[OrganizationName]

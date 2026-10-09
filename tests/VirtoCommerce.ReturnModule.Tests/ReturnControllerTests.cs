@@ -98,7 +98,7 @@ public class ReturnControllerTests
     [Fact]
     public async Task UpdateReturn_SubmittedDateSent_IsNotTaken()
     {
-        // Only a save records the submit: a date sent with a draft would hand the draft to its buyer's organization.
+        // A date sent with a draft would hand it to the organization; only the save stamps the submit.
         _storedReturn = NewReturn(ReturnStatus.Draft);
 
         var edited = NewReturn(ReturnStatus.Draft);

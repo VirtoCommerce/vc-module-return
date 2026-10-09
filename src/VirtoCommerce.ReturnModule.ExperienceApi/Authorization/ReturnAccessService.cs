@@ -95,7 +95,7 @@ public class ReturnAccessService : IReturnAccessService
         return (member as IHasOrganizations)?.Organizations?.Contains(organizationId, StringComparer.OrdinalIgnoreCase) == true;
     }
 
-    // The rule Customer applies whenever it issues a token for an organization.
+    // Customer's rule for issuing an organization's token.
     protected virtual bool IsActive(OrganizationMembership membership, Member member)
     {
         if (membership?.IsCurrentlyLocked == true)
@@ -108,8 +108,8 @@ public class ReturnAccessService : IReturnAccessService
         return !CustomerModuleConstants.MembershipStatuses.IsBlocking(status);
     }
 
-    // The token carries permissions for the selected organization only, so any organization is worked out
-    // the way Customer builds them: the user's global roles plus their roles in that organization.
+    // Not from the token, which covers the selected organization only: rebuilt as Customer builds it,
+    // from the user's global roles plus their roles in that organization.
     protected virtual async Task<bool> HasPermissionAsync(ApplicationUser user, string organizationId, OrganizationMembership membership, string permission)
     {
         if (user.IsAdministrator || user.Roles?.Any(x => HasPermission(x, permission)) == true)

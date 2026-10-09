@@ -114,7 +114,7 @@ public class SendNotificationsReturnStatusChangedEventHandler : ReturnStatusNoti
             return;
         }
 
-        // A buyer whose own address is the organization's would get the same email twice.
+        // The buyer's email already went to this address.
         if (organizationEmail.EqualsIgnoreCase(buyerEmail))
         {
             return;
@@ -122,7 +122,7 @@ public class SendNotificationsReturnStatusChangedEventHandler : ReturnStatusNoti
 
         var copy = prepared.Notification.CloneTyped();
 
-        // The recipients an admin added to the notification were already sent the buyer's email.
+        // CC and BCC already get the buyer's email.
         if (!string.IsNullOrEmpty(buyerEmail))
         {
             copy.CC = [];

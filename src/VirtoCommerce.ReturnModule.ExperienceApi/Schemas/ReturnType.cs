@@ -68,8 +68,7 @@ public class ReturnType : ExtendableGraphType<Return>
                 var flowService = context.RequestServices.GetRequiredService<IReturnFlowService>();
                 var actions = flowService.GetAvailableActions(context.Source);
 
-                // A colleague reading the return through the organization would be refused by every
-                // mutation, so offering them the buttons would only lead to an error.
+                // A colleague reading it through the organization would be refused by every mutation.
                 if (!await flowService.IsOwnedBy(context.Source, context.GetCurrentUserId()))
                 {
                     foreach (var action in actions)

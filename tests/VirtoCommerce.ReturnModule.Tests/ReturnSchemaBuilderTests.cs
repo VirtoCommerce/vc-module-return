@@ -33,10 +33,9 @@ public class ReturnSchemaBuilderTests
     [MemberData(nameof(SignedInBuilders))]
     public async Task EveryBuilder_RefusesAnUnusableAccountBeforeAnythingElse(Type builderType)
     {
-        // A locked account's token is still valid for up to 30 minutes. A check in a base class protects
-        // only what inherits it and calls it first, and the next builder is the one that forgets. The
-        // context offers the access service alone, so a builder that reached for any other service first
-        // would fail with another error, and one that stamped the caller first would leave its id behind.
+        // A locked account's token stays valid for up to 30 minutes, and a base-class check guards only the
+        // builders that call it first. With only the access service offered, a builder reaching for another
+        // service first fails differently, and one stamping the caller first leaves its id on the request.
         _accessService
             .Setup(x => x.CheckUserStateAsync(It.IsAny<IResolveFieldContext>()))
             .ThrowsAsync(AuthorizationError.UserLocked());

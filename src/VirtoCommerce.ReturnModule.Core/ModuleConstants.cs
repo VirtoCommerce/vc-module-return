@@ -23,8 +23,7 @@ namespace VirtoCommerce.ReturnModule.Core
                 public static string[] AllPermissions { get; } = { Read, Create, Access, Update, Delete, Authorize };
             }
 
-            // Granted to storefront contacts through their role, like the other my_organization
-            // permissions of xAPI, rather than to back-office users.
+            // Storefront permissions, granted to contacts through a role like xAPI's other my_organization ones.
             public static class XapiPermissions
             {
                 public const string MyOrganizationReturnView = "xapi:my_organization:return:view";
@@ -162,8 +161,7 @@ namespace VirtoCommerce.ReturnModule.Core
                     DefaultValue = true
                 };
 
-                // Off by default: the copy goes to whatever address the organization carries, which
-                // is often a person rather than a shared mailbox, and they did not ask for it.
+                // Off by default: the organization's address is often a person's, not a shared mailbox.
                 public static SettingDescriptor ReturnNotifyOrganizationEmail { get; } = new SettingDescriptor
                 {
                     Name = "Return.NotifyOrganizationEmail",

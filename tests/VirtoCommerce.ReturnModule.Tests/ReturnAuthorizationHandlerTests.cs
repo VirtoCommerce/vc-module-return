@@ -194,9 +194,7 @@ public class ReturnAuthorizationHandlerTests
     [InlineData(null)]
     public async Task OrganizationViewer_FollowsTheReturnsOrganization_NotTheSelectedOne(string selectedOrganizationId)
     {
-        // A contact of two organizations who may read the return's one opens its photos whichever
-        // organization they have selected, as the return itself opens and as the organization list
-        // takes any of their organizations.
+        // The return's organization decides, not the one selected in the token, as for the return itself.
         var context = CreateContext(OtherId, OwnedFile(), permission: FilePermissions.Read, selectedOrganizationId: selectedOrganizationId);
 
         await CreateHandler(OtherId, organizationViewer: true).HandleAsync(context);

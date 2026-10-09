@@ -15,8 +15,8 @@
 <div class="blade-static __bottom" ng-if="pageSettings.itemsPerPageCount < pageSettings.totalItems" ng-include="'pagerTemplate.html'"></div>
 <div class="blade-content __xxlarge-wide">
   <div class="blade-inner">
-    <!-- minWidth fits each English header with its sort arrow; the last one also clears the grid menu button.
-         The audit columns start hidden: with every column shown, the headers cannot fit the blade. -->
+    <!-- minWidth fits each English header and its sort arrow, the last also the grid menu button.
+         Audit columns start hidden: with all shown, the headers cannot fit the blade. -->
     <div class="inner-block" ng-init="setGridOptions('returnlist-grid', {
                     useExternalSorting: true,
                     data: 'listEntries',

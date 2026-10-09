@@ -156,7 +156,7 @@ namespace VirtoCommerce.ReturnModule.Data.Models
             target.CustomerReference = CustomerReference;
             target.LanguageCode = LanguageCode;
             target.Status = Status;
-            // Recorded once: a writer that leaves it out, or sends another date, changes nothing.
+            // Write-once: omitting it or sending another date changes nothing.
             target.SubmittedDate ??= SubmittedDate;
             target.Resolution = Resolution;
             target.CustomerComment = CustomerComment;

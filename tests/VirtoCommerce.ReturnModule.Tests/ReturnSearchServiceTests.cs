@@ -221,7 +221,7 @@ public class ReturnSearchServiceTests
     [Fact]
     public void Sort_Organization_PassesThrough()
     {
-        // The admin list sorts by it; a column missing from the list would be dropped silently.
+        // The admin grid sorts by it, and a column missing from SortableColumns is ignored.
         var sortInfos = CreateService().Sort(new ReturnSearchCriteria { Sort = "organizationName:desc" });
 
         var sortInfo = Assert.Single(sortInfos);

@@ -26,9 +26,8 @@ namespace VirtoCommerce.ReturnModule.Data.MySql.Migrations
                 nullable: true)
                 .Annotation("MySql:CharSet", "utf8mb4");
 
-            // Returns raised before this migration would otherwise never appear in their
-            // organization's list. The orders table lives in the same database unless the Orders
-            // module was given its own connection string, hence the guard.
+            // Older returns take their organization from the order, or they never reach its list. Guarded:
+            // with a connection string of its own, the Orders module keeps its tables in another database.
             migrationBuilder.Sql(@"
 SET @sql = IF(
     (SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'CustomerOrder') > 0,
