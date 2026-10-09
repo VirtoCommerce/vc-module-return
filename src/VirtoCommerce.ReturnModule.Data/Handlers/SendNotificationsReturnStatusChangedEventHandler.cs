@@ -8,10 +8,10 @@ using VirtoCommerce.OrdersModule.Core.Model;
 using VirtoCommerce.OrdersModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Jobs;
-using VirtoCommerce.ReturnModule.Data.BackgroundJobs;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.Core.Notifications;
 using VirtoCommerce.ReturnModule.Core.Services;
+using VirtoCommerce.ReturnModule.Data.BackgroundJobs;
 using VirtoCommerce.StoreModule.Core.Services;
 
 namespace VirtoCommerce.ReturnModule.Data.Handlers;
