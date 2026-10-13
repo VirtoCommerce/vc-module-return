@@ -17,7 +17,7 @@ namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.9")
+                .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -135,6 +135,14 @@ namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<string>("OrganizationId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("OrganizationName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
                     b.Property<string>("RejectReason")
                         .HasMaxLength(2048)
                         .HasColumnType("character varying(2048)");
@@ -151,11 +159,16 @@ namespace VirtoCommerce.ReturnModule.Data.PostgreSql.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
+                    b.Property<DateTime?>("SubmittedDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
 
                     b.HasIndex("CustomerId", "StoreId", "CreatedDate");
+
+                    b.HasIndex("OrganizationId", "StoreId", "CreatedDate");
 
                     b.ToTable("Return", (string)null);
                 });

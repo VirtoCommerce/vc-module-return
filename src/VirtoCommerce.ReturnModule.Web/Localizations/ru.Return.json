@@ -12,6 +12,7 @@
           "return-number": "Номер возврата",
           "order-number": "Номер заказа",
           "customer-name": "Клиент",
+          "organization-name": "Организация",
           "return-status": "Статус возврата",
           "created-date": "Дата создания",
           "modified-date": "Дата изменения",
@@ -68,7 +69,9 @@
     "return:read": "Просмотреть данные возврата",
     "return:update": "Обновить данные возврата",
     "return:delete": "Удалить данные возврата",
-    "return:authorize": "Одобрять и отклонять возвраты"
+    "return:authorize": "Одобрять и отклонять возвраты",
+    "xapi:my_organization:return:view": "Просмотр возвратов организации",
+    "xapi:my_organization:return:submit": "Оформление возвратов организации"
   },
   "settings": {
     "Return": {
@@ -115,6 +118,10 @@
       "SendPushNotifications": {
         "title": "Push-уведомления о возвратах",
         "description": "По тем же событиям также отправлять push-сообщение в приложении. Требуется модуль Push Messages."
+      },
+      "NotifyOrganizationEmail": {
+        "title": "Копия писем о возвратах организации",
+        "description": "Отправлять каждое письмо о возврате, которое получает покупатель, также на email его организации."
       }
     },
     "Return.Status": {

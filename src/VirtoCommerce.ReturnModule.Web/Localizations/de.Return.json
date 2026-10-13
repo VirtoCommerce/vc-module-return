@@ -12,6 +12,7 @@
           "return-number": "Rückgabenummer",
           "order-number": "Bestellnummer",
           "customer-name": "Kunde",
+          "organization-name": "Organisation",
           "return-status": "Rückgabestatus",
           "created-date": "Erstellungsdatum",
           "modified-date": "Änderungsdatum",
@@ -68,7 +69,9 @@
     "return:read": "Rückgabedaten anzeigen",
     "return:update": "Rückgabedaten aktualisieren",
     "return:delete": "Rückgabedaten löschen",
-    "return:authorize": "Rückgaben genehmigen und ablehnen"
+    "return:authorize": "Rückgaben genehmigen und ablehnen",
+    "xapi:my_organization:return:view": "Rückgaben der Organisation anzeigen",
+    "xapi:my_organization:return:submit": "Rückgaben der Organisation einreichen"
   },
   "settings": {
     "Return": {
@@ -115,6 +118,10 @@
       "SendPushNotifications": {
         "title": "Push-Benachrichtigungen zu Rückgaben",
         "description": "Bei denselben Ereignissen zusätzlich eine In-App-Push-Nachricht senden. Erfordert das Modul Push Messages."
+      },
+      "NotifyOrganizationEmail": {
+        "title": "Rückgabe-E-Mails an die Organisation kopieren",
+        "description": "Jede Rückgabe-E-Mail, die der Käufer erhält, zusätzlich an die E-Mail-Adresse seiner Organisation senden."
       }
     },
     "Return.Status": {

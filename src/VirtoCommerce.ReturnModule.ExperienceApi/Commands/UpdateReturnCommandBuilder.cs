@@ -1,16 +1,13 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using GraphQL;
 using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.ExperienceApi.Extensions;
 using VirtoCommerce.ReturnModule.ExperienceApi.Schemas;
-using VirtoCommerce.Xapi.Core.BaseQueries;
-using VirtoCommerce.Xapi.Core.Extensions;
-using VirtoCommerce.Xapi.Core.Security.Authorization;
 
 namespace VirtoCommerce.ReturnModule.ExperienceApi.Commands;
 
-public class UpdateReturnCommandBuilder : CommandBuilder<UpdateReturnCommand, Return, UpdateReturnCommandType, ReturnType>
+public class UpdateReturnCommandBuilder : ReturnCommandBuilderBase<UpdateReturnCommand, Return, UpdateReturnCommandType, ReturnType>
 {
     protected override string Name => "updateReturn";
 

@@ -115,7 +115,7 @@ public class ReturnNotificationWiringTests
             services.Add(descriptor);
         }
 
-        services.AddTransient(_ => NewHandler<SendNotificationsReturnStatusChangedEventHandler>(_emailed, 8));
+        services.AddTransient(_ => NewHandler<SendNotificationsReturnStatusChangedEventHandler>(_emailed, 9));
 
         if (withPushMessages)
         {

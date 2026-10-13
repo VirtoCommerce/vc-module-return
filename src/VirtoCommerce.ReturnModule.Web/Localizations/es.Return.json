@@ -12,6 +12,7 @@
           "return-number": "Número de devolución",
           "order-number": "Número de pedido",
           "customer-name": "Cliente",
+          "organization-name": "Organización",
           "return-status": "Estado de la devolución",
           "created-date": "Fecha de creación",
           "modified-date": "Fecha de modificación",
@@ -68,7 +69,9 @@
     "return:read": "Ver datos de devolución",
     "return:update": "Actualizar datos de devolución",
     "return:delete": "Eliminar datos de devolución",
-    "return:authorize": "Aprobar y rechazar devoluciones"
+    "return:authorize": "Aprobar y rechazar devoluciones",
+    "xapi:my_organization:return:view": "Ver devoluciones de la organización",
+    "xapi:my_organization:return:submit": "Enviar devoluciones de la organización"
   },
   "settings": {
     "Return": {
@@ -115,6 +118,10 @@
       "SendPushNotifications": {
         "title": "Notificaciones push de devoluciones",
         "description": "Enviar además un mensaje push en la aplicación en los mismos eventos. Requiere el módulo Push Messages."
+      },
+      "NotifyOrganizationEmail": {
+        "title": "Copiar los correos de devolución a la organización",
+        "description": "Enviar también cada correo de devolución que recibe el comprador a la dirección de correo de su organización."
       }
     },
     "Return.Status": {

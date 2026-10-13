@@ -22,7 +22,7 @@ As mentioned in the overview, the Return module supplies you with a list of all 
 
 ![Return list home screen](media/03-return-list-overview.png)
 
-As you can see, there are default columns, such as Return Number, Order Number, Customer, etc. You can also add more columns, as well as remove any of which you do not need, by ticking or unticking them after clicking the three line button:
+As you can see, there are default columns, such as Return Number, Order Number, Customer, Organization, etc. You can also add more columns, as well as remove any of which you do not need, by ticking or unticking them after clicking the three line button:
 
 ![Configuring return list columns](media/04-configuring-return-list-columns.png) 
 
@@ -30,7 +30,7 @@ You can also sort the return operations (both ascending and descending, if appli
 
 ![Return list sorted by number, ascending](media/05-return-list-sorted-by-number-ascending.png)
 
-Finally, you can use the search box to type a keyword or key phrase and thus filter only the relevant items. The search covers the return number, the order number, the customer reference and the SKU and name of any returned line item. The status filter next to it narrows the list to one status — `Requested`, for instance, lists the returns waiting for a decision:
+Finally, you can use the search box to type a keyword or key phrase and thus filter only the relevant items. The search covers the return number, the order number, the customer reference, the customer's name and the SKU and name of any returned line item. The status filter next to it narrows the list to one status — `Requested`, for instance, lists the returns waiting for a decision:
 
 ![Using the search feature](media/06-return-list-search-new-only.png) 
 
@@ -93,6 +93,8 @@ POST /api/return/search
   ],
   "customerId": "<some_guid>",
   "storeId": "<some_store>",
+  "organizationId": "<some_organization_id>",
+  "submittedOnly": true,
   "statuses": [
     "Requested"
   ],
@@ -104,7 +106,7 @@ POST /api/return/search
   "take": 0
 }
 ```
-`startDate` and `endDate` both match the `createdDate` inclusively, down to the instant rather than the day. When `sort` is omitted, results come back newest first.
+`startDate` and `endDate` both match the `createdDate` inclusively, down to the instant rather than the day. When `sort` is omitted, results come back newest first. `organizationId` keeps the returns raised for one organization, and `submittedOnly` keeps only returns with a `submittedDate` (no drafts, cancelled or not), as the storefront's organization list does; `organizationName` can be sorted on too.
 
 Here is an example of search response:
 
@@ -116,6 +118,7 @@ Here is an example of search response:
       "number": "RET220314-00001",
       "orderId": "e3ede9031a61421b924bda2fbadf6aef",
       "status": "Approved",
+      "submittedDate": "2022-03-14T07:17:08.0586692Z",
       "resolution": "Some resolution",
       "order": {
 		  //customer order fields
@@ -213,7 +216,8 @@ A buyer may only attach files they uploaded themselves and that no other return 
 a line releases its files, and a released file that no return refers to any more is deleted.
 
 The buyer can open and delete the files of their return. In the back office, anyone with `return:read`
-can open them from the return's line items; deleting them stays with the buyer and administrators.
+can open them from the return's line items, and on the storefront so can a colleague who may read the
+return through the organization (see Permissions); deleting them stays with the buyer and administrators.
 
 ## When the rules are applied
 
@@ -277,6 +281,15 @@ the default one, which ships with the module.
 
 A notification switched off in the admin sends neither the email nor the push message.
 
+### Organization copies
+
+A third store setting, `Return.NotifyOrganizationEmail`, is off by default. With it on, every email
+meant for the buyer about a return also goes to the first email address of the organization the return
+was raised for, even when the buyer has no address to send it to. The copy is the buyer's own email, not
+a separate template, so purchasing sees exactly what the buyer was told. No copy is sent when that
+address is the one the buyer's email went to, and the CC and BCC recipients set on the notification
+still get it once. Push messages stay with the buyer.
+
 ## Approving and declining
 
 A submitted return (`Requested`) waits for an agent's decision, and so does one created in the admin
@@ -337,3 +350,28 @@ The Return module provides a standard set of permissions: access, create, read, 
 plus `return:authorize` to approve and decline returns. Editing a return does not include deciding on it.
 
 ![Settings template](media/14-permissions.png)
+
+Two storefront permissions are granted to contacts through their role:
+
+* `xapi:my_organization:return:view` lets a contact list the returns of an organization they belong
+  to, with `organizationReturns(organizationId: …)`, and open them. It counts in an organization when
+  a role holding it is assigned to the user globally or in that organization, and only while that
+  membership is active: not locked, and not invited, rejected or removed. Asking for an organization
+  the contact may not read is refused, not narrowed to their own returns. Only submitted returns are
+  in it, the contact's own included: a draft is the buyer's work in progress and stays in their own
+  list, and so does a draft its buyer cancels before submitting. A return cancelled before version
+  3.1005.0 stays out as well, since whether it had been submitted was not recorded then. A
+  colleague's return is read-only: its actions come back unavailable, every mutation still requires
+  the buyer who raised it, and its attachments can be opened but not deleted.
+* `xapi:my_organization:return:submit` is registered but not checked yet.
+
+No role holds `xapi:my_organization:return:view` out of the box. Grant it under Security → Roles to the
+role your organization maintainers have — **Organization maintainer** in the sample data — or give a
+contact such a role in one organization only.
+
+Every storefront query and mutation of returns, except the public `returnStatuses` dictionary, also
+refuses an account that can no longer be used — locked, deleted, or with its password expired — even
+while its token is still valid.
+
+Returns raised before the organization was recorded on them are filled in from their order when the
+module is upgraded, provided the Orders tables are in the same database.

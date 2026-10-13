@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using EntityFrameworkCore.Triggers;
 using Microsoft.EntityFrameworkCore;
 using VirtoCommerce.Platform.Data.Infrastructure;
@@ -25,9 +25,10 @@ namespace VirtoCommerce.ReturnModule.Data.Repositories
             modelBuilder.Entity<ReturnEntity>().ToTable("Return").HasKey(x => x.Id);
             modelBuilder.Entity<ReturnEntity>().Property(x => x.Id).HasMaxLength(IdLength).ValueGeneratedOnAdd();
 
-            // "My returns" always filters by customer and store and sorts by date, so the composite
-            // serves the seek and the order in one pass; every order page asks what the order is holding.
+            // The storefront lists filter by buyer or organization plus store and sort by date, one composite
+            // each; order pages look returns up by order.
             modelBuilder.Entity<ReturnEntity>().HasIndex(x => new { x.CustomerId, x.StoreId, x.CreatedDate });
+            modelBuilder.Entity<ReturnEntity>().HasIndex(x => new { x.OrganizationId, x.StoreId, x.CreatedDate });
             modelBuilder.Entity<ReturnEntity>().HasIndex(x => x.OrderId);
 
             #endregion Return

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -34,6 +35,7 @@ public class ReturnNotificationHandlerTests
     private const string CustomerId = "user-1";
     private const string ContactId = "contact-1";
     private const string ReturnId = "return-1";
+    private const string OrganizationId = "org-1";
 
     private readonly Mock<INotificationSearchService> _notificationSearchService = new();
     private readonly Mock<INotificationSender> _notificationSender = new();
@@ -54,6 +56,9 @@ public class ReturnNotificationHandlerTests
     // File-loaded templates carry no language and match any.
     private string _templateLanguageCode;
     private bool _notificationIsActive = true;
+    // Recipients an admin added to the notification itself.
+    private string[] _notificationCc;
+    private string[] _notificationBcc;
 
     public ReturnNotificationHandlerTests()
     {
@@ -78,6 +83,10 @@ public class ReturnNotificationHandlerTests
         _memberService
             .Setup(x => x.GetByIdAsync(ContactId, It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(() => new Contact { Id = ContactId, Name = "Jan de Vries", Emails = ["jan@aras.example"] });
+
+        _memberService
+            .Setup(x => x.GetByIdAsync(OrganizationId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Organization { Id = OrganizationId, Name = "ARAS Security BV", Emails = ["purchasing@aras.example"] });
 
         _notificationSearchService
             .Setup(x => x.SearchNotificationsAsync(It.IsAny<NotificationSearchCriteria>()))
@@ -387,6 +396,162 @@ public class ReturnNotificationHandlerTests
         Assert.Empty(_sent);
     }
 
+    [Fact]
+    public async Task OrganizationCopyEnabled_SendsTheSameEmailToTheOrganization()
+    {
+        _rules.NotifyOrganizationEmail = true;
+        _orderReturn.OrganizationId = OrganizationId;
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        // Two notifications, not the buyer's one readdressed: a sender that holds on to the notification
+        // instead of rendering it at once would otherwise send both copies to purchasing.
+        Assert.Equal(["jan@aras.example", "purchasing@aras.example"], _sent.Select(x => ((EmailNotification)x).To));
+        Assert.All(_sent, x => Assert.Equal(nameof(ReturnApprovedEmailNotification), x.Type));
+        Assert.All(_sent, x => Assert.Equal(ReturnId, ((ReturnEmailNotificationBase)x).ReturnId));
+    }
+
+    [Fact]
+    public async Task OrganizationCopyDisabled_SendsOnlyToTheBuyer()
+    {
+        _orderReturn.OrganizationId = OrganizationId;
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        Assert.Equal("jan@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
+    }
+
+    [Fact]
+    public async Task OrganizationCopyEnabled_ReturnWithoutOrganization_SendsOnlyToTheBuyer()
+    {
+        _rules.NotifyOrganizationEmail = true;
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        Assert.Equal("jan@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
+    }
+
+    [Fact]
+    public async Task OrganizationSharesTheBuyersAddress_SendsItOnce()
+    {
+        _rules.NotifyOrganizationEmail = true;
+        _orderReturn.OrganizationId = OrganizationId;
+        _memberService
+            .Setup(x => x.GetByIdAsync(OrganizationId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Organization { Id = OrganizationId, Emails = ["JAN@aras.example"] });
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        Assert.Single(_sent);
+    }
+
+    [Fact]
+    public async Task BuyerWithoutEmail_StillCopiesTheOrganization()
+    {
+        // No address for the buyer on the order, the contact or the login; purchasing still gets its copy.
+        _rules.NotifyOrganizationEmail = true;
+        _orderReturn.OrganizationId = OrganizationId;
+        _userManager
+            .Setup(x => x.FindByIdAsync(CustomerId))
+            .ReturnsAsync(new ApplicationUser { Id = CustomerId, MemberId = ContactId });
+        _memberService
+            .Setup(x => x.GetByIdAsync(ContactId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Contact { Id = ContactId, Name = "Jan de Vries", Emails = [] });
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        Assert.Equal("purchasing@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
+    }
+
+    [Fact]
+    public async Task OrganizationAddressIsTheOrdersAddress_SendsItOnce()
+    {
+        // The buyer's email goes to the address on the order first, and that is often the
+        // organization's own mailbox; the copy is compared with where the buyer's email really went.
+        _rules.NotifyOrganizationEmail = true;
+        _orderReturn.OrganizationId = OrganizationId;
+        _order.Addresses = [new OrderAddress { Email = "Purchasing@aras.example" }];
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        Assert.Equal("Purchasing@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
+    }
+
+    [Fact]
+    public async Task OrganizationCopy_FollowsTheSettingWhenTheJobRuns()
+    {
+        // The job argument carries only what identifies the job, so the copy is decided when the job
+        // runs - like the buyer's own address - not when the status changed.
+        _orderReturn.OrganizationId = OrganizationId;
+        _orderReturn.Status = ReturnStatus.Approved;
+        var handler = NewHandler();
+
+        await handler.Handle(new ReturnStatusChangedEvent(_orderReturn, ReturnStatus.Requested, ReturnStatus.Approved));
+        _rules.NotifyOrganizationEmail = true;
+        await handler.SendNotificationsAsync([.. handler.Enqueued]);
+
+        Assert.Equal(["jan@aras.example", "purchasing@aras.example"], _sent.Select(x => ((EmailNotification)x).To));
+    }
+
+    [Fact]
+    public async Task OrganizationCopy_LeavesTheNotificationsCcAndBccToTheBuyersEmail()
+    {
+        // The copy clones the buyer's notification, CC and BCC included; those already got the buyer's email.
+        _rules.NotifyOrganizationEmail = true;
+        _orderReturn.OrganizationId = OrganizationId;
+        _notificationCc = ["returns-desk@aras.example"];
+        _notificationBcc = ["audit@aras.example"];
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        Assert.Equal(2, _sent.Count);
+        var buyersEmail = (EmailNotification)_sent[0];
+        var copy = (EmailNotification)_sent[1];
+        Assert.Equal(["returns-desk@aras.example"], buyersEmail.CC);
+        Assert.Equal(["audit@aras.example"], buyersEmail.BCC);
+        Assert.Equal("purchasing@aras.example", copy.To);
+        Assert.Empty(copy.CC);
+        Assert.Empty(copy.BCC);
+    }
+
+    [Fact]
+    public async Task BuyerWithoutEmail_CopyStillReachesTheNotificationsCcAndBcc()
+    {
+        // The control for the test above: with no buyer's email sent, the copy is the only message,
+        // so it is the one that carries them.
+        _rules.NotifyOrganizationEmail = true;
+        _orderReturn.OrganizationId = OrganizationId;
+        _notificationCc = ["returns-desk@aras.example"];
+        _notificationBcc = ["audit@aras.example"];
+        _userManager
+            .Setup(x => x.FindByIdAsync(CustomerId))
+            .ReturnsAsync(new ApplicationUser { Id = CustomerId, MemberId = ContactId });
+        _memberService
+            .Setup(x => x.GetByIdAsync(ContactId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Contact { Id = ContactId, Name = "Jan de Vries", Emails = [] });
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        var copy = (EmailNotification)Assert.Single(_sent);
+        Assert.Equal("purchasing@aras.example", copy.To);
+        Assert.Equal(["returns-desk@aras.example"], copy.CC);
+        Assert.Equal(["audit@aras.example"], copy.BCC);
+    }
+
+    [Fact]
+    public async Task OrganizationWithoutEmail_SendsOnlyToTheBuyer()
+    {
+        _rules.NotifyOrganizationEmail = true;
+        _orderReturn.OrganizationId = OrganizationId;
+        _memberService
+            .Setup(x => x.GetByIdAsync(OrganizationId, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => new Organization { Id = OrganizationId, Emails = [] });
+
+        await HandleAndSend(ReturnStatus.Approved);
+
+        Assert.Equal("jan@aras.example", ((EmailNotification)Assert.Single(_sent)).To);
+    }
+
     /// <summary>
     /// Drives the whole path the runtime takes: the event decides what to queue, the job sends it.
     /// </summary>
@@ -416,6 +581,7 @@ public class ReturnNotificationHandlerTests
             _settingsService.Object,
             _storeService.Object,
             new ReturnBuyerResolver(_memberService.Object, () => _userManager.Object),
+            _memberService.Object,
             NullLogger<SendNotificationsReturnStatusChangedEventHandler>.Instance);
     }
 
@@ -439,6 +605,12 @@ public class ReturnNotificationHandlerTests
 
         result.IsActive = _notificationIsActive;
         result.Templates.Add(new EmailNotificationTemplate { LanguageCode = _templateLanguageCode, Subject = "Return {{ return.number }}" });
+
+        if (result is EmailNotification emailNotification)
+        {
+            emailNotification.CC = _notificationCc;
+            emailNotification.BCC = _notificationBcc;
+        }
 
         return result;
     }
@@ -468,8 +640,9 @@ public class ReturnNotificationHandlerTests
             IReturnSettingsService settingsService,
             IStoreService storeService,
             IReturnBuyerResolver buyerResolver,
+            IMemberService memberService,
             ILogger<SendNotificationsReturnStatusChangedEventHandler> logger)
-            : base(notificationSearchService, notificationSender, orderService, returnService, settingsService, storeService, buyerResolver, logger)
+            : base(notificationSearchService, notificationSender, orderService, returnService, settingsService, storeService, buyerResolver, memberService, logger)
         {
         }
 

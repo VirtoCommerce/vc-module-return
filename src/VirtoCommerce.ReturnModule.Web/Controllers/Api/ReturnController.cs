@@ -356,10 +356,11 @@ namespace VirtoCommerce.ReturnModule.Web.Controllers.Api
             }
         }
 
-        // The decision is recorded by authorizing the return; an edit keeps whatever was decided.
+        // Authorizing records the decision and the save stamps the submit; an edit keeps both as stored.
         private static void KeepDecisions(Return orderReturn, Return storedReturn)
         {
             orderReturn.RejectReason = storedReturn?.RejectReason;
+            orderReturn.SubmittedDate = storedReturn?.SubmittedDate;
 
             foreach (var lineItem in orderReturn.LineItems)
             {

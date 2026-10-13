@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using GraphQL;
 using GraphQL.Types;
@@ -9,14 +9,11 @@ using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.ReturnModule.Core.Models;
 using VirtoCommerce.ReturnModule.ExperienceApi.Extensions;
 using VirtoCommerce.ReturnModule.ExperienceApi.Schemas;
-using VirtoCommerce.Xapi.Core.BaseQueries;
-using VirtoCommerce.Xapi.Core.Extensions;
-using VirtoCommerce.Xapi.Core.Security.Authorization;
 using VirtoCommerce.XOrder.Data.Authorization;
 
 namespace VirtoCommerce.ReturnModule.ExperienceApi.Queries;
 
-public class ReturnableItemsQueryBuilder : QueryBuilder<ReturnableItemsQuery, IList<ReturnableItem>, ListGraphType<ReturnableItemType>>
+public class ReturnableItemsQueryBuilder : ReturnQueryBuilderBase<ReturnableItemsQuery, IList<ReturnableItem>, ListGraphType<ReturnableItemType>>
 {
     protected override string Name => "returnableItems";
 
