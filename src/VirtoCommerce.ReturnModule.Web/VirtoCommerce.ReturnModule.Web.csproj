@@ -13,10 +13,21 @@
     <PackageReference Include="VirtoCommerce.NotificationsModule.TemplateLoader.FileSystem" Version="3.1018.0" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Admin Shell plugin: Vue sources in vue/, built into plugins/admin-shell/ -->
+    <Compile Remove="vue\**" />
+    <Content Remove="vue\**" />
+    <EmbeddedResource Remove="vue\**" />
+    <None Remove="vue\**" />
+    <Content Remove="plugins\**" />
+    <None Remove="plugins\**" />
+  </ItemGroup>
+  <ItemGroup>
     <NotificationTemplates Include="NotificationTemplates\**" />
+    <AdminShellPlugin Include="plugins\**" />
   </ItemGroup>
   <Target Name="CopyNotificationTemplatesOnPublish" AfterTargets="Publish">
     <Copy SourceFiles="@(NotificationTemplates)" DestinationFiles="$(PublishDir)\..\%(Identity)" />
+    <Copy SourceFiles="@(AdminShellPlugin)" DestinationFiles="$(PublishDir)\..\%(Identity)" />
   </Target>
   <ItemGroup>
     <ProjectReference Include="..\VirtoCommerce.ReturnModule.Core\VirtoCommerce.ReturnModule.Core.csproj" />
