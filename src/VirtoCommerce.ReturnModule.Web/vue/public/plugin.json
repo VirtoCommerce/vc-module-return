@@ -1,7 +1,4 @@
 {
-  // Returns admin UI for the Admin Shell host (Module Federation remote).
-  // No legacy.* item to replace: the default menu has no Returns entry. Legacy priority 100 sat between Orders (90)
-  // and Contacts (180), so the item goes right after Orders.
   "remote": { "name": "return_admin", "exposed": "./Module" },
   "contributions": {
     "menu": [
