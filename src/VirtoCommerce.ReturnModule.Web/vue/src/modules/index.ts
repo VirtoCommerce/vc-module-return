@@ -1,9 +1,10 @@
 import * as blades from "./pages";
 import * as locales from "./locales";
 import { defineAppModule, registerExternalWidget, useExtensionPoint, usePermissions } from "@vc-shell/framework";
-import { markRaw } from "vue";
+import { markRaw, type App } from "vue";
 import OrderReturnsWidget from "./widgets/OrderReturnsWidget.vue";
 import type { OrdersDetailsToolbarCommand } from "./toolbar";
+import { registerReturnsCounter } from "./menuCounter";
 
 // "Create return" on the order blade's toolbar (legacy: makeReturnCommand on operationDetailController, shown on the
 // order only, with return:create): the order's line items to pick what is returned
@@ -30,7 +31,15 @@ registerExternalWidget({
   isVisible: (blade) => !!blade?.param && usePermissions().hasAccess("return:read"),
 });
 
-export default defineAppModule({
+const appModule = defineAppModule({
   blades,
   locales,
 });
+
+export default {
+  install(app: App) {
+    appModule.install(app);
+    // returns requested on the menu item
+    registerReturnsCounter(app);
+  },
+};

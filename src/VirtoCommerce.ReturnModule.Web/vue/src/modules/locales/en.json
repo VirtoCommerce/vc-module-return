@@ -1,7 +1,8 @@
 {
   "RETURNS": {
     "MENU": {
-      "TITLE": "Returns"
+      "TITLE": "Returns",
+      "COUNTER": "{count} returns requested"
     },
     "YES": "Yes",
     "NO": "No",
