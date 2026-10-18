@@ -1,0 +1,128 @@
+{
+  "RETURNS": {
+    "MENU": {
+      "TITLE": "Rückgaben",
+      "COUNTER": "{count} Rückgaben angefragt"
+    },
+    "YES": "Ja",
+    "NO": "Nein",
+    "STATUSES": {
+      "New": "Neu",
+      "Approved": "Genehmigt",
+      "Completed": "Abgeschlossen",
+      "Canceled": "Storniert",
+      "Processing": "In Bearbeitung",
+      "Draft": "Entwurf",
+      "Requested": "Angefragt",
+      "PartiallyApproved": "Teilweise genehmigt",
+      "Rejected": "Abgelehnt",
+      "Cancelled": "Storniert"
+    },
+    "REASONS": {
+      "FaultyOnArrival": "Bei Lieferung defekt",
+      "DamagedInTransit": "Transportschaden",
+      "WrongItemDelivered": "Falscher Artikel geliefert",
+      "OrderedByMistake": "Versehentlich bestellt",
+      "NoLongerNeeded": "Nicht mehr benötigt"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Rückgaben",
+        "EMPTY": "Keine Rückgaben",
+        "FILTERS": {
+          "STATUS": "Status"
+        },
+        "COLUMNS": {
+          "NUMBER": "Rückgabenummer",
+          "ORDER_NUMBER": "Bestellnummer",
+          "CUSTOMER": "Kunde",
+          "ORGANIZATION": "Organisation",
+          "STATUS": "Rückgabestatus",
+          "CREATED_DATE": "Erstellungsdatum",
+          "MODIFIED_DATE": "Änderungsdatum",
+          "CREATED_BY": "Erstellt von",
+          "ITEMS_COUNT": "Artikelanzahl"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Aktualisieren",
+          "ADD": "Neue Rückgabe hinzufügen",
+          "CREATE": "Rückgabe erstellen"
+        },
+        "ACTIONS": {
+          "MANAGE": "Verwalten",
+          "COPY_ID": "ID kopieren",
+          "COPY_NUMBER": "Nummer kopieren"
+        }
+      },
+      "ORDERS": {
+        "TITLE": "Kundenbestellungen",
+        "SUBTITLE": "Wählen Sie die Bestellung aus, aus der Artikel zurückgegeben werden",
+        "EMPTY": "Keine Bestellungen",
+        "COLUMNS": {
+          "NUMBER": "Bestellnummer",
+          "CUSTOMER": "Kunde",
+          "STORE": "Shop",
+          "TOTAL": "Gesamt",
+          "CURRENCY": "Währung",
+          "CONFIRMED": "Bestätigt",
+          "STATUS": "Status",
+          "CREATED": "Erstellt"
+        }
+      },
+      "DETAILS": {
+        "TITLE": "Rückgabe #{number}",
+        "FIELDS": {
+          "NUMBER": "Rückgabenummer",
+          "ORDER_NUMBER": "Bestellnummer",
+          "CREATED_DATE": "Erstellungsdatum",
+          "MODIFIED_DATE": "Änderungsdatum",
+          "CREATED_BY": "Erstellt von",
+          "CUSTOMER": "Kunde",
+          "STATUS": "Status",
+          "EDIT_STATUSES": "Statusliste bearbeiten",
+          "CUSTOMER_REFERENCE": "Referenz des Käufers",
+          "RESOLUTION": "Lösung",
+          "REJECT_REASON": "Grund der Ablehnung"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Aktualisieren",
+          "SAVE": "Speichern",
+          "RESET": "Zurücksetzen"
+        }
+      },
+      "ITEMS": {
+        "TITLE": "Artikelpositionen",
+        "SUBTITLE_CREATE": "Bestellung #{number}",
+        "SUBTITLE_EDIT": "Rückgabe #{number}",
+        "COLUMNS": {
+          "NAME": "Artikelname",
+          "REASON": "Rückgabegrund",
+          "QUANTITY": "Menge",
+          "APPROVED": "Genehmigt",
+          "REJECT_REASON": "Ablehnungsgrund",
+          "PRICE": "Preis"
+        },
+        "SERIAL_NUMBER": "Seriennummer",
+        "REJECT_REASON": "Grund der Ablehnung",
+        "TOOLBAR": {
+          "REFRESH": "Aktualisieren",
+          "SAVE": "Speichern",
+          "MAKE_RETURN": "Rückgabe durchführen",
+          "AUTHORIZE": "Genehmigen / ablehnen"
+        }
+      }
+    },
+    "WIDGETS": {
+      "RETURNS": "Rückgaben",
+      "ITEMS": "Artikelpositionen"
+    },
+    "ALERTS": {
+      "COPIED": "{text} kopiert",
+      "SAVED": "Rückgabe gespeichert",
+      "AUTHORIZED": "Entscheidung gespeichert",
+      "CLOSE_CONFIRMATION": "Die Rückgabe hat nicht gespeicherte Änderungen. Trotzdem schließen?",
+      "MEMBER_NOT_FOUND": "Für diesen Benutzer wurde kein Kontakt gefunden",
+      "MEMBER_UNAVAILABLE": "Der Kontakt kann hier nicht geöffnet werden"
+    }
+  }
+}

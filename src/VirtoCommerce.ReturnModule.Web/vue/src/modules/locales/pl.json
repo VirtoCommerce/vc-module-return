@@ -1,0 +1,128 @@
+{
+  "RETURNS": {
+    "MENU": {
+      "TITLE": "Zwroty",
+      "COUNTER": "Zgłoszone zwroty: {count}"
+    },
+    "YES": "Tak",
+    "NO": "Nie",
+    "STATUSES": {
+      "New": "Nowy",
+      "Approved": "Zatwierdzony",
+      "Completed": "Zakończony",
+      "Canceled": "Anulowany",
+      "Processing": "W trakcie",
+      "Draft": "Wersja robocza",
+      "Requested": "Zgłoszony",
+      "PartiallyApproved": "Częściowo zatwierdzony",
+      "Rejected": "Odrzucony",
+      "Cancelled": "Anulowany"
+    },
+    "REASONS": {
+      "FaultyOnArrival": "Uszkodzony przy dostawie",
+      "DamagedInTransit": "Uszkodzony w transporcie",
+      "WrongItemDelivered": "Dostarczono niewłaściwy produkt",
+      "OrderedByMistake": "Zamówiony przez pomyłkę",
+      "NoLongerNeeded": "Już niepotrzebny"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Zwroty",
+        "EMPTY": "Brak zwrotów",
+        "FILTERS": {
+          "STATUS": "Status"
+        },
+        "COLUMNS": {
+          "NUMBER": "Numer zwrotu",
+          "ORDER_NUMBER": "Numer zamówienia",
+          "CUSTOMER": "Klient",
+          "ORGANIZATION": "Organizacja",
+          "STATUS": "Status zwrotu",
+          "CREATED_DATE": "Data utworzenia",
+          "MODIFIED_DATE": "Data modyfikacji",
+          "CREATED_BY": "Utworzono przez",
+          "ITEMS_COUNT": "Liczba przedmiotów"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Odśwież",
+          "ADD": "Dodaj nowy zwrot",
+          "CREATE": "Utwórz zwrot"
+        },
+        "ACTIONS": {
+          "MANAGE": "Zarządzaj",
+          "COPY_ID": "Kopiuj ID",
+          "COPY_NUMBER": "Kopiuj numer"
+        }
+      },
+      "ORDERS": {
+        "TITLE": "Zamówienia klientów",
+        "SUBTITLE": "Wybierz zamówienie, z którego zwracane są przedmioty",
+        "EMPTY": "Brak zamówień",
+        "COLUMNS": {
+          "NUMBER": "Numer zamówienia",
+          "CUSTOMER": "Klient",
+          "STORE": "Sklep",
+          "TOTAL": "Suma",
+          "CURRENCY": "Waluta",
+          "CONFIRMED": "Potwierdzone",
+          "STATUS": "Status",
+          "CREATED": "Utworzono"
+        }
+      },
+      "DETAILS": {
+        "TITLE": "Zwrot #{number}",
+        "FIELDS": {
+          "NUMBER": "Numer zwrotu",
+          "ORDER_NUMBER": "Numer zamówienia",
+          "CREATED_DATE": "Data utworzenia",
+          "MODIFIED_DATE": "Data modyfikacji",
+          "CREATED_BY": "Utworzono przez",
+          "CUSTOMER": "Klient",
+          "STATUS": "Status",
+          "EDIT_STATUSES": "Edytuj listę statusów",
+          "CUSTOMER_REFERENCE": "Numer referencyjny kupującego",
+          "RESOLUTION": "Rozwiązanie",
+          "REJECT_REASON": "Powód odrzucenia"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Odśwież",
+          "SAVE": "Zapisz",
+          "RESET": "Resetuj"
+        }
+      },
+      "ITEMS": {
+        "TITLE": "Lista przedmiotów",
+        "SUBTITLE_CREATE": "Zamówienie #{number}",
+        "SUBTITLE_EDIT": "Zwrot #{number}",
+        "COLUMNS": {
+          "NAME": "Nazwa przedmiotu",
+          "REASON": "Powód zwrotu",
+          "QUANTITY": "Ilość",
+          "APPROVED": "Zatwierdzono",
+          "REJECT_REASON": "Powód odrzucenia",
+          "PRICE": "Cena"
+        },
+        "SERIAL_NUMBER": "Numer seryjny",
+        "REJECT_REASON": "Powód odrzucenia",
+        "TOOLBAR": {
+          "REFRESH": "Odśwież",
+          "SAVE": "Zapisz",
+          "MAKE_RETURN": "Wykonaj zwrot",
+          "AUTHORIZE": "Zatwierdź / odrzuć"
+        }
+      }
+    },
+    "WIDGETS": {
+      "RETURNS": "Zwroty",
+      "ITEMS": "Lista przedmiotów"
+    },
+    "ALERTS": {
+      "COPIED": "Skopiowano: {text}",
+      "SAVED": "Zwrot zapisany",
+      "AUTHORIZED": "Decyzja zarejestrowana",
+      "CLOSE_CONFIRMATION": "Zwrot ma niezapisane zmiany. Zamknąć mimo to?",
+      "MEMBER_NOT_FOUND": "Nie znaleziono kontaktu dla tego użytkownika",
+      "MEMBER_UNAVAILABLE": "Nie można tu otworzyć kontaktu"
+    }
+  }
+}

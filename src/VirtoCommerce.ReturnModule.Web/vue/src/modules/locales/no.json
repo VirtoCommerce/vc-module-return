@@ -1,0 +1,128 @@
+{
+  "RETURNS": {
+    "MENU": {
+      "TITLE": "Returer",
+      "COUNTER": "{count} returer forespurt"
+    },
+    "YES": "Ja",
+    "NO": "Nei",
+    "STATUSES": {
+      "New": "Ny",
+      "Approved": "Godkjent",
+      "Completed": "Fullført",
+      "Canceled": "Kansellert",
+      "Processing": "Behandles",
+      "Draft": "Utkast",
+      "Requested": "Forespørt",
+      "PartiallyApproved": "Delvis godkjent",
+      "Rejected": "Avvist",
+      "Cancelled": "Kansellert"
+    },
+    "REASONS": {
+      "FaultyOnArrival": "Defekt ved levering",
+      "DamagedInTransit": "Skadet under transport",
+      "WrongItemDelivered": "Feil vare levert",
+      "OrderedByMistake": "Bestilt ved en feil",
+      "NoLongerNeeded": "Ikke lenger nødvendig"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Returer",
+        "EMPTY": "Ingen returer",
+        "FILTERS": {
+          "STATUS": "Status"
+        },
+        "COLUMNS": {
+          "NUMBER": "Returnummer",
+          "ORDER_NUMBER": "Ordrenummer",
+          "CUSTOMER": "Kunde",
+          "ORGANIZATION": "Organisasjon",
+          "STATUS": "Returstatus",
+          "CREATED_DATE": "Opprettet dato",
+          "MODIFIED_DATE": "Endret dato",
+          "CREATED_BY": "Opprettet av",
+          "ITEMS_COUNT": "Antall varer"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Oppdater",
+          "ADD": "Legg til ny retur",
+          "CREATE": "Opprett retur"
+        },
+        "ACTIONS": {
+          "MANAGE": "Administrer",
+          "COPY_ID": "Kopier ID",
+          "COPY_NUMBER": "Kopier nummer"
+        }
+      },
+      "ORDERS": {
+        "TITLE": "Kundeordrer",
+        "SUBTITLE": "Velg ordren varene skal returneres fra",
+        "EMPTY": "Ingen ordrer",
+        "COLUMNS": {
+          "NUMBER": "Ordrenummer",
+          "CUSTOMER": "Kunde",
+          "STORE": "Butikk",
+          "TOTAL": "Totalt",
+          "CURRENCY": "Valuta",
+          "CONFIRMED": "Bekreftet",
+          "STATUS": "Status",
+          "CREATED": "Opprettet"
+        }
+      },
+      "DETAILS": {
+        "TITLE": "Retur #{number}",
+        "FIELDS": {
+          "NUMBER": "Returnummer",
+          "ORDER_NUMBER": "Ordrenummer",
+          "CREATED_DATE": "Opprettet dato",
+          "MODIFIED_DATE": "Endret dato",
+          "CREATED_BY": "Opprettet av",
+          "CUSTOMER": "Kunde",
+          "STATUS": "Status",
+          "EDIT_STATUSES": "Rediger statuslisten",
+          "CUSTOMER_REFERENCE": "Kjøperens referanse",
+          "RESOLUTION": "Løsning",
+          "REJECT_REASON": "Årsak til avslag"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Oppdater",
+          "SAVE": "Lagre",
+          "RESET": "Tilbakestill"
+        }
+      },
+      "ITEMS": {
+        "TITLE": "Linjevarer",
+        "SUBTITLE_CREATE": "Ordre #{number}",
+        "SUBTITLE_EDIT": "Retur #{number}",
+        "COLUMNS": {
+          "NAME": "Varenavn",
+          "REASON": "Returårsak",
+          "QUANTITY": "Antall",
+          "APPROVED": "Godkjent",
+          "REJECT_REASON": "Årsak til avslag",
+          "PRICE": "Pris"
+        },
+        "SERIAL_NUMBER": "Serienummer",
+        "REJECT_REASON": "Årsak til avslag",
+        "TOOLBAR": {
+          "REFRESH": "Oppdater",
+          "SAVE": "Lagre",
+          "MAKE_RETURN": "Utfør retur",
+          "AUTHORIZE": "Godkjenn / avslå"
+        }
+      }
+    },
+    "WIDGETS": {
+      "RETURNS": "Returer",
+      "ITEMS": "Linjevarer"
+    },
+    "ALERTS": {
+      "COPIED": "{text} er kopiert",
+      "SAVED": "Returen er lagret",
+      "AUTHORIZED": "Beslutningen er registrert",
+      "CLOSE_CONFIRMATION": "Returen har ulagrede endringer. Vil du lukke likevel?",
+      "MEMBER_NOT_FOUND": "Fant ingen kontakt for denne brukeren",
+      "MEMBER_UNAVAILABLE": "Kontakten kan ikke åpnes her"
+    }
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "RETURNS": {
+    "MENU": {
+      "TITLE": "החזרות",
+      "COUNTER": "בקשות החזרה: {count}"
+    },
+    "YES": "כן",
+    "NO": "לא",
+    "STATUSES": {
+      "New": "חדשה",
+      "Approved": "אושרה",
+      "Completed": "הושלמה",
+      "Canceled": "בוטלה",
+      "Processing": "בטיפול",
+      "Draft": "טיוטה",
+      "Requested": "התבקשה",
+      "PartiallyApproved": "אושרה חלקית",
+      "Rejected": "נדחתה",
+      "Cancelled": "בוטלה"
+    },
+    "REASONS": {
+      "FaultyOnArrival": "פגום בהגעה",
+      "DamagedInTransit": "ניזוק במשלוח",
+      "WrongItemDelivered": "נשלח פריט שגוי",
+      "OrderedByMistake": "הוזמן בטעות",
+      "NoLongerNeeded": "כבר לא נחוץ"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "החזרות",
+        "EMPTY": "אין החזרות",
+        "FILTERS": {
+          "STATUS": "סטטוס"
+        },
+        "COLUMNS": {
+          "NUMBER": "מספר החזרה",
+          "ORDER_NUMBER": "מספר הזמנה",
+          "CUSTOMER": "לקוח",
+          "ORGANIZATION": "ארגון",
+          "STATUS": "סטטוס ההחזרה",
+          "CREATED_DATE": "תאריך יצירה",
+          "MODIFIED_DATE": "תאריך שינוי",
+          "CREATED_BY": "נוצר על ידי",
+          "ITEMS_COUNT": "מספר פריטים"
+        },
+        "TOOLBAR": {
+          "REFRESH": "רענון",
+          "ADD": "הוספת החזרה חדשה",
+          "CREATE": "יצירת החזרה"
+        },
+        "ACTIONS": {
+          "MANAGE": "ניהול",
+          "COPY_ID": "העתקת מזהה",
+          "COPY_NUMBER": "העתקת מספר"
+        }
+      },
+      "ORDERS": {
+        "TITLE": "הזמנות הלקוח",
+        "SUBTITLE": "יש לבחור את ההזמנה שממנה יוחזרו הפריטים",
+        "EMPTY": "אין הזמנות",
+        "COLUMNS": {
+          "NUMBER": "מספר הזמנה",
+          "CUSTOMER": "לקוח",
+          "STORE": "חנות",
+          "TOTAL": "סה״כ",
+          "CURRENCY": "מטבע",
+          "CONFIRMED": "מאושרת",
+          "STATUS": "סטטוס",
+          "CREATED": "נוצרה"
+        }
+      },
+      "DETAILS": {
+        "TITLE": "החזרה #{number}",
+        "FIELDS": {
+          "NUMBER": "מספר החזרה",
+          "ORDER_NUMBER": "מספר הזמנה",
+          "CREATED_DATE": "תאריך יצירה",
+          "MODIFIED_DATE": "תאריך שינוי",
+          "CREATED_BY": "נוצר על ידי",
+          "CUSTOMER": "לקוח",
+          "STATUS": "סטטוס",
+          "EDIT_STATUSES": "עריכת רשימת הסטטוסים",
+          "CUSTOMER_REFERENCE": "אסמכתה של הקונה",
+          "RESOLUTION": "החלטה",
+          "REJECT_REASON": "סיבת הדחייה"
+        },
+        "TOOLBAR": {
+          "REFRESH": "רענון",
+          "SAVE": "שמירה",
+          "RESET": "איפוס"
+        }
+      },
+      "ITEMS": {
+        "TITLE": "פריטים",
+        "SUBTITLE_CREATE": "הזמנה #{number}",
+        "SUBTITLE_EDIT": "החזרה #{number}",
+        "COLUMNS": {
+          "NAME": "שם הפריט",
+          "REASON": "סיבת ההחזרה",
+          "QUANTITY": "כמות",
+          "APPROVED": "אושרו",
+          "REJECT_REASON": "סיבת הדחייה",
+          "PRICE": "מחיר"
+        },
+        "SERIAL_NUMBER": "מספר סידורי",
+        "REJECT_REASON": "סיבת הדחייה",
+        "TOOLBAR": {
+          "REFRESH": "רענון",
+          "SAVE": "שמירה",
+          "MAKE_RETURN": "ביצוע החזרה",
+          "AUTHORIZE": "אישור / דחייה"
+        }
+      }
+    },
+    "WIDGETS": {
+      "RETURNS": "החזרות",
+      "ITEMS": "פריטים"
+    },
+    "ALERTS": {
+      "COPIED": "הועתק: {text}",
+      "SAVED": "ההחזרה נשמרה",
+      "AUTHORIZED": "ההחלטה נרשמה",
+      "CLOSE_CONFIRMATION": "יש בהחזרה שינויים שלא נשמרו. לסגור בכל זאת?",
+      "MEMBER_NOT_FOUND": "לא נמצא איש קשר עבור משתמש זה",
+      "MEMBER_UNAVAILABLE": "לא ניתן לפתוח כאן את איש הקשר"
+    }
+  }
+}

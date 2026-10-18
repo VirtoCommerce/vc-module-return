@@ -1,0 +1,16 @@
+{
+  "remote": { "name": "return_admin", "exposed": "./Module" },
+  "contributions": {
+    "menu": [
+      {
+        "id": "returns",
+        "sectionId": "orders",
+        "title": "Returns",
+        "icon": "lucide-arrow-left-right",
+        "route": "/returns",
+        "permission": "return:access",
+        "priority": 15
+      }
+    ]
+  }
+}

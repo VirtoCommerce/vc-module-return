@@ -1,0 +1,128 @@
+{
+  "RETURNS": {
+    "MENU": {
+      "TITLE": "Returns",
+      "COUNTER": "{count} returns requested"
+    },
+    "YES": "Yes",
+    "NO": "No",
+    "STATUSES": {
+      "New": "New",
+      "Approved": "Approved",
+      "Completed": "Completed",
+      "Canceled": "Canceled",
+      "Processing": "Processing",
+      "Draft": "Draft",
+      "Requested": "Requested",
+      "PartiallyApproved": "Partially approved",
+      "Rejected": "Rejected",
+      "Cancelled": "Cancelled"
+    },
+    "REASONS": {
+      "FaultyOnArrival": "Faulty on arrival",
+      "DamagedInTransit": "Damaged in transit",
+      "WrongItemDelivered": "Wrong item delivered",
+      "OrderedByMistake": "Ordered by mistake",
+      "NoLongerNeeded": "No longer needed"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Returns",
+        "EMPTY": "No returns",
+        "FILTERS": {
+          "STATUS": "Status"
+        },
+        "COLUMNS": {
+          "NUMBER": "Return number",
+          "ORDER_NUMBER": "Order number",
+          "CUSTOMER": "Customer",
+          "ORGANIZATION": "Organization",
+          "STATUS": "Return status",
+          "CREATED_DATE": "Create date",
+          "MODIFIED_DATE": "Modify date",
+          "CREATED_BY": "Created by",
+          "ITEMS_COUNT": "Item count"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Refresh",
+          "ADD": "Add new return",
+          "CREATE": "Create return"
+        },
+        "ACTIONS": {
+          "MANAGE": "Manage",
+          "COPY_ID": "Copy Id",
+          "COPY_NUMBER": "Copy number"
+        }
+      },
+      "ORDERS": {
+        "TITLE": "Customer orders",
+        "SUBTITLE": "Pick the order to return items from",
+        "EMPTY": "No orders",
+        "COLUMNS": {
+          "NUMBER": "Order number",
+          "CUSTOMER": "Customer",
+          "STORE": "Store",
+          "TOTAL": "Total",
+          "CURRENCY": "Currency",
+          "CONFIRMED": "Confirmed",
+          "STATUS": "Status",
+          "CREATED": "Created"
+        }
+      },
+      "DETAILS": {
+        "TITLE": "Return #{number}",
+        "FIELDS": {
+          "NUMBER": "Return number",
+          "ORDER_NUMBER": "Order number",
+          "CREATED_DATE": "Created date",
+          "MODIFIED_DATE": "Modified date",
+          "CREATED_BY": "Created by",
+          "CUSTOMER": "Customer",
+          "STATUS": "Status",
+          "EDIT_STATUSES": "Edit the status list",
+          "CUSTOMER_REFERENCE": "Buyer's reference",
+          "RESOLUTION": "Resolution",
+          "REJECT_REASON": "Reason for decline"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Refresh",
+          "SAVE": "Save",
+          "RESET": "Reset"
+        }
+      },
+      "ITEMS": {
+        "TITLE": "Line items",
+        "SUBTITLE_CREATE": "Order #{number}",
+        "SUBTITLE_EDIT": "Return #{number}",
+        "COLUMNS": {
+          "NAME": "Item name",
+          "REASON": "Return reason",
+          "QUANTITY": "Quantity",
+          "APPROVED": "Approved",
+          "REJECT_REASON": "Decline reason",
+          "PRICE": "Price"
+        },
+        "SERIAL_NUMBER": "Serial number",
+        "REJECT_REASON": "Reason for decline",
+        "TOOLBAR": {
+          "REFRESH": "Refresh",
+          "SAVE": "Save",
+          "MAKE_RETURN": "Make return",
+          "AUTHORIZE": "Approve / decline"
+        }
+      }
+    },
+    "WIDGETS": {
+      "RETURNS": "Returns",
+      "ITEMS": "Line items"
+    },
+    "ALERTS": {
+      "COPIED": "Copied {text}",
+      "SAVED": "Return saved",
+      "AUTHORIZED": "Decision recorded",
+      "CLOSE_CONFIRMATION": "The return has unsaved changes. Close anyway?",
+      "MEMBER_NOT_FOUND": "No contact found for this user",
+      "MEMBER_UNAVAILABLE": "The contact can't be opened here"
+    }
+  }
+}

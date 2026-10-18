@@ -1,0 +1,128 @@
+{
+  "RETURNS": {
+    "MENU": {
+      "TITLE": "المرتجعات",
+      "COUNTER": "طلبات الإرجاع: {count}"
+    },
+    "YES": "نعم",
+    "NO": "لا",
+    "STATUSES": {
+      "New": "جديد",
+      "Approved": "موافق عليه",
+      "Completed": "مكتمل",
+      "Canceled": "ملغى",
+      "Processing": "قيد المعالجة",
+      "Draft": "مسودة",
+      "Requested": "مطلوب",
+      "PartiallyApproved": "موافق عليه جزئيًا",
+      "Rejected": "مرفوض",
+      "Cancelled": "ملغى"
+    },
+    "REASONS": {
+      "FaultyOnArrival": "معيب عند الاستلام",
+      "DamagedInTransit": "تلف أثناء الشحن",
+      "WrongItemDelivered": "تم تسليم منتج خاطئ",
+      "OrderedByMistake": "طُلب عن طريق الخطأ",
+      "NoLongerNeeded": "لم يعد مطلوبًا"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "المرتجعات",
+        "EMPTY": "لا توجد مرتجعات",
+        "FILTERS": {
+          "STATUS": "الحالة"
+        },
+        "COLUMNS": {
+          "NUMBER": "رقم المرتجع",
+          "ORDER_NUMBER": "رقم الطلب",
+          "CUSTOMER": "العميل",
+          "ORGANIZATION": "المؤسسة",
+          "STATUS": "حالة المرتجع",
+          "CREATED_DATE": "تاريخ الإنشاء",
+          "MODIFIED_DATE": "تاريخ التعديل",
+          "CREATED_BY": "أنشأه",
+          "ITEMS_COUNT": "عدد العناصر"
+        },
+        "TOOLBAR": {
+          "REFRESH": "تحديث",
+          "ADD": "إضافة مرتجع جديد",
+          "CREATE": "إنشاء مرتجع"
+        },
+        "ACTIONS": {
+          "MANAGE": "إدارة",
+          "COPY_ID": "نسخ المعرّف",
+          "COPY_NUMBER": "نسخ الرقم"
+        }
+      },
+      "ORDERS": {
+        "TITLE": "طلبات العميل",
+        "SUBTITLE": "اختر الطلب المراد إرجاع العناصر منه",
+        "EMPTY": "لا توجد طلبات",
+        "COLUMNS": {
+          "NUMBER": "رقم الطلب",
+          "CUSTOMER": "العميل",
+          "STORE": "المتجر",
+          "TOTAL": "الإجمالي",
+          "CURRENCY": "العملة",
+          "CONFIRMED": "مؤكد",
+          "STATUS": "الحالة",
+          "CREATED": "تاريخ الإنشاء"
+        }
+      },
+      "DETAILS": {
+        "TITLE": "المرتجع #{number}",
+        "FIELDS": {
+          "NUMBER": "رقم المرتجع",
+          "ORDER_NUMBER": "رقم الطلب",
+          "CREATED_DATE": "تاريخ الإنشاء",
+          "MODIFIED_DATE": "تاريخ التعديل",
+          "CREATED_BY": "أنشأه",
+          "CUSTOMER": "العميل",
+          "STATUS": "الحالة",
+          "EDIT_STATUSES": "تحرير قائمة الحالات",
+          "CUSTOMER_REFERENCE": "مرجع المشتري",
+          "RESOLUTION": "القرار",
+          "REJECT_REASON": "سبب الرفض"
+        },
+        "TOOLBAR": {
+          "REFRESH": "تحديث",
+          "SAVE": "حفظ",
+          "RESET": "إعادة تعيين"
+        }
+      },
+      "ITEMS": {
+        "TITLE": "البنود",
+        "SUBTITLE_CREATE": "الطلب #{number}",
+        "SUBTITLE_EDIT": "المرتجع #{number}",
+        "COLUMNS": {
+          "NAME": "اسم المنتج",
+          "REASON": "سبب الإرجاع",
+          "QUANTITY": "الكمية",
+          "APPROVED": "الكمية الموافق عليها",
+          "REJECT_REASON": "سبب الرفض",
+          "PRICE": "السعر"
+        },
+        "SERIAL_NUMBER": "الرقم التسلسلي",
+        "REJECT_REASON": "سبب الرفض",
+        "TOOLBAR": {
+          "REFRESH": "تحديث",
+          "SAVE": "حفظ",
+          "MAKE_RETURN": "تسجيل الإرجاع",
+          "AUTHORIZE": "موافقة / رفض"
+        }
+      }
+    },
+    "WIDGETS": {
+      "RETURNS": "المرتجعات",
+      "ITEMS": "البنود"
+    },
+    "ALERTS": {
+      "COPIED": "تم نسخ {text}",
+      "SAVED": "تم حفظ المرتجع",
+      "AUTHORIZED": "تم تسجيل القرار",
+      "CLOSE_CONFIRMATION": "يحتوي المرتجع على تغييرات غير محفوظة. هل تريد الإغلاق على أي حال؟",
+      "MEMBER_NOT_FOUND": "لم يتم العثور على جهة اتصال لهذا المستخدم",
+      "MEMBER_UNAVAILABLE": "لا يمكن فتح جهة الاتصال هنا"
+    }
+  }
+}
