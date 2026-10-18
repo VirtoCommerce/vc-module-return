@@ -1,0 +1,128 @@
+{
+  "RETURNS": {
+    "MENU": {
+      "TITLE": "返品",
+      "COUNTER": "{count} 件の返品申請"
+    },
+    "YES": "はい",
+    "NO": "いいえ",
+    "STATUSES": {
+      "New": "新規",
+      "Approved": "承認済み",
+      "Completed": "完了",
+      "Canceled": "キャンセル",
+      "Processing": "処理中",
+      "Draft": "下書き",
+      "Requested": "申請済み",
+      "PartiallyApproved": "一部承認",
+      "Rejected": "却下",
+      "Cancelled": "キャンセル"
+    },
+    "REASONS": {
+      "FaultyOnArrival": "到着時に不良",
+      "DamagedInTransit": "輸送中の破損",
+      "WrongItemDelivered": "誤った商品が届いた",
+      "OrderedByMistake": "誤って注文",
+      "NoLongerNeeded": "不要になった"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "返品",
+        "EMPTY": "返品はありません",
+        "FILTERS": {
+          "STATUS": "ステータス"
+        },
+        "COLUMNS": {
+          "NUMBER": "返品番号",
+          "ORDER_NUMBER": "注文番号",
+          "CUSTOMER": "顧客",
+          "ORGANIZATION": "組織",
+          "STATUS": "返品状況",
+          "CREATED_DATE": "作成日",
+          "MODIFIED_DATE": "更新日",
+          "CREATED_BY": "作成者",
+          "ITEMS_COUNT": "商品数"
+        },
+        "TOOLBAR": {
+          "REFRESH": "更新",
+          "ADD": "新規返品を追加",
+          "CREATE": "返品を作成"
+        },
+        "ACTIONS": {
+          "MANAGE": "管理",
+          "COPY_ID": "ID をコピー",
+          "COPY_NUMBER": "番号をコピー"
+        }
+      },
+      "ORDERS": {
+        "TITLE": "顧客注文",
+        "SUBTITLE": "返品する商品を含む注文を選択してください",
+        "EMPTY": "注文はありません",
+        "COLUMNS": {
+          "NUMBER": "注文番号",
+          "CUSTOMER": "顧客",
+          "STORE": "ストア",
+          "TOTAL": "合計",
+          "CURRENCY": "通貨",
+          "CONFIRMED": "確認済み",
+          "STATUS": "ステータス",
+          "CREATED": "作成日時"
+        }
+      },
+      "DETAILS": {
+        "TITLE": "返品 #{number}",
+        "FIELDS": {
+          "NUMBER": "返品番号",
+          "ORDER_NUMBER": "注文番号",
+          "CREATED_DATE": "作成日",
+          "MODIFIED_DATE": "更新日",
+          "CREATED_BY": "作成者",
+          "CUSTOMER": "顧客",
+          "STATUS": "ステータス",
+          "EDIT_STATUSES": "ステータス一覧を編集",
+          "CUSTOMER_REFERENCE": "購入者の参照番号",
+          "RESOLUTION": "解決策",
+          "REJECT_REASON": "却下の理由"
+        },
+        "TOOLBAR": {
+          "REFRESH": "更新",
+          "SAVE": "保存",
+          "RESET": "リセット"
+        }
+      },
+      "ITEMS": {
+        "TITLE": "商品リスト",
+        "SUBTITLE_CREATE": "注文 #{number}",
+        "SUBTITLE_EDIT": "返品 #{number}",
+        "COLUMNS": {
+          "NAME": "商品名",
+          "REASON": "返品理由",
+          "QUANTITY": "数量",
+          "APPROVED": "承認数量",
+          "REJECT_REASON": "却下理由",
+          "PRICE": "価格"
+        },
+        "SERIAL_NUMBER": "シリアル番号",
+        "REJECT_REASON": "却下の理由",
+        "TOOLBAR": {
+          "REFRESH": "更新",
+          "SAVE": "保存",
+          "MAKE_RETURN": "返品を実行",
+          "AUTHORIZE": "承認 / 却下"
+        }
+      }
+    },
+    "WIDGETS": {
+      "RETURNS": "返品",
+      "ITEMS": "商品リスト"
+    },
+    "ALERTS": {
+      "COPIED": "{text} をコピーしました",
+      "SAVED": "返品を保存しました",
+      "AUTHORIZED": "決定を記録しました",
+      "CLOSE_CONFIRMATION": "返品に保存されていない変更があります。閉じてもよろしいですか？",
+      "MEMBER_NOT_FOUND": "このユーザーの連絡先が見つかりません",
+      "MEMBER_UNAVAILABLE": "ここでは連絡先を開けません"
+    }
+  }
+}

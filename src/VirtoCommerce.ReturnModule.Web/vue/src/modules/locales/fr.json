@@ -1,0 +1,128 @@
+{
+  "RETURNS": {
+    "MENU": {
+      "TITLE": "Retours",
+      "COUNTER": "{count} retours demandés"
+    },
+    "YES": "Oui",
+    "NO": "Non",
+    "STATUSES": {
+      "New": "Nouveau",
+      "Approved": "Approuvé",
+      "Completed": "Terminé",
+      "Canceled": "Annulé",
+      "Processing": "En cours",
+      "Draft": "Brouillon",
+      "Requested": "Demandé",
+      "PartiallyApproved": "Partiellement approuvé",
+      "Rejected": "Refusé",
+      "Cancelled": "Annulé"
+    },
+    "REASONS": {
+      "FaultyOnArrival": "Défectueux à la livraison",
+      "DamagedInTransit": "Endommagé pendant le transport",
+      "WrongItemDelivered": "Article livré incorrect",
+      "OrderedByMistake": "Commandé par erreur",
+      "NoLongerNeeded": "N'est plus nécessaire"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Retours",
+        "EMPTY": "Aucun retour",
+        "FILTERS": {
+          "STATUS": "Statut"
+        },
+        "COLUMNS": {
+          "NUMBER": "Numéro de retour",
+          "ORDER_NUMBER": "Numéro de commande",
+          "CUSTOMER": "Client",
+          "ORGANIZATION": "Organisation",
+          "STATUS": "Statut du retour",
+          "CREATED_DATE": "Date de création",
+          "MODIFIED_DATE": "Date de modification",
+          "CREATED_BY": "Créé par",
+          "ITEMS_COUNT": "Nombre d'articles"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Actualiser",
+          "ADD": "Ajouter un nouveau retour",
+          "CREATE": "Créer un retour"
+        },
+        "ACTIONS": {
+          "MANAGE": "Gérer",
+          "COPY_ID": "Copier l'ID",
+          "COPY_NUMBER": "Copier le numéro"
+        }
+      },
+      "ORDERS": {
+        "TITLE": "Commandes clients",
+        "SUBTITLE": "Choisissez la commande dont les articles sont retournés",
+        "EMPTY": "Aucune commande",
+        "COLUMNS": {
+          "NUMBER": "Numéro de commande",
+          "CUSTOMER": "Client",
+          "STORE": "Magasin",
+          "TOTAL": "Total",
+          "CURRENCY": "Devise",
+          "CONFIRMED": "Confirmée",
+          "STATUS": "Statut",
+          "CREATED": "Créée"
+        }
+      },
+      "DETAILS": {
+        "TITLE": "Retour n° {number}",
+        "FIELDS": {
+          "NUMBER": "Numéro de retour",
+          "ORDER_NUMBER": "Numéro de commande",
+          "CREATED_DATE": "Date de création",
+          "MODIFIED_DATE": "Date de modification",
+          "CREATED_BY": "Créé par",
+          "CUSTOMER": "Client",
+          "STATUS": "Statut",
+          "EDIT_STATUSES": "Modifier la liste des statuts",
+          "CUSTOMER_REFERENCE": "Référence de l'acheteur",
+          "RESOLUTION": "Résolution",
+          "REJECT_REASON": "Motif du refus"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Actualiser",
+          "SAVE": "Enregistrer",
+          "RESET": "Réinitialiser"
+        }
+      },
+      "ITEMS": {
+        "TITLE": "Liste des articles",
+        "SUBTITLE_CREATE": "Commande n° {number}",
+        "SUBTITLE_EDIT": "Retour n° {number}",
+        "COLUMNS": {
+          "NAME": "Nom de l'article",
+          "REASON": "Motif du retour",
+          "QUANTITY": "Quantité",
+          "APPROVED": "Approuvé",
+          "REJECT_REASON": "Motif du refus",
+          "PRICE": "Prix"
+        },
+        "SERIAL_NUMBER": "Numéro de série",
+        "REJECT_REASON": "Motif du refus",
+        "TOOLBAR": {
+          "REFRESH": "Actualiser",
+          "SAVE": "Enregistrer",
+          "MAKE_RETURN": "Effectuer le retour",
+          "AUTHORIZE": "Approuver / refuser"
+        }
+      }
+    },
+    "WIDGETS": {
+      "RETURNS": "Retours",
+      "ITEMS": "Liste des articles"
+    },
+    "ALERTS": {
+      "COPIED": "{text} copié",
+      "SAVED": "Retour enregistré",
+      "AUTHORIZED": "Décision enregistrée",
+      "CLOSE_CONFIRMATION": "Le retour comporte des modifications non enregistrées. Fermer quand même ?",
+      "MEMBER_NOT_FOUND": "Aucun contact trouvé pour cet utilisateur",
+      "MEMBER_UNAVAILABLE": "Le contact ne peut pas être ouvert ici"
+    }
+  }
+}

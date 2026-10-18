@@ -1,0 +1,128 @@
+{
+  "RETURNS": {
+    "MENU": {
+      "TITLE": "Palautukset",
+      "COUNTER": "{count} palautuspyyntöä"
+    },
+    "YES": "Kyllä",
+    "NO": "Ei",
+    "STATUSES": {
+      "New": "Uusi",
+      "Approved": "Hyväksytty",
+      "Completed": "Valmis",
+      "Canceled": "Peruutettu",
+      "Processing": "Käsittelyssä",
+      "Draft": "Luonnos",
+      "Requested": "Pyydetty",
+      "PartiallyApproved": "Osittain hyväksytty",
+      "Rejected": "Hylätty",
+      "Cancelled": "Peruutettu"
+    },
+    "REASONS": {
+      "FaultyOnArrival": "Viallinen saapuessaan",
+      "DamagedInTransit": "Vaurioitunut kuljetuksessa",
+      "WrongItemDelivered": "Väärä tuote toimitettu",
+      "OrderedByMistake": "Tilattu vahingossa",
+      "NoLongerNeeded": "Ei enää tarpeen"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Palautukset",
+        "EMPTY": "Ei palautuksia",
+        "FILTERS": {
+          "STATUS": "Tila"
+        },
+        "COLUMNS": {
+          "NUMBER": "Palautusnumero",
+          "ORDER_NUMBER": "Tilausnumero",
+          "CUSTOMER": "Asiakas",
+          "ORGANIZATION": "Organisaatio",
+          "STATUS": "Palautuksen tila",
+          "CREATED_DATE": "Luontipäivä",
+          "MODIFIED_DATE": "Muokkauspäivä",
+          "CREATED_BY": "Luonut",
+          "ITEMS_COUNT": "Tuotteiden määrä"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Päivitä",
+          "ADD": "Lisää uusi palautus",
+          "CREATE": "Luo palautus"
+        },
+        "ACTIONS": {
+          "MANAGE": "Hallitse",
+          "COPY_ID": "Kopioi tunnus",
+          "COPY_NUMBER": "Kopioi numero"
+        }
+      },
+      "ORDERS": {
+        "TITLE": "Asiakkaan tilaukset",
+        "SUBTITLE": "Valitse tilaus, josta tuotteet palautetaan",
+        "EMPTY": "Ei tilauksia",
+        "COLUMNS": {
+          "NUMBER": "Tilausnumero",
+          "CUSTOMER": "Asiakas",
+          "STORE": "Kauppa",
+          "TOTAL": "Yhteensä",
+          "CURRENCY": "Valuutta",
+          "CONFIRMED": "Vahvistettu",
+          "STATUS": "Tila",
+          "CREATED": "Luotu"
+        }
+      },
+      "DETAILS": {
+        "TITLE": "Palautus #{number}",
+        "FIELDS": {
+          "NUMBER": "Palautusnumero",
+          "ORDER_NUMBER": "Tilausnumero",
+          "CREATED_DATE": "Luontipäivä",
+          "MODIFIED_DATE": "Muokkauspäivä",
+          "CREATED_BY": "Luonut",
+          "CUSTOMER": "Asiakas",
+          "STATUS": "Tila",
+          "EDIT_STATUSES": "Muokkaa tilaluetteloa",
+          "CUSTOMER_REFERENCE": "Ostajan viite",
+          "RESOLUTION": "Ratkaisu",
+          "REJECT_REASON": "Hylkäyksen syy"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Päivitä",
+          "SAVE": "Tallenna",
+          "RESET": "Nollaa"
+        }
+      },
+      "ITEMS": {
+        "TITLE": "Tilausrivit",
+        "SUBTITLE_CREATE": "Tilaus #{number}",
+        "SUBTITLE_EDIT": "Palautus #{number}",
+        "COLUMNS": {
+          "NAME": "Tuotenimi",
+          "REASON": "Palautuksen syy",
+          "QUANTITY": "Määrä",
+          "APPROVED": "Hyväksytty",
+          "REJECT_REASON": "Hylkäyksen syy",
+          "PRICE": "Hinta"
+        },
+        "SERIAL_NUMBER": "Sarjanumero",
+        "REJECT_REASON": "Hylkäyksen syy",
+        "TOOLBAR": {
+          "REFRESH": "Päivitä",
+          "SAVE": "Tallenna",
+          "MAKE_RETURN": "Tee palautus",
+          "AUTHORIZE": "Hyväksy / hylkää"
+        }
+      }
+    },
+    "WIDGETS": {
+      "RETURNS": "Palautukset",
+      "ITEMS": "Tilausrivit"
+    },
+    "ALERTS": {
+      "COPIED": "Kopioitu: {text}",
+      "SAVED": "Palautus tallennettu",
+      "AUTHORIZED": "Päätös tallennettu",
+      "CLOSE_CONFIRMATION": "Palautuksessa on tallentamattomia muutoksia. Suljetaanko silti?",
+      "MEMBER_NOT_FOUND": "Tälle käyttäjälle ei löytynyt yhteystietoa",
+      "MEMBER_UNAVAILABLE": "Yhteystietoa ei voi avata tässä"
+    }
+  }
+}

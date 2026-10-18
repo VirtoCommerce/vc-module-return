@@ -1,0 +1,128 @@
+{
+  "RETURNS": {
+    "MENU": {
+      "TITLE": "Возвраты",
+      "COUNTER": "Запрошено возвратов: {count}"
+    },
+    "YES": "Да",
+    "NO": "Нет",
+    "STATUSES": {
+      "New": "Новый",
+      "Approved": "Одобрен",
+      "Completed": "Завершён",
+      "Canceled": "Отменён",
+      "Processing": "В обработке",
+      "Draft": "Черновик",
+      "Requested": "Запрошен",
+      "PartiallyApproved": "Частично одобрен",
+      "Rejected": "Отклонён",
+      "Cancelled": "Отменён"
+    },
+    "REASONS": {
+      "FaultyOnArrival": "Брак при получении",
+      "DamagedInTransit": "Повреждён при доставке",
+      "WrongItemDelivered": "Привезли не тот товар",
+      "OrderedByMistake": "Заказан по ошибке",
+      "NoLongerNeeded": "Больше не нужен"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Возвраты",
+        "EMPTY": "Нет возвратов",
+        "FILTERS": {
+          "STATUS": "Статус"
+        },
+        "COLUMNS": {
+          "NUMBER": "Номер возврата",
+          "ORDER_NUMBER": "Номер заказа",
+          "CUSTOMER": "Клиент",
+          "ORGANIZATION": "Организация",
+          "STATUS": "Статус возврата",
+          "CREATED_DATE": "Дата создания",
+          "MODIFIED_DATE": "Дата изменения",
+          "CREATED_BY": "Создано",
+          "ITEMS_COUNT": "Количество товаров"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Обновить",
+          "ADD": "Добавить новый возврат",
+          "CREATE": "Создать возврат"
+        },
+        "ACTIONS": {
+          "MANAGE": "Управлять",
+          "COPY_ID": "Копировать ID",
+          "COPY_NUMBER": "Копировать номер"
+        }
+      },
+      "ORDERS": {
+        "TITLE": "Заказы клиента",
+        "SUBTITLE": "Выберите заказ, из которого возвращаются товары",
+        "EMPTY": "Нет заказов",
+        "COLUMNS": {
+          "NUMBER": "Номер заказа",
+          "CUSTOMER": "Клиент",
+          "STORE": "Магазин",
+          "TOTAL": "Итого",
+          "CURRENCY": "Валюта",
+          "CONFIRMED": "Подтверждён",
+          "STATUS": "Статус",
+          "CREATED": "Создан"
+        }
+      },
+      "DETAILS": {
+        "TITLE": "Возврат #{number}",
+        "FIELDS": {
+          "NUMBER": "Номер возврата",
+          "ORDER_NUMBER": "Номер заказа",
+          "CREATED_DATE": "Дата создания",
+          "MODIFIED_DATE": "Дата изменения",
+          "CREATED_BY": "Создано",
+          "CUSTOMER": "Клиент",
+          "STATUS": "Статус",
+          "EDIT_STATUSES": "Редактировать список статусов",
+          "CUSTOMER_REFERENCE": "Референс покупателя",
+          "RESOLUTION": "Решение",
+          "REJECT_REASON": "Причина отказа"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Обновить",
+          "SAVE": "Сохранить",
+          "RESET": "Сбросить"
+        }
+      },
+      "ITEMS": {
+        "TITLE": "Список товаров",
+        "SUBTITLE_CREATE": "Заказ #{number}",
+        "SUBTITLE_EDIT": "Возврат #{number}",
+        "COLUMNS": {
+          "NAME": "Название товара",
+          "REASON": "Причина возврата",
+          "QUANTITY": "Количество",
+          "APPROVED": "Одобрено",
+          "REJECT_REASON": "Причина отказа",
+          "PRICE": "Цена"
+        },
+        "SERIAL_NUMBER": "Серийный номер",
+        "REJECT_REASON": "Причина отказа",
+        "TOOLBAR": {
+          "REFRESH": "Обновить",
+          "SAVE": "Сохранить",
+          "MAKE_RETURN": "Оформить возврат",
+          "AUTHORIZE": "Одобрить / отклонить"
+        }
+      }
+    },
+    "WIDGETS": {
+      "RETURNS": "Возвраты",
+      "ITEMS": "Список товаров"
+    },
+    "ALERTS": {
+      "COPIED": "Скопировано: {text}",
+      "SAVED": "Возврат сохранён",
+      "AUTHORIZED": "Решение записано",
+      "CLOSE_CONFIRMATION": "В возврате есть несохранённые изменения. Всё равно закрыть?",
+      "MEMBER_NOT_FOUND": "Для этого пользователя не найден контакт",
+      "MEMBER_UNAVAILABLE": "Контакт нельзя открыть здесь"
+    }
+  }
+}
