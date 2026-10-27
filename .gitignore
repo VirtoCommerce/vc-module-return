@@ -359,3 +359,6 @@ MigrationBackup/
 # Virto
 *.nupkg
 *.zip
+
+# Admin Shell plugin build output (vue/ builds it)
+src/VirtoCommerce.ReturnModule.Web/plugins/

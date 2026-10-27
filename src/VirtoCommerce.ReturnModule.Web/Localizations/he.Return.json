@@ -1,0 +1,87 @@
+{
+  "permissions": {
+    "return:access": "פתיחת תפריט ההחזרות",
+    "return:create": "יצירת נתוני החזרות",
+    "return:read": "הצגת נתוני החזרות",
+    "return:update": "עדכון נתוני החזרות",
+    "return:delete": "מחיקת נתוני החזרות",
+    "return:authorize": "אישור ודחייה של החזרות",
+    "xapi:my_organization:return:view": "הצגת ההחזרות של הארגון",
+    "xapi:my_organization:return:submit": "שליחת ההחזרות של הארגון"
+  },
+  "settings": {
+    "Return": {
+      "ReturnPassword": {
+        "title": "סיסמת החזרות",
+        "description": "הגדרת הסיסמה של מודול ההחזרות"
+      },
+      "ReturnEnabled": {
+        "title": "מודול ההחזרות",
+        "description": "הפעלה/השבתה של מודול ההחזרות"
+      },
+      "ReturnNewNumberTemplate": {
+        "title": "תבנית מספר החזרה",
+        "description": "תבנית זו משמשת ליצירת החזרות הזמנה חדשות"
+      },
+      "WindowDays": {
+        "title": "חלון החזרה, ימים",
+        "description": "כמה זמן לאחר המסירה ניתן להחזיר שורה. נספר לכל שורה בנפרד ממועד המסירה האחרון."
+      },
+      "AllowedOrderStatuses": {
+        "title": "סטטוסי הזמנה שמאפשרים החזרות",
+        "description": "סטטוסי הזמנה, מופרדים בפסיקים, שבהם ניתן לבקש החזרה. ערך ריק אינו מאפשר אף סטטוס."
+      },
+      "AllowedShipmentStatuses": {
+        "title": "סטטוסי משלוח שנחשבים כנמסרו",
+        "description": "סטטוסי משלוח, מופרדים בפסיקים, שנחשבים כנמסרו. ערך ריק מחשיב כל סטטוס, ומועד המסירה נלקח מתאריך המסירה של המשלוח."
+      },
+      "Reasons": {
+        "title": "סיבות החזרה",
+        "description": "הסיבות שהקונה בוחר לכל שורה. ניתנות לתרגום."
+      },
+      "ReasonsRequiringComment": {
+        "title": "סיבות שמחייבות הערה",
+        "description": "קודי סיבות, מופרדים בפסיקים, שמחייבים את הקונה להסביר."
+      },
+      "AttachmentsRequired": {
+        "title": "חובה לצרף תמונות או מסמכים",
+        "description": "חובה לצרף לפחות קובץ אחד לכל שורה מוחזרת."
+      },
+      "SendNotifications": {
+        "title": "התראות דוא״ל על החזרות",
+        "description": "שליחת דוא״ל לקונה כשהחזרה נרשמת, מאושרת, מאושרת חלקית, נדחית או מבוטלת."
+      },
+      "SendPushNotifications": {
+        "title": "התראות Push על החזרות",
+        "description": "שליחת הודעת Push גם בתוך האפליקציה באותם אירועים. נדרש המודול Push Messages."
+      },
+      "NotifyOrganizationEmail": {
+        "title": "העתק של הודעות הדוא״ל על החזרות לארגון",
+        "description": "שליחת כל הודעת דוא״ל על החזרה שהקונה מקבל גם לכתובת הדוא״ל של הארגון של הקונה."
+      }
+    },
+    "Return.Status": {
+      "description": "סטטוסי החזרת הזמנה",
+      "title": "סטטוסי החזרה של הזמנות לקוחות",
+      "New": "חדשה",
+      "Approved": "אושרה",
+      "Completed": "הושלמה",
+      "Canceled": "בוטלה",
+      "Processing": "בטיפול",
+      "Draft": "טיוטה",
+      "Requested": "התבקשה",
+      "PartiallyApproved": "אושרה חלקית",
+      "Rejected": "נדחתה",
+      "Cancelled": "בוטלה"
+    },
+    "Return.Reasons": {
+      "title": "סיבות החזרה",
+      "description": "הסיבות שהקונה בוחר לכל שורה",
+      "FaultyOnArrival": "פגום בהגעה",
+      "DamagedInTransit": "ניזוק במשלוח",
+      "WrongItemDelivered": "נשלח פריט שגוי",
+      "OrderedByMistake": "הוזמן בטעות",
+      "NoLongerNeeded": "כבר לא נחוץ"
+    }
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "RETURNS": {
+    "MENU": {
+      "TITLE": "退货",
+      "COUNTER": "{count} 个退货申请"
+    },
+    "YES": "是",
+    "NO": "否",
+    "STATUSES": {
+      "New": "新建",
+      "Approved": "已批准",
+      "Completed": "已完成",
+      "Canceled": "已取消",
+      "Processing": "处理中",
+      "Draft": "草稿",
+      "Requested": "已申请",
+      "PartiallyApproved": "部分批准",
+      "Rejected": "已拒绝",
+      "Cancelled": "已取消"
+    },
+    "REASONS": {
+      "FaultyOnArrival": "到货时已损坏",
+      "DamagedInTransit": "运输途中损坏",
+      "WrongItemDelivered": "发错商品",
+      "OrderedByMistake": "误下订单",
+      "NoLongerNeeded": "不再需要"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "退货",
+        "EMPTY": "无退货",
+        "FILTERS": {
+          "STATUS": "状态"
+        },
+        "COLUMNS": {
+          "NUMBER": "退货编号",
+          "ORDER_NUMBER": "订单编号",
+          "CUSTOMER": "客户",
+          "ORGANIZATION": "组织",
+          "STATUS": "退货状态",
+          "CREATED_DATE": "创建日期",
+          "MODIFIED_DATE": "修改日期",
+          "CREATED_BY": "创建人",
+          "ITEMS_COUNT": "商品数量"
+        },
+        "TOOLBAR": {
+          "REFRESH": "刷新",
+          "ADD": "添加新退货",
+          "CREATE": "创建退货"
+        },
+        "ACTIONS": {
+          "MANAGE": "管理",
+          "COPY_ID": "复制 ID",
+          "COPY_NUMBER": "复制编号"
+        }
+      },
+      "ORDERS": {
+        "TITLE": "客户订单",
+        "SUBTITLE": "选择要退回商品的订单",
+        "EMPTY": "无订单",
+        "COLUMNS": {
+          "NUMBER": "订单编号",
+          "CUSTOMER": "客户",
+          "STORE": "商店",
+          "TOTAL": "总计",
+          "CURRENCY": "货币",
+          "CONFIRMED": "已确认",
+          "STATUS": "状态",
+          "CREATED": "创建时间"
+        }
+      },
+      "DETAILS": {
+        "TITLE": "退货 #{number}",
+        "FIELDS": {
+          "NUMBER": "退货编号",
+          "ORDER_NUMBER": "订单编号",
+          "CREATED_DATE": "创建日期",
+          "MODIFIED_DATE": "修改日期",
+          "CREATED_BY": "创建人",
+          "CUSTOMER": "客户",
+          "STATUS": "状态",
+          "EDIT_STATUSES": "编辑状态列表",
+          "CUSTOMER_REFERENCE": "买家参考号",
+          "RESOLUTION": "解决方案",
+          "REJECT_REASON": "拒绝原因"
+        },
+        "TOOLBAR": {
+          "REFRESH": "刷新",
+          "SAVE": "保存",
+          "RESET": "重置"
+        }
+      },
+      "ITEMS": {
+        "TITLE": "商品列表",
+        "SUBTITLE_CREATE": "订单 #{number}",
+        "SUBTITLE_EDIT": "退货 #{number}",
+        "COLUMNS": {
+          "NAME": "商品名称",
+          "REASON": "退货原因",
+          "QUANTITY": "数量",
+          "APPROVED": "已批准数量",
+          "REJECT_REASON": "拒绝原因",
+          "PRICE": "价格"
+        },
+        "SERIAL_NUMBER": "序列号",
+        "REJECT_REASON": "拒绝原因",
+        "TOOLBAR": {
+          "REFRESH": "刷新",
+          "SAVE": "保存",
+          "MAKE_RETURN": "执行退货",
+          "AUTHORIZE": "批准 / 拒绝"
+        }
+      }
+    },
+    "WIDGETS": {
+      "RETURNS": "退货",
+      "ITEMS": "商品列表"
+    },
+    "ALERTS": {
+      "COPIED": "已复制 {text}",
+      "SAVED": "退货已保存",
+      "AUTHORIZED": "已记录决定",
+      "CLOSE_CONFIRMATION": "退货有未保存的更改。仍要关闭吗？",
+      "MEMBER_NOT_FOUND": "未找到此用户的联系人",
+      "MEMBER_UNAVAILABLE": "无法在此处打开该联系人"
+    }
+  }
+}

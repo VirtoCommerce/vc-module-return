@@ -1,0 +1,128 @@
+{
+  "RETURNS": {
+    "MENU": {
+      "TITLE": "Resi",
+      "COUNTER": "{count} resi richiesti"
+    },
+    "YES": "Sì",
+    "NO": "No",
+    "STATUSES": {
+      "New": "Nuovo",
+      "Approved": "Approvato",
+      "Completed": "Completato",
+      "Canceled": "Annullato",
+      "Processing": "In elaborazione",
+      "Draft": "Bozza",
+      "Requested": "Richiesto",
+      "PartiallyApproved": "Parzialmente approvato",
+      "Rejected": "Rifiutato",
+      "Cancelled": "Annullato"
+    },
+    "REASONS": {
+      "FaultyOnArrival": "Difettoso alla consegna",
+      "DamagedInTransit": "Danneggiato durante il trasporto",
+      "WrongItemDelivered": "Articolo errato consegnato",
+      "OrderedByMistake": "Ordinato per errore",
+      "NoLongerNeeded": "Non più necessario"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Resi",
+        "EMPTY": "Nessun reso",
+        "FILTERS": {
+          "STATUS": "Stato"
+        },
+        "COLUMNS": {
+          "NUMBER": "Numero di reso",
+          "ORDER_NUMBER": "Numero d'ordine",
+          "CUSTOMER": "Cliente",
+          "ORGANIZATION": "Organizzazione",
+          "STATUS": "Stato del reso",
+          "CREATED_DATE": "Data di creazione",
+          "MODIFIED_DATE": "Data di modifica",
+          "CREATED_BY": "Creato da",
+          "ITEMS_COUNT": "Numero di articoli"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Aggiorna",
+          "ADD": "Aggiungi nuovo reso",
+          "CREATE": "Crea reso"
+        },
+        "ACTIONS": {
+          "MANAGE": "Gestisci",
+          "COPY_ID": "Copia ID",
+          "COPY_NUMBER": "Copia numero"
+        }
+      },
+      "ORDERS": {
+        "TITLE": "Ordini dei clienti",
+        "SUBTITLE": "Scegliere l'ordine da cui restituire gli articoli",
+        "EMPTY": "Nessun ordine",
+        "COLUMNS": {
+          "NUMBER": "Numero d'ordine",
+          "CUSTOMER": "Cliente",
+          "STORE": "Negozio",
+          "TOTAL": "Totale",
+          "CURRENCY": "Valuta",
+          "CONFIRMED": "Confermato",
+          "STATUS": "Stato",
+          "CREATED": "Creato"
+        }
+      },
+      "DETAILS": {
+        "TITLE": "Reso #{number}",
+        "FIELDS": {
+          "NUMBER": "Numero di reso",
+          "ORDER_NUMBER": "Numero d'ordine",
+          "CREATED_DATE": "Data di creazione",
+          "MODIFIED_DATE": "Data di modifica",
+          "CREATED_BY": "Creato da",
+          "CUSTOMER": "Cliente",
+          "STATUS": "Stato",
+          "EDIT_STATUSES": "Modifica l'elenco degli stati",
+          "CUSTOMER_REFERENCE": "Riferimento dell'acquirente",
+          "RESOLUTION": "Risoluzione",
+          "REJECT_REASON": "Motivo del rifiuto"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Aggiorna",
+          "SAVE": "Salva",
+          "RESET": "Reimposta"
+        }
+      },
+      "ITEMS": {
+        "TITLE": "Elenco articoli",
+        "SUBTITLE_CREATE": "Ordine #{number}",
+        "SUBTITLE_EDIT": "Reso #{number}",
+        "COLUMNS": {
+          "NAME": "Nome articolo",
+          "REASON": "Motivo del reso",
+          "QUANTITY": "Quantità",
+          "APPROVED": "Approvato",
+          "REJECT_REASON": "Motivo del rifiuto",
+          "PRICE": "Prezzo"
+        },
+        "SERIAL_NUMBER": "Numero di serie",
+        "REJECT_REASON": "Motivo del rifiuto",
+        "TOOLBAR": {
+          "REFRESH": "Aggiorna",
+          "SAVE": "Salva",
+          "MAKE_RETURN": "Effettua reso",
+          "AUTHORIZE": "Approva / rifiuta"
+        }
+      }
+    },
+    "WIDGETS": {
+      "RETURNS": "Resi",
+      "ITEMS": "Elenco articoli"
+    },
+    "ALERTS": {
+      "COPIED": "{text} copiato",
+      "SAVED": "Reso salvato",
+      "AUTHORIZED": "Decisione registrata",
+      "CLOSE_CONFIRMATION": "Il reso ha modifiche non salvate. Chiudere comunque?",
+      "MEMBER_NOT_FOUND": "Nessun contatto trovato per questo utente",
+      "MEMBER_UNAVAILABLE": "Il contatto non può essere aperto qui"
+    }
+  }
+}

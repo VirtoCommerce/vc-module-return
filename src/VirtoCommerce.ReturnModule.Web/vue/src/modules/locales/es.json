@@ -1,0 +1,128 @@
+{
+  "RETURNS": {
+    "MENU": {
+      "TITLE": "Devoluciones",
+      "COUNTER": "{count} devoluciones solicitadas"
+    },
+    "YES": "Sí",
+    "NO": "No",
+    "STATUSES": {
+      "New": "Nueva",
+      "Approved": "Aprobada",
+      "Completed": "Completada",
+      "Canceled": "Cancelada",
+      "Processing": "En proceso",
+      "Draft": "Borrador",
+      "Requested": "Solicitada",
+      "PartiallyApproved": "Aprobada parcialmente",
+      "Rejected": "Rechazada",
+      "Cancelled": "Cancelada"
+    },
+    "REASONS": {
+      "FaultyOnArrival": "Defectuoso a la llegada",
+      "DamagedInTransit": "Dañado en el transporte",
+      "WrongItemDelivered": "Artículo equivocado",
+      "OrderedByMistake": "Pedido por error",
+      "NoLongerNeeded": "Ya no se necesita"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Devoluciones",
+        "EMPTY": "No hay devoluciones",
+        "FILTERS": {
+          "STATUS": "Estado"
+        },
+        "COLUMNS": {
+          "NUMBER": "Número de devolución",
+          "ORDER_NUMBER": "Número de pedido",
+          "CUSTOMER": "Cliente",
+          "ORGANIZATION": "Organización",
+          "STATUS": "Estado de la devolución",
+          "CREATED_DATE": "Fecha de creación",
+          "MODIFIED_DATE": "Fecha de modificación",
+          "CREATED_BY": "Creado por",
+          "ITEMS_COUNT": "Cantidad de artículos"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Actualizar",
+          "ADD": "Agregar nueva devolución",
+          "CREATE": "Crear devolución"
+        },
+        "ACTIONS": {
+          "MANAGE": "Administrar",
+          "COPY_ID": "Copiar ID",
+          "COPY_NUMBER": "Copiar número"
+        }
+      },
+      "ORDERS": {
+        "TITLE": "Pedidos de clientes",
+        "SUBTITLE": "Elija el pedido del que se devolverán los artículos",
+        "EMPTY": "No hay pedidos",
+        "COLUMNS": {
+          "NUMBER": "Número de pedido",
+          "CUSTOMER": "Cliente",
+          "STORE": "Tienda",
+          "TOTAL": "Total",
+          "CURRENCY": "Moneda",
+          "CONFIRMED": "Confirmado",
+          "STATUS": "Estado",
+          "CREATED": "Creado"
+        }
+      },
+      "DETAILS": {
+        "TITLE": "Devolución #{number}",
+        "FIELDS": {
+          "NUMBER": "Número de devolución",
+          "ORDER_NUMBER": "Número de pedido",
+          "CREATED_DATE": "Fecha de creación",
+          "MODIFIED_DATE": "Fecha de modificación",
+          "CREATED_BY": "Creado por",
+          "CUSTOMER": "Cliente",
+          "STATUS": "Estado",
+          "EDIT_STATUSES": "Editar la lista de estados",
+          "CUSTOMER_REFERENCE": "Referencia del comprador",
+          "RESOLUTION": "Resolución",
+          "REJECT_REASON": "Motivo del rechazo"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Actualizar",
+          "SAVE": "Guardar",
+          "RESET": "Restablecer"
+        }
+      },
+      "ITEMS": {
+        "TITLE": "Lista de artículos",
+        "SUBTITLE_CREATE": "Pedido #{number}",
+        "SUBTITLE_EDIT": "Devolución #{number}",
+        "COLUMNS": {
+          "NAME": "Nombre del artículo",
+          "REASON": "Motivo de devolución",
+          "QUANTITY": "Cantidad",
+          "APPROVED": "Aprobado",
+          "REJECT_REASON": "Motivo del rechazo",
+          "PRICE": "Precio"
+        },
+        "SERIAL_NUMBER": "Número de serie",
+        "REJECT_REASON": "Motivo del rechazo",
+        "TOOLBAR": {
+          "REFRESH": "Actualizar",
+          "SAVE": "Guardar",
+          "MAKE_RETURN": "Realizar devolución",
+          "AUTHORIZE": "Aprobar / rechazar"
+        }
+      }
+    },
+    "WIDGETS": {
+      "RETURNS": "Devoluciones",
+      "ITEMS": "Lista de artículos"
+    },
+    "ALERTS": {
+      "COPIED": "{text} copiado",
+      "SAVED": "Devolución guardada",
+      "AUTHORIZED": "Decisión registrada",
+      "CLOSE_CONFIRMATION": "La devolución tiene cambios sin guardar. ¿Cerrar de todos modos?",
+      "MEMBER_NOT_FOUND": "No se encontró ningún contacto para este usuario",
+      "MEMBER_UNAVAILABLE": "El contacto no se puede abrir aquí"
+    }
+  }
+}

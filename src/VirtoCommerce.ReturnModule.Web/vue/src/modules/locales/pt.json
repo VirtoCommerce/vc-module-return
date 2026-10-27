@@ -1,0 +1,128 @@
+{
+  "RETURNS": {
+    "MENU": {
+      "TITLE": "Devoluções",
+      "COUNTER": "{count} devoluções solicitadas"
+    },
+    "YES": "Sim",
+    "NO": "Não",
+    "STATUSES": {
+      "New": "Novo",
+      "Approved": "Aprovado",
+      "Completed": "Concluído",
+      "Canceled": "Cancelado",
+      "Processing": "Em processamento",
+      "Draft": "Rascunho",
+      "Requested": "Solicitado",
+      "PartiallyApproved": "Parcialmente aprovado",
+      "Rejected": "Rejeitado",
+      "Cancelled": "Cancelado"
+    },
+    "REASONS": {
+      "FaultyOnArrival": "Com defeito na chegada",
+      "DamagedInTransit": "Danificado no transporte",
+      "WrongItemDelivered": "Item errado entregue",
+      "OrderedByMistake": "Pedido por engano",
+      "NoLongerNeeded": "Não é mais necessário"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Devoluções",
+        "EMPTY": "Nenhuma devolução",
+        "FILTERS": {
+          "STATUS": "Status"
+        },
+        "COLUMNS": {
+          "NUMBER": "Número da devolução",
+          "ORDER_NUMBER": "Número do pedido",
+          "CUSTOMER": "Cliente",
+          "ORGANIZATION": "Organização",
+          "STATUS": "Status da devolução",
+          "CREATED_DATE": "Data de criação",
+          "MODIFIED_DATE": "Data de modificação",
+          "CREATED_BY": "Criado por",
+          "ITEMS_COUNT": "Quantidade de itens"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Atualizar",
+          "ADD": "Adicionar nova devolução",
+          "CREATE": "Criar devolução"
+        },
+        "ACTIONS": {
+          "MANAGE": "Gerenciar",
+          "COPY_ID": "Copiar ID",
+          "COPY_NUMBER": "Copiar número"
+        }
+      },
+      "ORDERS": {
+        "TITLE": "Pedidos de clientes",
+        "SUBTITLE": "Escolha o pedido do qual os itens serão devolvidos",
+        "EMPTY": "Nenhum pedido",
+        "COLUMNS": {
+          "NUMBER": "Número do pedido",
+          "CUSTOMER": "Cliente",
+          "STORE": "Loja",
+          "TOTAL": "Total",
+          "CURRENCY": "Moeda",
+          "CONFIRMED": "Confirmado",
+          "STATUS": "Status",
+          "CREATED": "Criado"
+        }
+      },
+      "DETAILS": {
+        "TITLE": "Devolução #{number}",
+        "FIELDS": {
+          "NUMBER": "Número da devolução",
+          "ORDER_NUMBER": "Número do pedido",
+          "CREATED_DATE": "Data de criação",
+          "MODIFIED_DATE": "Data de modificação",
+          "CREATED_BY": "Criado por",
+          "CUSTOMER": "Cliente",
+          "STATUS": "Status",
+          "EDIT_STATUSES": "Editar a lista de status",
+          "CUSTOMER_REFERENCE": "Referência do comprador",
+          "RESOLUTION": "Resolução",
+          "REJECT_REASON": "Motivo da recusa"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Atualizar",
+          "SAVE": "Salvar",
+          "RESET": "Redefinir"
+        }
+      },
+      "ITEMS": {
+        "TITLE": "Lista de itens",
+        "SUBTITLE_CREATE": "Pedido #{number}",
+        "SUBTITLE_EDIT": "Devolução #{number}",
+        "COLUMNS": {
+          "NAME": "Nome do item",
+          "REASON": "Motivo da devolução",
+          "QUANTITY": "Quantidade",
+          "APPROVED": "Aprovado",
+          "REJECT_REASON": "Motivo da recusa",
+          "PRICE": "Preço"
+        },
+        "SERIAL_NUMBER": "Número de série",
+        "REJECT_REASON": "Motivo da recusa",
+        "TOOLBAR": {
+          "REFRESH": "Atualizar",
+          "SAVE": "Salvar",
+          "MAKE_RETURN": "Efetuar devolução",
+          "AUTHORIZE": "Aprovar / recusar"
+        }
+      }
+    },
+    "WIDGETS": {
+      "RETURNS": "Devoluções",
+      "ITEMS": "Lista de itens"
+    },
+    "ALERTS": {
+      "COPIED": "{text} copiado",
+      "SAVED": "Devolução salva",
+      "AUTHORIZED": "Decisão registrada",
+      "CLOSE_CONFIRMATION": "A devolução tem alterações não salvas. Fechar mesmo assim?",
+      "MEMBER_NOT_FOUND": "Nenhum contato encontrado para este usuário",
+      "MEMBER_UNAVAILABLE": "O contato não pode ser aberto aqui"
+    }
+  }
+}

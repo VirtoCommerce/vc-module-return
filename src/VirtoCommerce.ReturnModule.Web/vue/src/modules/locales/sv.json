@@ -1,0 +1,128 @@
+{
+  "RETURNS": {
+    "MENU": {
+      "TITLE": "Returer",
+      "COUNTER": "{count} returer begärda"
+    },
+    "YES": "Ja",
+    "NO": "Nej",
+    "STATUSES": {
+      "New": "Ny",
+      "Approved": "Godkänd",
+      "Completed": "Slutförd",
+      "Canceled": "Avbruten",
+      "Processing": "Behandlas",
+      "Draft": "Utkast",
+      "Requested": "Begärd",
+      "PartiallyApproved": "Delvis godkänd",
+      "Rejected": "Avvisad",
+      "Cancelled": "Avbruten"
+    },
+    "REASONS": {
+      "FaultyOnArrival": "Defekt vid leverans",
+      "DamagedInTransit": "Skadad under transport",
+      "WrongItemDelivered": "Fel vara levererad",
+      "OrderedByMistake": "Beställd av misstag",
+      "NoLongerNeeded": "Behövs inte längre"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Returer",
+        "EMPTY": "Inga returer",
+        "FILTERS": {
+          "STATUS": "Status"
+        },
+        "COLUMNS": {
+          "NUMBER": "Returnummer",
+          "ORDER_NUMBER": "Ordernummer",
+          "CUSTOMER": "Kund",
+          "ORGANIZATION": "Organisation",
+          "STATUS": "Returstatus",
+          "CREATED_DATE": "Skapad datum",
+          "MODIFIED_DATE": "Ändrad datum",
+          "CREATED_BY": "Skapad av",
+          "ITEMS_COUNT": "Antal artiklar"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Uppdatera",
+          "ADD": "Lägg till ny retur",
+          "CREATE": "Skapa retur"
+        },
+        "ACTIONS": {
+          "MANAGE": "Hantera",
+          "COPY_ID": "Kopiera ID",
+          "COPY_NUMBER": "Kopiera nummer"
+        }
+      },
+      "ORDERS": {
+        "TITLE": "Kundordrar",
+        "SUBTITLE": "Välj den order som artiklarna ska returneras från",
+        "EMPTY": "Inga ordrar",
+        "COLUMNS": {
+          "NUMBER": "Ordernummer",
+          "CUSTOMER": "Kund",
+          "STORE": "Butik",
+          "TOTAL": "Totalt",
+          "CURRENCY": "Valuta",
+          "CONFIRMED": "Bekräftad",
+          "STATUS": "Status",
+          "CREATED": "Skapad"
+        }
+      },
+      "DETAILS": {
+        "TITLE": "Retur #{number}",
+        "FIELDS": {
+          "NUMBER": "Returnummer",
+          "ORDER_NUMBER": "Ordernummer",
+          "CREATED_DATE": "Skapad datum",
+          "MODIFIED_DATE": "Ändrad datum",
+          "CREATED_BY": "Skapad av",
+          "CUSTOMER": "Kund",
+          "STATUS": "Status",
+          "EDIT_STATUSES": "Redigera statuslistan",
+          "CUSTOMER_REFERENCE": "Köparens referens",
+          "RESOLUTION": "Lösning",
+          "REJECT_REASON": "Orsak till avslag"
+        },
+        "TOOLBAR": {
+          "REFRESH": "Uppdatera",
+          "SAVE": "Spara",
+          "RESET": "Återställ"
+        }
+      },
+      "ITEMS": {
+        "TITLE": "Orderrader",
+        "SUBTITLE_CREATE": "Order #{number}",
+        "SUBTITLE_EDIT": "Retur #{number}",
+        "COLUMNS": {
+          "NAME": "Artikelnamn",
+          "REASON": "Returskäl",
+          "QUANTITY": "Antal",
+          "APPROVED": "Godkänt",
+          "REJECT_REASON": "Orsak till avslag",
+          "PRICE": "Pris"
+        },
+        "SERIAL_NUMBER": "Serienummer",
+        "REJECT_REASON": "Orsak till avslag",
+        "TOOLBAR": {
+          "REFRESH": "Uppdatera",
+          "SAVE": "Spara",
+          "MAKE_RETURN": "Genomför retur",
+          "AUTHORIZE": "Godkänn / avslå"
+        }
+      }
+    },
+    "WIDGETS": {
+      "RETURNS": "Returer",
+      "ITEMS": "Orderrader"
+    },
+    "ALERTS": {
+      "COPIED": "{text} har kopierats",
+      "SAVED": "Returen har sparats",
+      "AUTHORIZED": "Beslutet har registrerats",
+      "CLOSE_CONFIRMATION": "Returen har osparade ändringar. Stäng ändå?",
+      "MEMBER_NOT_FOUND": "Ingen kontakt hittades för den här användaren",
+      "MEMBER_UNAVAILABLE": "Kontakten kan inte öppnas här"
+    }
+  }
+}
