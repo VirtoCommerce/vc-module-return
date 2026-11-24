@@ -43,6 +43,8 @@ export const searchOrders = (criteria: Record<string, unknown>) =>
   request<SearchResult<CustomerOrder>>("POST", "/api/order/customerOrders/search", criteria);
 export const getOrder = (id: string) =>
   request<CustomerOrder>("GET", `/api/order/customerOrders/${encodeURIComponent(id)}`);
+export const searchStores = (criteria: Record<string, unknown>) =>
+  request<SearchResult<{ id?: string; name?: string }>>("POST", "/api/stores/search", criteria);
 
 export interface Member {
   id?: string;

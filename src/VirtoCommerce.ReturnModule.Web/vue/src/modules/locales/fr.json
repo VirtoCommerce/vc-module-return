@@ -30,7 +30,12 @@
         "TITLE": "Retours",
         "EMPTY": "Aucun retour",
         "FILTERS": {
-          "STATUS": "Statut"
+          "STATUS": "Statut",
+          "STORE": "Boutique",
+          "SUBMITTED_ONLY": "Soumis uniquement"
+        },
+        "VIEWS": {
+          "AWAITING_REVIEW": "En attente d'examen"
         },
         "COLUMNS": {
           "NUMBER": "Numéro de retour",

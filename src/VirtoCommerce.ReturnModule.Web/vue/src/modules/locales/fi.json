@@ -30,7 +30,12 @@
         "TITLE": "Palautukset",
         "EMPTY": "Ei palautuksia",
         "FILTERS": {
-          "STATUS": "Tila"
+          "STATUS": "Tila",
+          "STORE": "Kauppa",
+          "SUBMITTED_ONLY": "Vain lähetetyt"
+        },
+        "VIEWS": {
+          "AWAITING_REVIEW": "Odottaa käsittelyä"
         },
         "COLUMNS": {
           "NUMBER": "Palautusnumero",

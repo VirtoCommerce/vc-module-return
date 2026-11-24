@@ -30,7 +30,12 @@
         "TITLE": "المرتجعات",
         "EMPTY": "لا توجد مرتجعات",
         "FILTERS": {
-          "STATUS": "الحالة"
+          "STATUS": "الحالة",
+          "STORE": "المتجر",
+          "SUBMITTED_ONLY": "المقدَّمة فقط"
+        },
+        "VIEWS": {
+          "AWAITING_REVIEW": "بانتظار المراجعة"
         },
         "COLUMNS": {
           "NUMBER": "رقم المرتجع",

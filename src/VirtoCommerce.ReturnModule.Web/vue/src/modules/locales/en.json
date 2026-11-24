@@ -30,7 +30,12 @@
         "TITLE": "Returns",
         "EMPTY": "No returns",
         "FILTERS": {
-          "STATUS": "Status"
+          "STATUS": "Status",
+          "STORE": "Store",
+          "SUBMITTED_ONLY": "Submitted only"
+        },
+        "VIEWS": {
+          "AWAITING_REVIEW": "Awaiting review"
         },
         "COLUMNS": {
           "NUMBER": "Return number",

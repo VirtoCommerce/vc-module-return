@@ -30,7 +30,12 @@
         "TITLE": "Rückgaben",
         "EMPTY": "Keine Rückgaben",
         "FILTERS": {
-          "STATUS": "Status"
+          "STATUS": "Status",
+          "STORE": "Shop",
+          "SUBMITTED_ONLY": "Nur eingereichte"
+        },
+        "VIEWS": {
+          "AWAITING_REVIEW": "Zu prüfen"
         },
         "COLUMNS": {
           "NUMBER": "Rückgabenummer",

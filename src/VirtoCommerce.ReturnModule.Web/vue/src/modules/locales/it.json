@@ -30,7 +30,12 @@
         "TITLE": "Resi",
         "EMPTY": "Nessun reso",
         "FILTERS": {
-          "STATUS": "Stato"
+          "STATUS": "Stato",
+          "STORE": "Negozio",
+          "SUBMITTED_ONLY": "Solo inviati"
+        },
+        "VIEWS": {
+          "AWAITING_REVIEW": "In attesa di revisione"
         },
         "COLUMNS": {
           "NUMBER": "Numero di reso",

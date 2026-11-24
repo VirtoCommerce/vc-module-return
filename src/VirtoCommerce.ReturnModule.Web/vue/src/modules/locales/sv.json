@@ -30,7 +30,12 @@
         "TITLE": "Returer",
         "EMPTY": "Inga returer",
         "FILTERS": {
-          "STATUS": "Status"
+          "STATUS": "Status",
+          "STORE": "Butik",
+          "SUBMITTED_ONLY": "Endast inskickade"
+        },
+        "VIEWS": {
+          "AWAITING_REVIEW": "Väntar på granskning"
         },
         "COLUMNS": {
           "NUMBER": "Returnummer",

@@ -30,7 +30,12 @@
         "TITLE": "返品",
         "EMPTY": "返品はありません",
         "FILTERS": {
-          "STATUS": "ステータス"
+          "STATUS": "ステータス",
+          "STORE": "ストア",
+          "SUBMITTED_ONLY": "送信済みのみ"
+        },
+        "VIEWS": {
+          "AWAITING_REVIEW": "確認待ち"
         },
         "COLUMNS": {
           "NUMBER": "返品番号",

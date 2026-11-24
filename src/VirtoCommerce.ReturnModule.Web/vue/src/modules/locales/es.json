@@ -30,7 +30,12 @@
         "TITLE": "Devoluciones",
         "EMPTY": "No hay devoluciones",
         "FILTERS": {
-          "STATUS": "Estado"
+          "STATUS": "Estado",
+          "STORE": "Tienda",
+          "SUBMITTED_ONLY": "Solo enviadas"
+        },
+        "VIEWS": {
+          "AWAITING_REVIEW": "Pendientes de revisión"
         },
         "COLUMNS": {
           "NUMBER": "Número de devolución",

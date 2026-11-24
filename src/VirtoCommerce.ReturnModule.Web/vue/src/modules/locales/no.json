@@ -30,7 +30,12 @@
         "TITLE": "Returer",
         "EMPTY": "Ingen returer",
         "FILTERS": {
-          "STATUS": "Status"
+          "STATUS": "Status",
+          "STORE": "Butikk",
+          "SUBMITTED_ONLY": "Kun innsendte"
+        },
+        "VIEWS": {
+          "AWAITING_REVIEW": "Venter på behandling"
         },
         "COLUMNS": {
           "NUMBER": "Returnummer",
