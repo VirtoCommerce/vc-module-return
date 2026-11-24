@@ -30,7 +30,12 @@
         "TITLE": "退货",
         "EMPTY": "无退货",
         "FILTERS": {
-          "STATUS": "状态"
+          "STATUS": "状态",
+          "STORE": "商店",
+          "SUBMITTED_ONLY": "仅已提交"
+        },
+        "VIEWS": {
+          "AWAITING_REVIEW": "待审核"
         },
         "COLUMNS": {
           "NUMBER": "退货编号",

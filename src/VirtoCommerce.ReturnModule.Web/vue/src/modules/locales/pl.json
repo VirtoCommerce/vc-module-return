@@ -30,7 +30,12 @@
         "TITLE": "Zwroty",
         "EMPTY": "Brak zwrotów",
         "FILTERS": {
-          "STATUS": "Status"
+          "STATUS": "Status",
+          "STORE": "Sklep",
+          "SUBMITTED_ONLY": "Tylko złożone"
+        },
+        "VIEWS": {
+          "AWAITING_REVIEW": "Oczekujące na rozpatrzenie"
         },
         "COLUMNS": {
           "NUMBER": "Numer zwrotu",

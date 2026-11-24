@@ -30,7 +30,12 @@
         "TITLE": "Возвраты",
         "EMPTY": "Нет возвратов",
         "FILTERS": {
-          "STATUS": "Статус"
+          "STATUS": "Статус",
+          "STORE": "Магазин",
+          "SUBMITTED_ONLY": "Только отправленные"
+        },
+        "VIEWS": {
+          "AWAITING_REVIEW": "Ожидают рассмотрения"
         },
         "COLUMNS": {
           "NUMBER": "Номер возврата",

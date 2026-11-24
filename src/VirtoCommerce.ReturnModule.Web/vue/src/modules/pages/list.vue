@@ -14,10 +14,12 @@
       :total-count="totalCount"
       :pagination="pagination"
       :searchable="true"
+      search-bar
       :state-key="stateKey"
       :active-item-id="activeChildParam"
       :show-all-columns="!activeChildParam"
       :global-filters="globalFilters"
+      :search-views="searchViews"
       :row-actions="rowActions"
       row-actions-mode="dropdown"
       row-actions-position="column"
@@ -108,12 +110,14 @@ import {
   useFunctions,
   useLatestRequest,
   useTableSearch,
+  type GlobalFilterConfig,
   type IBladeToolbar,
+  type SearchBarView,
 } from "@vc-shell/framework";
 import { VcBlade, VcColumn, VcDataTable, VcStatus } from "@vc-shell/framework/ui";
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { getSettingValues, searchReturns, statusVariant, useDictionaryLabels } from "../api";
+import { getSettingValues, searchReturns, searchStores, statusVariant, useDictionaryLabels } from "../api";
 import type { Return } from "../../api_client/virtocommerce.return";
 
 defineBlade({
@@ -141,7 +145,7 @@ const statusLabel = useDictionaryLabels("Return.Status", "STATUSES");
 const PAGE_SIZE = 20;
 const items = ref<(Return & { itemsCount?: number })[]>([]);
 const totalCount = ref(0);
-const statusFilter = ref<string>();
+const filters = ref<{ statuses?: string[]; storeId?: string; startDate?: Date; endDate?: Date; submittedOnly?: boolean }>({});
 
 const { sortField, sortOrder, sortExpression } = useDataTableSort({
   stateKey: stateKey.value,
@@ -156,7 +160,7 @@ const { loading, action: load } = useAsync(async () => {
   const result = await search.latest(
     searchReturns({
       keyword: searchValue.value || undefined,
-      statuses: statusFilter.value ? [statusFilter.value] : undefined,
+      ...filters.value,
       orderId: orderId.value,
       responseGroup: "WithOrders",
       sort: sortExpression.value,
@@ -179,28 +183,67 @@ getSettingValues("Return.Status")
   })
   .catch(() => undefined);
 
-const globalFilters = computed(() => [
-  {
-    id: "status",
-    label: t("RETURNS.PAGES.LIST.FILTERS.STATUS"),
-    filter: { options: statuses.value.map((s) => ({ value: s, label: statusLabel(s) })) },
-  },
-]);
+// Store only on the global list (an order's returns are all from its store), and only with more than one store
+const stores = ref<{ id?: string; name?: string }[]>([]);
+if (!orderId.value) {
+  searchStores({ sort: "name", take: 100 })
+    .then((result) => (stores.value = result.results ?? []))
+    .catch(() => undefined);
+}
+
+// the search bar takes toggle fields, which vc-shell 2.13 does not yet type in GlobalFilterConfig
+const globalFilters = computed(
+  () =>
+    [
+      {
+        id: "statuses",
+        label: t("RETURNS.PAGES.LIST.FILTERS.STATUS"),
+        filter: { options: statuses.value.map((s) => ({ value: s, label: statusLabel(s) })), multiple: true },
+      },
+      stores.value.length > 1 && {
+        id: "storeId",
+        label: t("RETURNS.PAGES.LIST.FILTERS.STORE"),
+        filter: { options: stores.value.map((x) => ({ value: x.id!, label: x.name ?? x.id! })) },
+      },
+      {
+        id: "createdDate",
+        label: t("RETURNS.PAGES.LIST.COLUMNS.CREATED_DATE"),
+        filter: { range: ["startDate", "endDate"] },
+      },
+      { id: "submittedOnly", label: t("RETURNS.PAGES.LIST.FILTERS.SUBMITTED_ONLY"), filter: { toggle: true } },
+    ].filter(Boolean) as unknown as GlobalFilterConfig[],
+);
+
+// the returns desk's daily queue: returns buyers have submitted that nobody has decided on yet
+const searchViews = computed<SearchBarView[]>(() =>
+  orderId.value
+    ? []
+    : [{ id: "awaitingReview", name: t("RETURNS.PAGES.LIST.VIEWS.AWAITING_REVIEW"), values: { statuses: ["Requested"] } }],
+);
+
+// the search bar sends days (YYYY-MM-DD, both ends included); the API compares times, so the end is that day's last moment
+const localDay = (ymd: unknown, endOfDay = false) => {
+  if (typeof ymd !== "string" || !ymd) return undefined;
+  const day = new Date(`${ymd}T00:00`);
+  return endOfDay ? new Date(day.getFullYear(), day.getMonth(), day.getDate() + 1, 0, 0, 0, -1) : day;
+};
 
 function onFilter(event: { filters: Record<string, unknown> }) {
-  const value = event.filters.status;
-  statusFilter.value = (Array.isArray(value) ? value[0] : value) || undefined;
-  reloadFirstPage();
+  const f = event.filters;
+  const statusValues = ([] as string[]).concat((f.statuses as string | string[] | undefined) ?? []);
+  filters.value = {
+    statuses: statusValues.length ? statusValues : undefined,
+    storeId: (f.storeId as string) || undefined,
+    startDate: localDay(f.startDate),
+    endDate: localDay(f.endDate, true),
+    submittedOnly: f.submittedOnly === true || undefined,
+  };
 }
 
-function reloadFirstPage() {
-  if (pagination.skip) pagination.setPage(1);
-  else load();
-}
-
-load();
-watch(searchValue, () => pagination.setPage(1));
-watch([sortExpression, searchValue, () => pagination.skip], debounce(load, 300));
+// The search bar applies its saved filters when it mounts: the debounce makes that and the first load one request.
+// A new search or filter starts from page 1 (from page 2 setPage(1) changes skip, which loads).
+watch([searchValue, filters], () => pagination.setPage(1));
+watch([sortExpression, searchValue, filters, () => pagination.skip], debounce(load, 300), { immediate: true });
 
 function openDetails(id: string) {
   openBlade({ name: "ReturnDetails", param: id });

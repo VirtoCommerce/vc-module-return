@@ -30,7 +30,12 @@
         "TITLE": "החזרות",
         "EMPTY": "אין החזרות",
         "FILTERS": {
-          "STATUS": "סטטוס"
+          "STATUS": "סטטוס",
+          "STORE": "חנות",
+          "SUBMITTED_ONLY": "רק כאלה שהוגשו"
+        },
+        "VIEWS": {
+          "AWAITING_REVIEW": "ממתינות לבדיקה"
         },
         "COLUMNS": {
           "NUMBER": "מספר החזרה",
